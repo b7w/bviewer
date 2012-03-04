@@ -1,0 +1,43 @@
+{% extends 'core/base.html' %}
+
+{% block container %}
+    <div id="main" class="login">
+        <div class="row">
+            <div class="offset4 span4">
+                <div class="page-header">
+                    <h1>Login
+                        <span style="font-size: small;">authenticate please</span>
+                    </h1>
+                </div>
+                <form action="{% url core.login %}" method="post">{% csrf_token %}
+                    <ul class="unstyled">
+                        {% for error in form.non_field_errors %}
+                            <li class="error">{{ error|escape }}</li>
+                        {% endfor %}
+                        {% for error in form.username.errors %}
+                            <li class="error">Username: {{ error|escape }}</li>
+                        {% endfor %}
+                        {% for error in form.password.errors %}
+                            <li class="error">Password: {{ error|escape }}</li>
+                        {% endfor %}
+                    </ul>
+                    <fieldset>
+                        <div>
+                            <input id="username" class="input-xlarge" type="text" name="username" placeholder="Username" value="{{ form.username.value|default:"" }}">
+                        </div>
+                        <div>
+                            <input id="password" class="input-xlarge" type="password" name="password" placeholder="Password">
+                        </div>
+                        <div class="hidden">
+                            <input type="hidden" name="next" value="{{ next|default:'/' }}"/>
+                        </div>
+                        <button class="btn primary" type="submit">Sign in</button>
+                    </fieldset>
+                    <script>
+                        document.getElementById( 'username' ).focus();
+                    </script>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

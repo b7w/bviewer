@@ -1,0 +1,155 @@
+{% extends 'profile/base.html' %}
+
+{% block tabs %}
+    <div id="videos">
+        <div class="row-fluid">
+            <div class="span12">
+                <a href="#" id="video-button-save" class="btn btn-oblong pull-right">Save</a>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span6">
+                <form>
+                    <label>Find album</label>
+                    <label for="find-album"></label><input id="find-album" autocomplete="off" data-provide="typeahead" type="text" class="span12">
+                </form>
+            </div>
+            <div class="span6">
+                <form>
+                    <label for="video-input-add">Add new video ID</label>
+                    <input id="video-input-add" type="text" class="span10">
+                    <button id="video-button-add" type="button" class="btn">Add</button>
+                </form>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span6">
+                <div class="admin-list">
+                    <ul id="video-list" class="unstyled admin-list">
+                    </ul>
+                </div>
+
+            </div>
+            <div class="span6 data-table">
+                <table class="table pull-right">
+                    <thead>
+                    <tr>
+                        <th width="20%">Name</th>
+                        <th>Value</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>ID</td>
+                        <td>
+                            <label for="video-uid"><i>Video ID</i></label>
+                            <input id="video-uid" type="text" class="input-xlarge">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Title</td>
+                        <td>
+
+                            <label for="video-title"><i>Video title</i></label>
+                            <input id="video-title" type="text" class="input-xlarge">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td>
+                            <label for="video-description"></label>
+                            <textarea id="video-description" class="input-xlarge"></textarea>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block media %}
+    {{ block.super }}
+    <script src="{{ STATIC_URL }}profile/js/bootstrap-typeahead.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        var active_album = { "id":"id" };
+        var active_video = { "id":"id" };
+        active_tab( 'videos' );
+        load_galleries();
+
+        $( document ).ready( function () {
+
+            function load_gallery_video() {
+                var title = jQuery( '.typeahead .active' ).attr( 'data-value' );
+                var json = '{"title":"' + title + '"}';
+                $.ajax( {
+                    url:'/api/gallery/get/?data=' + json,
+                    dataType:'json',
+                    success:function (data) {
+                        var id = data['id'];
+                        active_album["id"] = id;
+                        console.log( 'autocomplete ' + id );
+                        load_galleries_videos( id, Object );
+                    }
+                } );
+            }
+
+            $( '#find-album' ).change( function (e) {
+                load_gallery_video()
+            } );
+
+            $( '#find-album' ).keydown( function (e) {
+                if (e.which == 13) {
+                    e.preventDefault();
+                    load_gallery_video();
+                }
+            } );
+
+            $( '#video-button-save' ).click( function (e) {
+                var id = active_video["id"];
+                update_video( id, function () {
+                    load_galleries_videos( active_album['id'], function () {
+                        var li = $( '#gallery-video-' + active_video['id'] );
+                        if (!li.is( '.active' )) {
+                            li.addClass( 'active' );
+                        }
+                    } );
+
+                } );
+            } );
+
+            $( '#video-button-add' ).click( function (e) {
+                var text = jQuery( this ).parent().children( 'input' ).attr( 'value' );
+                if (active_album['id'] != 'id') {
+                    add_video( active_album['id'], text, function () {
+                        load_galleries_videos( active_album['id'], function () {
+                            var li = $( '#gallery-video-' + active_video['id'] );
+                            if (!li.is( '.active' )) {
+                                li.addClass( 'active' );
+                            }
+                        } );
+                    } );
+                }
+            } );
+
+            $( '#video-list .btn-minus' ).live( 'click', function (e) {
+                var li = jQuery( this ).parent();
+                var id = jQuery( li ).attr( 'id' ).substring( 14 );
+                del_video( id, function () {
+                    load_galleries_videos( active_album['id'], Object );
+                } );
+            } );
+
+            $( '#video-list li span' ).live( 'click', function (e) {
+                var li = jQuery( this ).parent();
+                var id = jQuery( li ).attr( 'id' ).substring( 14 );
+                $( '#video-list .active' ).removeClass( 'active' );
+                jQuery( li ).addClass( 'active' );
+                active_video['id'] = id;
+                load_video( id );
+            } );
+        } );
+
+    </script>
+{% endblock %}
