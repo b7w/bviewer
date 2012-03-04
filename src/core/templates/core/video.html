@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+
+{% block main %}
+    <div class="row-fluid">
+
+        <div class="span12">
+            <h2>{{ gallery.name }}</h2>
+
+            <p>{{ gallery.description|linebreaksbr }}</p>
+
+
+            <div class="video">
+                <h3>{{ video.title }}</h3>
+
+                <iframe src="{{ video.url }}" width="720" height="480" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+
+                {% if video.description %}
+                    <div class="caption">
+                        <h5>Description</h5>
+
+                        <p>{{ video.description|linebreaksbr }}</p>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

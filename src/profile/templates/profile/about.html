@@ -1,0 +1,65 @@
+{% extends 'profile/base.html' %}
+
+{% block tabs %}
+    <div id="about">
+        <div class="row-fluid">
+            <div class="span12">
+                <div class="pull-right">
+                    <a href="#" id="about-button-save" class="btn btn-oblong">Save</a>
+                </div>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span4">
+                <p style="margin-top: 16px;">
+                    To set avatar go to "<a href="{% url profile.images %}">Gallery images</a>"
+                    select any gallery and select image and click <i class="icon-user icon-white"></i> icon.
+                </p>
+
+                <p><i>Remember that <strong>top</strong> gallery do not show any image, like galleries that store sub galleries</i></p>
+
+                <p><i>You can hide avatars in them</i></p>
+
+            </div>
+            <div class="span8 data-table">
+                <table class="table pull-right">
+                    <thead>
+                    <tr>
+                        <th width="20%">Name</th>
+                        <th>Value</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Title</td>
+                        <td>
+                            <input id="about-title" type="text" class="input-xlarge">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td>
+                            <label for="about-description"></label>
+                            <textarea id="about-description" class="input-xlarge" rows="16"></textarea>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+
+{% block media %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+        active_tab( 'about' );
+        load_about();
+        $( '#about-button-save' ).click( function (e) {
+            update_about();
+        } );
+    </script>
+{% endblock %}

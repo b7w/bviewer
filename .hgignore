@@ -1,0 +1,12 @@
+syntax: regexp
+
+^src/settings.*py$
+
+\.pyc
+\.pyo
+
+\.idea/
+
+cache/
+tmp/
+resources/
