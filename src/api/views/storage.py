@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.simplejson import JSONDecodeError
-
 from api.utils import JSONResponse, JSONRequest, login_required_ajax
-from core.utils import Storage, get_gallery_user
-from mongo.utils import perm_any_required
+from core.utils import Storage, get_gallery_user, perm_any_required
 
 import logging
 
@@ -26,7 +23,7 @@ def JsonStorageList( request ):
     if req.is_data( ):
         try:
             kwargs = req.data( )
-            holder, user_url = get_gallery_user( request, None )
+            holder, user_url = get_gallery_user( request )
             if not holder.home:
                 return JSONResponse.Error( "You have no access to storage, check you profile" )
             storage = Storage( holder.home )
@@ -34,9 +31,7 @@ def JsonStorageList( request ):
                 return JSONResponse.Error( "Request must have `path` key" )
             files = storage.list( kwargs["path"] )
             return JSONResponse( files )
-        except JSONDecodeError as e:
-            return JSONResponse.Error( e )
-        except IOError as e:
+        except Exception as e:
             return JSONResponse.Error( e )
     else:
         return JSONResponse.Error( "Wrong request" )

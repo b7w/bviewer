@@ -7,8 +7,11 @@ from PIL import Image
 from hashlib import sha1
 import urllib2
 import cStringIO
+from django.shortcuts import redirect
+from django.utils.decorators import available_attrs
 
 from django.utils.encoding import smart_str
+from django.utils.functional import wraps
 
 from core import settings
 from core.models import ProxyUser
@@ -376,3 +379,27 @@ def get_gallery_user( request, name=None ):
         user = ProxyUser.objects.get( id=request.user.id )
         return user, user.username.lower( ) + '/'
     return None, ''
+
+
+def perm_any_required( *args, **kwargs):
+    """
+    Decorator for views that checks if at least one permission return True,
+    redirecting to the `url` page on False.
+    """
+    url = kwargs.get( "url", '/' )
+
+    def test_func( user ):
+        for perm in args:
+            if user.has_perm( perm ):
+                return True
+
+    def decorator(view_func):
+        @wraps( view_func, assigned=available_attrs( view_func ) )
+        def _wrapped_view(request, *args, **kwargs):
+            if test_func( request.user ):
+                return view_func( request, *args, **kwargs )
+            return redirect( url )
+
+        return _wrapped_view
+
+    return decorator
