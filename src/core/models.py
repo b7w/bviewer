@@ -71,7 +71,7 @@ class Gallery( models.Model ):
     @classmethod
     def get_galleries(cls, top_id ):
         query = Gallery.objects.filter( Q( id=top_id ) | Q( parent=top_id ) )
-        if len( query ) == 0:
+        if not len( query ):
             return None, []
         main = None
         galleries = []
@@ -144,7 +144,7 @@ class Video( models.Model ):
     @property
     def url(self):
         """
-        Build excaped url to video
+        Build escaped url to video
         """
         return escape( "http://player.vimeo.com/video/" + self.uid )
 

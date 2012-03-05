@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.simplejson import JSONDecodeError
 from django.views.decorators.csrf import csrf_exempt
 
 from api.utils import JSONResponse, JSONRequest, login_required_ajax
 from core.models import ProxyUser, Image
-from mongo.models import DocumentValidationError
-from mongo.utils import perm_any_required
+from core.utils import perm_any_required
 
 import logging
+
 
 logger = logging.getLogger( __name__ )
 
@@ -26,7 +25,7 @@ def JsonUserGet( request ):
                 return JSONResponse.Error( "No such user" )
 
             return JSONResponse( main )
-        except JSONDecodeError as e:
+        except Exception as e:
             return JSONResponse.Error( e )
     else:
         return JSONResponse.Error( "Wrong request" )
@@ -46,16 +45,14 @@ def JsonUserUpdate( request ):
             user = ProxyUser.objects.safe_get( id=request.user.id )
             kwargs = req.data( )
             if "avatar" in kwargs:
-                user.avatar = Image.objects.safe_get( id=int( kwargs["avatar"] ), gallery__user=req.user )
+                user.avatar = Image.objects.safe_get( id=int( kwargs["avatar"] ), gallery__user__id=req.user.id )
             if "about.title" in kwargs:
                 user.about_title = kwargs["about.title"]
             if "about.text" in kwargs:
                 user.about_text = kwargs["about.text"]
             user.save( )
             return JSONResponse.Success( )
-        except JSONDecodeError as e:
-            return JSONResponse.Error( e )
-        except DocumentValidationError as e:
+        except Exception as e:
             return JSONResponse.Error( e )
     else:
         return JSONResponse.Error( "Wrong request" )

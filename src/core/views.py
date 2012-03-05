@@ -49,10 +49,10 @@ def ShowGallery( request, id, user=None ):
     videos = []
     images = []
     template = u"core/galleries.html"
-    if len( galleries ) == 0:
+    if not len( galleries ):
         template = u"core/images.html"
-        videos = Video.objects.filter( gallery__user=holder, gallery=id )
-        images = Image.objects.filter( gallery__user=holder, gallery=id )
+        videos = Video.objects.filter( gallery__user__id=holder.id, gallery=id )
+        images = Image.objects.filter( gallery__user__id=holder.id, gallery=id )
 
     return render( request, template, {
         'path': request.path,
@@ -73,7 +73,7 @@ def ShowImage( request, id, user=None ):
     if not holder:
         return ShowMessage( request, message="No user defined" )
 
-    image = Image.objects.safe_get( gallery__user=holder, id=id )
+    image = Image.objects.safe_get( gallery__user__id=holder.id, id=id )
     if image is None:
         return ShowMessage( request, message="No such image" )
 
@@ -94,7 +94,7 @@ def ShowVideo( request, id, user=None ):
     if not holder:
         return ShowMessage( request, message="No user defined" )
 
-    video = Video.objects.safe_get( gallery__user=holder, id=id )
+    video = Video.objects.safe_get( gallery__user__id=holder.id, id=id )
     if video is None:
         return ShowMessage( request, message="No such video" )
 
@@ -115,7 +115,7 @@ def DownloadVideoThumbnail( request, id, user=None ):
     if not holder:
         return Http404( "No user defined" )
 
-    video = Video.objects.safe_get( gallery__user=holder, id=id )
+    video = Video.objects.safe_get( gallery__user__id=holder.id, id=id )
     if video is None:
         return Http404( "No such video" )
     name = video.uid + ".jpg"
@@ -127,8 +127,8 @@ def DownloadVideoThumbnail( request, id, user=None ):
         response = DownloadResponse.build( image.url, name )
 
     except ResizeOptionsError as e:
-        return ShowMessage( request, message=e )
         logger.error( "id:%s, holder:%s \n %s", id, holder, e )
+        return ShowMessage( request, message=e )
     except IOError as e:
         logger.error( "id:%s, holder:%s \n %s", id, holder, e )
         raise Http404( "Oops no video thumbnail found" )
@@ -144,7 +144,7 @@ def DownloadImage( request, size, id, user=None ):
     if not holder:
         return Http404( "No user defined" )
 
-    image = Image.objects.safe_get( gallery__user=holder, id=id )
+    image = Image.objects.safe_get( gallery__user__id=holder.id, id=id )
     if image is None:
         raise Http404( "No such image" )
 
@@ -157,8 +157,8 @@ def DownloadImage( request, size, id, user=None ):
         response = DownloadResponse.build( image.url, name )
 
     except ResizeOptionsError as e:
-        return ShowMessage( request, message=e )
         logger.error( "id:%s, holder:%s \n %s", id, holder, e )
+        return ShowMessage( request, message=e )
     except IOError as e:
         logger.error( "id:%s, holder:%s \n %s", id, holder, e )
         return redirect( "/static/core/img/gallery.png" )

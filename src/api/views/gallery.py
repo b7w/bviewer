@@ -3,13 +3,9 @@
 from datetime import datetime
 from django.db import transaction
 
-from django.utils.simplejson import JSONDecodeError
-
 from core.models import Gallery, Image, Video
 from api.utils import JSONResponse, JSONRequest, gallery_tree, login_required_ajax
-from core.utils import get_gallery_user
-from mongo.models import DocumentValidationError
-from mongo.utils import perm_any_required
+from core.utils import get_gallery_user, perm_any_required
 
 import logging
 
@@ -28,13 +24,13 @@ def JsonGalleryGet( request ):
             main = None
             if "id" in kwargs:
                 id = int( kwargs["id"] )
-                main = Gallery.objects.safe_get( id=id, user=req.user )
+                main = Gallery.objects.safe_get( id=id, user__id=req.user.id )
             elif "title" in kwargs:
-                main = Gallery.objects.safe_get( title=kwargs["title"], user=req.user )
+                main = Gallery.objects.safe_get( title=kwargs["title"], user__id=req.user.id )
             if main is None:
                 return JSONResponse.Error( "No such gallery" )
             return JSONResponse( main )
-        except JSONDecodeError as e:
+        except Exception as e:
             return JSONResponse.Error( e )
     else:
         return JSONResponse.Error( "Wrong request" )
@@ -48,12 +44,12 @@ def JsonGalleryAll( request ):
     """
     if request.method == 'GET':
         try:
-            main = Gallery.objects.filter( user=request.user )
+            main = Gallery.objects.filter( user__id=request.user.id )
             if not main:
                 return JSONResponse.Error( "No such galleries" )
             all = [i.title for i in main]
             return JSONResponse( all )
-        except JSONDecodeError as e:
+        except Exception as e:
             return JSONResponse.Error( e )
     else:
         return JSONResponse.Error( "Wrong request" )
@@ -69,7 +65,7 @@ def JsonGalleryTree( request ):
     """
     if request.method == 'GET':
         try:
-            holder, user_url = get_gallery_user( request, None )
+            holder, user_url = get_gallery_user( request )
             main, galleries = Gallery.get_galleries( holder.top_gallery_id )
             if main is None:
                 return JSONResponse.Error( "No main gallery" )
@@ -79,7 +75,7 @@ def JsonGalleryTree( request ):
             galleries = [tree]
             galleries.extend( [gallery_tree( i.id ) for i in isolated] )
             return JSONResponse( galleries )
-        except JSONDecodeError as e:
+        except Exception as e:
             return JSONResponse.Error( e )
     else:
         return JSONResponse.Error( "Wrong request" )
@@ -98,9 +94,7 @@ def JsonGalleryAdd( request ):
             obj = Gallery( title=kwargs["title"], user_id=req.user.id )
             obj.save( )
             return JSONResponse( obj )
-        except JSONDecodeError as e:
-            return JSONResponse.Error( e )
-        except DocumentValidationError as e:
+        except Exception as e:
             return JSONResponse.Error( e )
     else:
         return JSONResponse.Error( "Wrong request" )
@@ -117,7 +111,7 @@ def JsonGalleryUpdate( request ):
         try:
             kwargs = req.data( )
             id = int( kwargs["id"] )
-            main = Gallery.objects.safe_get( user=req.user, id=id )
+            main = Gallery.objects.safe_get( user__id=req.user.id, id=id )
             if main is None:
                 return JSONResponse.Error( "No gallery" )
             if "title" in kwargs:
@@ -125,16 +119,14 @@ def JsonGalleryUpdate( request ):
             if "time" in kwargs:
                 main.time = datetime.strptime( kwargs["time"], "%d/%m/%Y" )
             if "thumbnail" in kwargs:
-                image = Image.objects.safe_get( id=int( kwargs["thumbnail"] ), gallery__user=req.user )
-                main.thumbnail_id = int( kwargs["thumbnail"] )
+                image = Image.objects.safe_get( id=int( kwargs["thumbnail"] ), gallery__user__id=req.user.id )
+                main.thumbnail = image
             if "description" in kwargs:
                 main.description = kwargs["description"]
             main.save( )
 
             return JSONResponse.Success( )
-        except JSONDecodeError as e:
-            return JSONResponse.Error( e )
-        except DocumentValidationError as e:
+        except Exception as e:
             return JSONResponse.Error( e )
     else:
         return JSONResponse.Error( "Wrong request" )
@@ -160,7 +152,7 @@ def JsonGalleryChild( request, action=None ):
             if main is None:
                 return JSONResponse.Error( "No '{0}' gallery".format( id ) )
 
-            child = Gallery.objects.safe_get( id=child_id, user=req.user )
+            child = Gallery.objects.safe_get( id=child_id, user__id=req.user.id )
             if child is None:
                 return JSONResponse.Error( "No '{0}' gallery".format( child_id ) )
 
@@ -171,9 +163,7 @@ def JsonGalleryChild( request, action=None ):
             else:
                 return JSONResponse.Error( "Wrong action '{0}'".format( action ) )
             return JSONResponse.Success( )
-        except JSONDecodeError as e:
-            return JSONResponse.Error( e )
-        except DocumentValidationError as e:
+        except Exception as e:
             return JSONResponse.Error( e )
     else:
         return JSONResponse.Error( "Wrong request" )
@@ -190,7 +180,7 @@ def JsonGalleryRemove( request ):
         try:
             kwargs = req.data( )
             id = int( kwargs["id"] )
-            main = Gallery.objects.safe_get( id=id, user=req.user )
+            main = Gallery.objects.safe_get( id=id, user__id=req.user.id )
             if main is None:
                 return JSONResponse.Error( "No such gallery" )
             with transaction.commit_on_success( ):
@@ -198,7 +188,7 @@ def JsonGalleryRemove( request ):
                 Video.objects.filter( gallery=main ).delete( )
                 main.delete( )
             return JSONResponse.Success( )
-        except JSONDecodeError as e:
+        except Exception as e:
             return JSONResponse.Error( e )
     else:
         return JSONResponse.Error( "Wrong request" )
