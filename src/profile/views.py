@@ -4,8 +4,10 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render
 
+from core.files import Storage
 from core.files.serve import DownloadResponse
-from core.utils import Storage, ResizeOptions, CacheImage, get_gallery_user, perm_any_required
+from core.images import CacheImage
+from core.utils import ResizeOptions, get_gallery_user, perm_any_required
 
 import logging
 

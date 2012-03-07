@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from api.utils import JSONResponse, JSONRequest, login_required_ajax
-from core.utils import Storage, get_gallery_user, perm_any_required
+from core.files import Storage
+from core.utils import get_gallery_user, perm_any_required
 
 import logging
 
