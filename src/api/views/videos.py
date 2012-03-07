@@ -11,7 +11,7 @@ logger = logging.getLogger( __name__ )
 
 
 @login_required_ajax
-@perm_any_required( "user.holder", "api.video.get" )
+@perm_any_required( "core.user_holder", "api.video.get" )
 def JsonVideoGet( request ):
     """
     Get video by `_id` or `gallery` and authenticated user
@@ -36,7 +36,7 @@ def JsonVideoGet( request ):
 
 
 @login_required_ajax
-@perm_any_required( "user.holder", "api.video.update" )
+@perm_any_required( "core.user_holder", "api.video.update" )
 def JsonVideoUpdate( request ):
     """
     Update video by `_id` and authenticated user
@@ -63,7 +63,7 @@ def JsonVideoUpdate( request ):
 
 
 @login_required_ajax
-@perm_any_required( "user.holder", "api.video.add" )
+@perm_any_required( "core.user_holder", "api.video.add" )
 def JsonVideoAdd( request ):
     """
     Add video, need video `uid` and `gallery` uid
@@ -85,7 +85,7 @@ def JsonVideoAdd( request ):
 
 
 @login_required_ajax
-@perm_any_required( "user.holder", "api.video.del" )
+@perm_any_required( "core.user_holder", "api.video.del" )
 def JsonVideoRemove( request ):
     """
     Remove video by `_id` and authenticated user

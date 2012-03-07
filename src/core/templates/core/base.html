@@ -48,7 +48,7 @@
                             {% if request.user.is_staff or request.user.is_superuser %}
                                 <li><a href="{% url admin:index %}">Administration</a></li>
                             {% endif %}
-                            {% if perms.user.holder %}
+                            {% if perms.core.user_holder %}
                                 <li><a href="{% url profile.home %}">Profile</a></li>
                             {% endif %}
 

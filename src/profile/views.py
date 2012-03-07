@@ -13,7 +13,7 @@ logger = logging.getLogger( __name__ )
 
 
 @login_required
-@perm_any_required( "user.holder" )
+@perm_any_required( "core.user_holder" )
 def ShowHome( request ):
     user, user_url = get_gallery_user( request )
     return render( request, "profile/home.html", {
@@ -23,7 +23,7 @@ def ShowHome( request ):
 
 
 @login_required
-@perm_any_required( "user.holder" )
+@perm_any_required( "core.user_holder" )
 def ShowGalleries( request ):
     user, user_url = get_gallery_user( request )
     return render( request, "profile/galleries.html", {
@@ -33,7 +33,7 @@ def ShowGalleries( request ):
 
 
 @login_required
-@perm_any_required( "user.holder" )
+@perm_any_required( "core.user_holder" )
 def ShowImages( request ):
     user, user_url = get_gallery_user( request )
     return render( request, "profile/images.html", {
@@ -43,7 +43,7 @@ def ShowImages( request ):
 
 
 @login_required
-@perm_any_required( "user.holder" )
+@perm_any_required( "core.user_holder" )
 def ShowVideos( request ):
     user, user_url = get_gallery_user( request )
     return render( request, "profile/videos.html", {
@@ -53,7 +53,7 @@ def ShowVideos( request ):
 
 
 @login_required
-@perm_any_required( "user.holder" )
+@perm_any_required( "core.user_holder" )
 def ShowAbout( request ):
     user, user_url = get_gallery_user( request )
     return render( request, "profile/about.html", {
@@ -63,7 +63,7 @@ def ShowAbout( request ):
 
 
 @login_required
-@perm_any_required( "user.holder" )
+@perm_any_required( "core.user_holder" )
 def DownloadImage( request ):
     if request.GET.get( "p", None ):
         path = request.GET["p"]
