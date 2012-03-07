@@ -5,6 +5,7 @@ import urllib2
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.query_utils import Q
+from django.db.models.signals import post_save
 from django.utils.html import escape
 from django.utils import simplejson
 
@@ -22,8 +23,9 @@ class ProxyManager( models.Manager ):
 
 
 class ProxyUser( User ):
+    url = models.CharField( max_length=16 )
     home = models.CharField( max_length=256, null=True, blank=True )
-    top_gallery = models.ForeignKey( "Gallery", related_name="top" )
+    top_gallery = models.ForeignKey( "Gallery", related_name="top", null=True, blank=True )
     about_title = models.CharField( max_length=256, blank=True )
     about_text = models.TextField( max_length=256, blank=True )
     avatar = models.ForeignKey( "Image", related_name="avatar", null=True, blank=True )
@@ -33,8 +35,7 @@ class ProxyUser( User ):
     def for_json(self):
         data = {
             "username": self.username,
-            "email": self.username,
-            "username": self.email,
+            "email": self.email,
             "is_active": self.is_active,
             "is_staff": self.is_staff,
             "is_superuser": self.is_superuser,
@@ -48,14 +49,30 @@ class ProxyUser( User ):
         }
         return data
 
+    def save(self, force_insert=False, force_update=False, using=None):
+        if not self.url:
+            self.url = self.username.lower( )
+        super( ProxyUser, self ).save( force_insert, force_update, using )
+
+
     class Meta:
         db_table = "core_profile"
         ordering = ["username"]
-        verbose_name = "User"
-        verbose_name_plural = "Users"
+        verbose_name = "Gallery user"
+        verbose_name_plural = "Gallery users"
         permissions = (
-            ("user.holder", "User is galleries holder"),
+            ("user_holder", "User is galleries holder"),
             )
+
+
+def add_top_gallery(sender, instance, created, **kwargs):
+    if created:
+        gal = Gallery( user=instance, title="Welcome", description="Edit main gallery to change it" )
+        gal.save( )
+        instance.top_gallery = gal
+        instance.save()
+
+post_save.connect( add_top_gallery, sender=ProxyUser )
 
 
 class Gallery( models.Model ):
@@ -99,6 +116,8 @@ class Gallery( models.Model ):
         return self.title
 
     class Meta:
+        verbose_name = "Gallery"
+        verbose_name_plural = "Galleries"
         ordering = ["time"]
 
 

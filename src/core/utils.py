@@ -368,11 +368,11 @@ def get_gallery_user( request, name=None ):
     match = domain_match.match( request.get_host( ) )
     if match:
         name = match.group( 'sub' )
-        user = ProxyUser.objects.safe_get( username=name )
+        user = ProxyUser.objects.safe_get( url=name )
         if user:
             return user, ''
     elif name:
-        user = ProxyUser.objects.safe_get( username=name )
+        user = ProxyUser.objects.safe_get( url=name )
         if user:
             return user, name + '/'
     elif request.user.is_authenticated( ):
