@@ -5,7 +5,8 @@ from django.test import TestCase
 from django.conf import settings
 
 from core import settings as settings_local
-from core.utils import domain_match, Storage
+from core.files import Storage
+from core.utils import domain_match
 
 class UtilsTest( TestCase ):
     def test_re_domain(self):
