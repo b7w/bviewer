@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger( __name__ )
 
 @login_required_ajax
-@perm_any_required( "user.holder", "api.gallery.get" )
+@perm_any_required( "core.user_holder", "api.gallery.get" )
 def JsonGalleryGet( request ):
     """
     Get gallery by `_id` or `gallery` or `name` and authenticated user
@@ -37,7 +37,7 @@ def JsonGalleryGet( request ):
 
 
 @login_required_ajax
-@perm_any_required( "user.holder", "api.gallery.get" )
+@perm_any_required( "core.user_holder", "api.gallery.get" )
 def JsonGalleryAll( request ):
     """
     Get list of all galleries names for authenticated user
@@ -56,7 +56,7 @@ def JsonGalleryAll( request ):
 
 
 @login_required_ajax
-@perm_any_required( "user.holder", "api.gallery.get" )
+@perm_any_required( "core.user_holder", "api.gallery.get" )
 def JsonGalleryTree( request ):
     """
     Get gallery tree for authenticated user.
@@ -82,7 +82,7 @@ def JsonGalleryTree( request ):
 
 
 @login_required_ajax
-@perm_any_required( "user.holder", "api.gallery.add" )
+@perm_any_required( "core.user_holder", "api.gallery.add" )
 def JsonGalleryAdd( request ):
     """
     Add gallery for authenticated user
@@ -101,7 +101,7 @@ def JsonGalleryAdd( request ):
 
 
 @login_required_ajax
-@perm_any_required( "user.holder", "api.gallery.update" )
+@perm_any_required( "core.user_holder", "api.gallery.update" )
 def JsonGalleryUpdate( request ):
     """
     Update gallery by `_id` key for authenticated user
@@ -133,7 +133,7 @@ def JsonGalleryUpdate( request ):
 
 
 @login_required_ajax
-@perm_any_required( "user.holder", "api.gallery.child" )
+@perm_any_required( "core.user_holder", "api.gallery.child" )
 def JsonGalleryChild( request, action=None ):
     """
     Add or remove gallery child by `_id` key for authenticated user
@@ -170,7 +170,7 @@ def JsonGalleryChild( request, action=None ):
 
 
 @login_required_ajax
-@perm_any_required( "user.holder", "api.gallery.del" )
+@perm_any_required( "core.user_holder", "api.gallery.del" )
 def JsonGalleryRemove( request ):
     """
     Remove gallery by `_id` key for authenticated user

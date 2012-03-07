@@ -9,7 +9,7 @@ logger = logging.getLogger( __name__ )
 
 
 @login_required_ajax
-@perm_any_required( "user.holder", "api.storage.list" )
+@perm_any_required( "core.user_holder", "api.storage.list" )
 def JsonStorageList( request ):
     """
     Get list of images in directory by `path` key.

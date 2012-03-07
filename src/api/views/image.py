@@ -11,7 +11,7 @@ logger = logging.getLogger( __name__ )
 
 
 @login_required_ajax
-@perm_any_required( "user.holder", "api.image.get" )
+@perm_any_required( "core.user_holder", "api.image.get" )
 def JsonImagesGet( request ):
     """
     Get image by `_id` or `gallery` and authenticated user
@@ -37,7 +37,7 @@ def JsonImagesGet( request ):
 
 
 @login_required_ajax
-@perm_any_required( "user.holder", "api.image.add" )
+@perm_any_required( "core.user_holder", "api.image.add" )
 def JsonImageAdd( request ):
     """
     Update image by `_id` or `gallery` and authenticated user
@@ -62,7 +62,7 @@ def JsonImageAdd( request ):
 
 
 @login_required_ajax
-@perm_any_required( "user.holder", "api.image.del" )
+@perm_any_required( "core.user_holder", "api.image.del" )
 def JsonImageRemove( request ):
     """
     Remove image by `_id` and authenticated user

@@ -13,7 +13,7 @@ logger = logging.getLogger( __name__ )
 
 
 @login_required_ajax
-@perm_any_required( "user.holder", "api.gallery.get" )
+@perm_any_required( "core.user_holder", "api.gallery.get" )
 def JsonUserGet( request ):
     """
     Get document of authenticated user
@@ -33,7 +33,7 @@ def JsonUserGet( request ):
 
 @csrf_exempt
 @login_required_ajax
-@perm_any_required( "user.holder", "api.user.update" )
+@perm_any_required( "core.user_holder", "api.user.update" )
 def JsonUserUpdate( request ):
     """
     Update document of authenticated user.
