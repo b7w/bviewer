@@ -109,7 +109,7 @@ class FileUniqueName:
         """
         full_name = settings.VIEWER_CACHE_PATH + path
         if time:
-            if time:
+            if time == True:
                 full_name += str( self.time( ) )
             else:
                 full_name += str( time )
