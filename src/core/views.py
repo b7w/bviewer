@@ -10,7 +10,6 @@ from core.files.serve import DownloadResponse
 from core.images import CacheImage
 from core.models import Gallery, Image, Video
 
-
 import logging
 
 logger = logging.getLogger( __name__ )

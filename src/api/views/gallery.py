@@ -157,11 +157,12 @@ def JsonGalleryChild( request, action=None ):
                 return JSONResponse.Error( "No '{0}' gallery".format( child_id ) )
 
             if action == "add":
-                Gallery.objects.filter( id=child_id ).update( parent=main )
+                child.parent = main
             elif action == "del":
-                Gallery.objects.filter( id=child_id ).update( parent=None )
+                child.parent = None
             else:
                 return JSONResponse.Error( "Wrong action '{0}'".format( action ) )
+            child.save()
             return JSONResponse.Success( )
         except Exception as e:
             return JSONResponse.Error( e )

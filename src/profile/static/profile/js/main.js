@@ -387,7 +387,7 @@ function add_sub_album(id, sub_album_id) {
 }
 
 function del_sub_album(id, sub_album_id) {
-    console.log( 'add sub album ' + sub_album_id + ' to ' + id );
+    console.log( 'del sub album ' + sub_album_id + ' to ' + id );
     var json = '{ "id":"' + id + '", "child":"' + sub_album_id + '" }';
     $.ajax( {
         url:'/api/gallery/child/del/?data=' + json,

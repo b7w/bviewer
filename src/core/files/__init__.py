@@ -64,5 +64,7 @@ class Storage( object ):
 
     @classmethod
     def build(cls, path, dirs, files):
+        dirs.sort()
+        files.sort()
         back = "/".join( path.split( '/' )[:-1] )
         return {"path": path, "back": back, "dirs": dirs, "files": files}
