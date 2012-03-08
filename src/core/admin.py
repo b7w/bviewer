@@ -22,7 +22,8 @@ class GalleryAdmin( ModelAdmin ):
     ordering = ("parent", "user", "time",)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "parent":
+        print self.object
+        if db_field.name == "parent" and self.object:
             kwargs["queryset"] = Gallery.objects.filter( user__id=self.object.user.id )
         return super( GalleryAdmin, self ).formfield_for_foreignkey( db_field, request, **kwargs )
 
@@ -42,7 +43,7 @@ class ImageAdmin( ModelAdmin ):
         return obj.gallery.user.username
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "gallery":
+        if db_field.name == "gallery" and self.object:
             kwargs["queryset"] = Gallery.objects.filter( user__id=self.object.gallery.user.id )
         return super( ImageAdmin, self ).formfield_for_foreignkey( db_field, request, **kwargs )
 
@@ -65,7 +66,7 @@ class VideoAdmin( ModelAdmin ):
         """
         Show in drop down menu only user galleries and images
         """
-        if db_field.name == "gallery":
+        if db_field.name == "gallery" and self.object:
             kwargs["queryset"] = Gallery.objects.filter( user__id=self.object.gallery.user.id )
         return super( VideoAdmin, self ).formfield_for_foreignkey( db_field, request, **kwargs )
 
@@ -93,9 +94,9 @@ class UserAdmin( UserAdmin, ModelAdmin ):
         """
         Show in drop down menu only user galleries and images
         """
-        if db_field.name == "top_gallery":
+        if db_field.name == "top_gallery" and self.object:
             kwargs["queryset"] = Gallery.objects.filter( user__id=self.object.id )
-        if db_field.name == "avatar":
+        if db_field.name == "avatar" and self.object:
             kwargs["queryset"] = Image.objects.filter( gallery__user__id=self.object.id )
         return super( UserAdmin, self ).formfield_for_foreignkey( db_field, request, **kwargs )
 
