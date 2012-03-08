@@ -23,7 +23,7 @@ class ProxyManager( models.Manager ):
 
 
 class ProxyUser( User ):
-    url = models.CharField( max_length=16 )
+    url = models.CharField( max_length=16, unique=True )
     home = models.CharField( max_length=256, null=True, blank=True )
     top_gallery = models.ForeignKey( "Gallery", related_name="top", null=True, blank=True )
     about_title = models.CharField( max_length=256, blank=True )
@@ -70,14 +70,14 @@ def add_top_gallery(sender, instance, created, **kwargs):
         gal = Gallery( user=instance, title="Welcome", description="Edit main gallery to change it" )
         gal.save( )
         instance.top_gallery = gal
-        instance.save()
+        instance.save( )
 
 post_save.connect( add_top_gallery, sender=ProxyUser )
 
 
 class Gallery( models.Model ):
     parent = models.ForeignKey( "self", null=True, blank=True, related_name="children" )
-    title = models.CharField( max_length=128, unique=True )
+    title = models.CharField( max_length=128 )
     user = models.ForeignKey( ProxyUser )
     description = models.TextField( max_length=256, null=True, blank=True )
     thumbnail = models.ForeignKey( "Image", null=True, blank=True, related_name="thumbnail" )
@@ -119,6 +119,7 @@ class Gallery( models.Model ):
         verbose_name = "Gallery"
         verbose_name_plural = "Galleries"
         ordering = ["time"]
+        unique_together = (("title", "user"),)
 
 
 class Image( models.Model ):
