@@ -19,9 +19,11 @@
 
                             <div class="carousel-caption">
                                 <h4>{{ item.title }}</h4>
-                                {% if item.description %}
-                                    <p class="carousel-description">{{ item.description|linebreaksbr }}</p>
-                                {% endif %}
+
+                                <p class="carousel-description">
+                                    <span style="color:#08C;">{{ item.time|date:"d M Y" }}</span>
+                                    <br>{{ item.description|linebreaksbr }}
+                                </p>
                             </div>
                         </a>
                     </li>

@@ -118,7 +118,7 @@ class Gallery( models.Model ):
     class Meta:
         verbose_name = "Gallery"
         verbose_name_plural = "Galleries"
-        ordering = ["time"]
+        ordering = ["-time"]
         unique_together = (("title", "user"),)
 
 
@@ -140,6 +140,7 @@ class Image( models.Model ):
         return unicode( self.gallery.title ) + u": " + self.path
 
     class Meta:
+        ordering = ["-path"]
         unique_together = (("gallery", "path"),)
 
 
