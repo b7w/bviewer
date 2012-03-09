@@ -282,6 +282,15 @@ function remove_image(id) {
     } );
 }
 
+function pre_cache_album(id) {
+    console.log( 'pre cache album ' + id );
+    var json = '{"id":"' + id + '","each":2,"size":["small","big"]}';
+    $.ajax( {
+        url:'/api/gallery/cache/?data=' + json,
+        dataType:'json'
+    } );
+}
+
 function update_album(id) {
     console.log( 'save album ' + id );
     var name = $( '#gallery-name' ).attr( 'value' );

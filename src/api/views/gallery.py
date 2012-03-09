@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from django.db import transaction
+from core.images import ThreadCache
 
 from core.models import Gallery, Image, Video
 from api.utils import JSONResponse, JSONRequest, gallery_tree, login_required_ajax
@@ -199,29 +200,38 @@ def JsonGalleryRemove( request ):
 @perm_any_required( "core.user_holder", "api.gallery_precache" )
 def JsonGalleryPreCache( request ):
     """
-    Remove gallery by `_id` key for authenticated user
+    Pre cache gallery in separate thread. Get id, each=1, size="small" | ["middle","big"]
+    each=2 -> each second will be process and etc.
     """
     req = JSONRequest( request )
     if req.is_data( ):
         try:
             holder, user_url = get_gallery_user( request )
             kwargs = req.data( )
-            if ( "id" and "each" and "size" ) not in kwargs:
-                return JSONResponse.Error( "Wrong query. Required id, size str or list, each int" )
+            if ( "id" and "size" ) not in kwargs:
+                return JSONResponse.Error( "Wrong query. Required id, size str or list, each=1" )
             id = int( kwargs["id"] )
-            each = int( kwargs["each"] )
+            each = 1
+            if "each" in kwargs:
+                each = int( kwargs["each"] )
             size = kwargs["size"]
-
             if isinstance( size, basestring ):
+                if size == "full":
+                    return JSONResponse.Error( "Size can not be full" )
                 size = [size]
+            elif "full" in size:
+                return JSONResponse.Error( "Size can not be full" )
 
             images = Image.objects.filter( gallery=id, gallery__user__id=req.user.id )
             if not images:
                 return JSONResponse.Error( "No such gallery" )
+
             paths = [images[i].path for i in range( 0, len( images ), each )]
             options = [ResizeOptions( s, user=holder.username, storage=holder.home ) for s in size]
+            work = ThreadCache( paths, options )
+            work.start( )
 
-            return JSONResponse( str(options) )
+            return JSONResponse.Success( )
         except Exception as e:
             return JSONResponse.Error( e )
     else:

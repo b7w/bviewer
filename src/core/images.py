@@ -8,6 +8,11 @@ from PIL import Image
 from core import settings
 from core.utils import FileUniqueName
 
+import logging
+
+logger = logging.getLogger( __name__ )
+
+
 class ResizeImage( object ):
     """
     Get file with image. Resize, crop it.
@@ -152,7 +157,9 @@ class CacheImage( object ):
                         newImage.resize( w, h )
                     with open( self.cache, mode='wb' ) as fileout:
                         newImage.saveTo( fileout )
+                    logger.info( "resize '%s' with %s", self.path, self.options )
                 else:
+                    logger.info( "link '%s' with %s", self.path, self.options )
                     os.symlink( abs_path, self.cache )
 
     def download(self):
@@ -173,26 +180,35 @@ class CacheImage( object ):
                 newImage.cropCenter( self.options.width, self.options.height )
                 with open( self.cache, mode='wb' ) as fileout:
                     newImage.saveTo( fileout )
+            logger.info( "download image '%s' %s", self.path, "and resize" if bigger else "" )
 
     def checkCacheDir(self):
         if not os.path.exists( self.cache_dir ):
             os.mkdir( self.cache_dir )
 
 
-class ThreadCache(threading.Thread):
-    """Threaded Url Grab"""
-    def __init__(self, queue):
-        threading.Thread.__init__(self)
-        self.queue = queue
+class ThreadCache( threading.Thread ):
+    """
+    Cache images in new thread
+    """
+
+    def __init__(self, paths, options):
+        """
+        paths -> list of image paths from user home
+        options -> list of option, for example for different size
+        """
+        threading.Thread.__init__( self )
+        self.paths = paths
+        self.options = options
+        self.daemon = True
 
     def run(self):
-        while True:
-            #grabs host from queue
-            host = self.queue.get()
-
-            #grabs urls of hosts and prints first 1024 bytes of page
-            url = urllib2.urlopen(host)
-            print url.read(1024)
-
-            #signals to queue job is done
-            self.queue.task_done()
+        logger.info( "start tread %s", hash( self ) )
+        for path in self.paths:
+            for option in self.options:
+                try:
+                    image = CacheImage( path, option )
+                    image.process( )
+                    logger.debug( "tread %s, process image '%s'", hash( self ), path )
+                except Exception as e:
+                    logger.error( "tread %s, %s", hash( self ), e )
