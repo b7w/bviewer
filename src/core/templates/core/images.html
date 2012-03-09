@@ -78,7 +78,7 @@
                 a.attr( 'rel', '' );
                 var li = a.parent();
                 li.attr( 'ontouchstart', '' );
-                li.children( 'div' ).html( '<div style="color:#555;font-size: 12px;">Image not found</dim>' );
+                li.children( '.caption' ).html( '<div style="color:#555;font-size: 12px;">Image not found</dim>' );
                 it.attr( 'src', '{{ STATIC_URL }}core/img/gallery.png' );
                 it.css( 'opacity', '0.5' );
             }

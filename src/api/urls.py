@@ -11,6 +11,7 @@ urlpatterns = patterns( '',
     url( r'^gallery/child/add/$', 'api.views.gallery.JsonGalleryChild', {'action': 'add'}, name='api.gallery.child.add' ),
     url( r'^gallery/child/del/$', 'api.views.gallery.JsonGalleryChild', {'action': 'del'}, name='api.gallery.child.del' ),
     url( r'^gallery/del/$', 'api.views.gallery.JsonGalleryRemove', name='api.gallery.remove' ),
+    url( r'^gallery/cache/$', 'api.views.gallery.JsonGalleryPreCache', name='api.gallery.precache' ),
 
     url( r'^images/get/$', 'api.views.image.JsonImagesGet', name='api.image.get' ),
     url( r'^images/add/$', 'api.views.image.JsonImageAdd', name='api.image.add' ),
