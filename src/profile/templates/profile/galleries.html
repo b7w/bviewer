@@ -6,6 +6,7 @@
             <div class="span12">
                 <div class="pull-right">
                     <a href="#" id="gallery-button-remove" class="btn btn-oblong">Remove</a>
+                    <a href="#" id="gallery-button-precache" class="btn btn-oblong">Pre cache</a>
                     <a href="#" id="gallery-button-save" class="btn btn-oblong">Save</a>
                 </div>
             </div>
@@ -110,6 +111,10 @@
             $( '#gallery-button-remove' ).click( function (e) {
                 var id = $( '#galleries-tree .active' ).attr( 'id' ).split( '-' )[1];
                 remove_album( id );
+            } );
+            $( '#gallery-button-precache' ).click( function (e) {
+                var id = $( '#galleries-tree .active' ).attr( 'id' ).split( '-' )[1];
+                pre_cache_album( id );
             } );
             $( '#gallery-button-save' ).click( function (e) {
                 var id = $( '#galleries-tree .active' ).attr( 'id' ).split( '-' )[1];

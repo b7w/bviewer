@@ -140,7 +140,7 @@ class Image( models.Model ):
         return unicode( self.gallery.title ) + u": " + self.path
 
     class Meta:
-        ordering = ["-path"]
+        ordering = ["path"]
         unique_together = (("gallery", "path"),)
 
 
