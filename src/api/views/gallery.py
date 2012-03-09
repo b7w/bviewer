@@ -5,7 +5,7 @@ from django.db import transaction
 
 from core.models import Gallery, Image, Video
 from api.utils import JSONResponse, JSONRequest, gallery_tree, login_required_ajax
-from core.utils import get_gallery_user, perm_any_required
+from core.utils import get_gallery_user, perm_any_required, ResizeOptions
 
 import logging
 
@@ -162,7 +162,7 @@ def JsonGalleryChild( request, action=None ):
                 child.parent = None
             else:
                 return JSONResponse.Error( "Wrong action '{0}'".format( action ) )
-            child.save()
+            child.save( )
             return JSONResponse.Success( )
         except Exception as e:
             return JSONResponse.Error( e )
@@ -189,6 +189,39 @@ def JsonGalleryRemove( request ):
                 Video.objects.filter( gallery=main ).delete( )
                 main.delete( )
             return JSONResponse.Success( )
+        except Exception as e:
+            return JSONResponse.Error( e )
+    else:
+        return JSONResponse.Error( "Wrong request" )
+
+
+@login_required_ajax
+@perm_any_required( "core.user_holder", "api.gallery_precache" )
+def JsonGalleryPreCache( request ):
+    """
+    Remove gallery by `_id` key for authenticated user
+    """
+    req = JSONRequest( request )
+    if req.is_data( ):
+        try:
+            holder, user_url = get_gallery_user( request )
+            kwargs = req.data( )
+            if ( "id" and "each" and "size" ) not in kwargs:
+                return JSONResponse.Error( "Wrong query. Required id, size str or list, each int" )
+            id = int( kwargs["id"] )
+            each = int( kwargs["each"] )
+            size = kwargs["size"]
+
+            if isinstance( size, basestring ):
+                size = [size]
+
+            images = Image.objects.filter( gallery=id, gallery__user__id=req.user.id )
+            if not images:
+                return JSONResponse.Error( "No such gallery" )
+            paths = [images[i].path for i in range( 0, len( images ), each )]
+            options = [ResizeOptions( s, user=holder.username, storage=holder.home ) for s in size]
+
+            return JSONResponse( str(options) )
         except Exception as e:
             return JSONResponse.Error( e )
     else:
