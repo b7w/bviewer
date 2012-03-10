@@ -8,5 +8,7 @@ syntax: regexp
 \.idea/
 
 cache/
+static/
+logs/
 tmp/
 resources/

@@ -103,7 +103,7 @@ class ResizeOptions:
         self.crop = 'CROP' in value and value['CROP'] == True
 
     def __str__(self):
-        return "ResizeOptions{{user={us},storage={st},size={sz},crop={cr}}}"\
+        return u"ResizeOptions{{user={us},storage={st},size={sz},crop={cr}}}"\
         .format( us=self.user, st=self.storage, sz=self.size, cr=self.crop )
 
 
