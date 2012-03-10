@@ -122,7 +122,7 @@ def DownloadVideoThumbnail( request, id, user=None ):
         return Http404( "No such video" )
     name = video.uid + ".jpg"
     try:
-        options = ResizeOptions( "small", user=holder.username, storage=holder.home, name=str( video.id ) )
+        options = ResizeOptions( "small", user=holder.url, storage=holder.home, name=str( video.id ) )
         image = CacheImage( video.thumbnail_url, options )
         image.download( )
 
@@ -152,7 +152,7 @@ def DownloadImage( request, size, id, user=None ):
 
     name = Storage.name( image.path )
     try:
-        options = ResizeOptions( size, user=holder.username, storage=holder.home )
+        options = ResizeOptions( size, user=holder.url, storage=holder.home )
         image = CacheImage( image.path, options )
         image.process( )
 

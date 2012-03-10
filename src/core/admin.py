@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django import forms
 from django.forms import models
 
+from core.utils import RaisingRange
 from models import ProxyUser, Gallery, Image, Video
 
 class ModelAdmin( admin.ModelAdmin ):
@@ -74,6 +77,17 @@ admin.site.register( Video, VideoAdmin )
 
 
 class ProxyUserForm( models.ModelForm ):
+    """
+    Set for UserAdmin ProxyUser model except User.
+    Add choice field for cache size filed.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.range = RaisingRange( 512, start=16, base=16 )
+        self.choice = [(i, "%s MB" % i) for i in self.range]
+        super( ProxyUserForm, self ).__init__( *args, **kwargs )
+        self.fields['cache_size'] = forms.ChoiceField( choices=self.choice )
+
     class Meta:
         model = ProxyUser
 
@@ -83,7 +97,7 @@ class UserAdmin( UserAdmin, ModelAdmin ):
     list_display = ("username", "email", "is_staff", "home", "top_gallery", )
     fieldsets = (
         ("Main", {"fields": ("username", "email", "password",)}),
-        ("Personal info", {"fields": ("url", "home", "top_gallery", "about_title", "about_text", "avatar",)}),
+        ("Personal info", {"fields": ("url", "home", "cache_size", "top_gallery", "about_title", "about_text", "avatar",)}),
         ("Permissions", {"fields": ("is_active", "is_staff",)}),
         ("Important dates", {"fields": ("last_login", "date_joined",)}),
         )
