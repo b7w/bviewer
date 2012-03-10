@@ -3,6 +3,7 @@ from datetime import datetime
 import urllib2
 
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
@@ -25,6 +26,7 @@ class ProxyManager( models.Manager ):
 class ProxyUser( User ):
     url = models.CharField( max_length=16, unique=True )
     home = models.CharField( max_length=256, null=True, blank=True )
+    cache_size = models.PositiveIntegerField( default=32, validators=[MinValueValidator( 16 ), MaxValueValidator( 256 )] )
     top_gallery = models.ForeignKey( "Gallery", related_name="top", null=True, blank=True )
     about_title = models.CharField( max_length=256, blank=True )
     about_text = models.TextField( max_length=256, blank=True )

@@ -227,7 +227,7 @@ def JsonGalleryPreCache( request ):
                 return JSONResponse.Error( "No such gallery" )
 
             paths = [images[i].path for i in range( 0, len( images ), each )]
-            options = [ResizeOptions( s, user=holder.username, storage=holder.home ) for s in size]
+            options = [ResizeOptions( s, user=holder.url, storage=holder.home ) for s in size]
             work = ThreadCache( paths, options )
             work.start( )
 

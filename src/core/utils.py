@@ -17,6 +17,41 @@ import logging
 logger = logging.getLogger( __name__ )
 
 
+class RaisingRange:
+    """
+    Iterator range that double sum base value if item/base == 8
+
+    >>> RaisingRange(32, start=0, base=1)
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24, 28]
+    """
+
+    def __init__(self, max, start=None, base=None):
+        """
+        max -> max value
+        start -> start from or 0
+        base -> base or 1
+        """
+        self.value = start or 0
+        self.base = base or 1
+        self.max = max
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        if self.value <= self.max:
+            tmp = self.value
+            if self.value / self.base == 8:
+                self.base *= 2
+            self.value += self.base
+            return tmp
+        else:
+            raise StopIteration
+
+    def __str__(self):
+        return str( list( self ) )
+
+
 class ResizeOptionsError( Exception ):
     """
     Resize options error.

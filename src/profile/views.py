@@ -70,13 +70,12 @@ def DownloadImage( request ):
     if request.GET.get( "p", None ):
         path = request.GET["p"]
         user, user_url = get_gallery_user( request )
-        name = request.user.username
         if not user.home:
             return Http404( "You have no access to storage" )
         storage = Storage( user.home )
         try:
             if storage.exists( path ):
-                options = ResizeOptions( "small", user=name, storage=user.home )
+                options = ResizeOptions( "small", user=user.url, storage=user.home )
                 image = CacheImage( path, options )
                 image.process( )
                 name = Storage.name( path )
