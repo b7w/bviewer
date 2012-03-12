@@ -5,22 +5,24 @@ from pwd import getpwnam
 import shutil
 
 from fabric.context_managers import cd
-from fabric.operations import local
 
 from src import settings
 
-__all__ = ['help', 'start', 'stop', 'syncdb', 'clear', 'static']
+__all__ = ["help", "start", "stop", "restart", "syncdb", "clear", "static"]
 
 HOME = settings.SOURCE_PATH
 
-NAME = getattr( settings, 'NAME', 'believe' )
-PID = getattr( settings, 'PID', '/var/run/limited' )
-NICE = getattr( settings, 'NICE', 0 )
-USER = getattr( settings, 'USER', 'www-data' )
-GROUP = getattr( settings, 'GROUP', 'www-data' )
+NAME = getattr( settings, "NAME", "believe" )
+PID = getattr( settings, "PID", "/var/run/limited" )
+NICE = getattr( settings, "NICE", 0 )
+USER = getattr( settings, "USER", "www-data" )
+GROUP = getattr( settings, "GROUP", "www-data" )
 
-MANAGE_PY = os.path.join( getattr( settings, 'SOURCE_PATH' ), 'manage.py' )
-CELERY_ARGS = getattr( settings, 'CELERY_ARGS', '-B' )
+MANAGE_PY = os.path.join( getattr( settings, "SOURCE_PATH" ), "manage.py" )
+RUN_DIR = os.path.join( "/var/run", NAME.lower( ) )
+
+CELERY_ARGS = getattr( settings, "CELERY_ARGS", "-B" )
+DJANGO_ARGS = getattr( settings, "DJANGO_ARGS", "maxspare=4 maxchildren=8" )
 
 CELERY_START = """start-stop-daemon --start --quiet --oknodo --background --make-pidfile \
  --chdir {home} --name {name} --pidfile {pid} --nicelevel {nice} --chuid {user} \
@@ -28,16 +30,26 @@ CELERY_START = """start-stop-daemon --start --quiet --oknodo --background --make
 
 CELERY_STOP = """start-stop-daemon --stop --pidfile {pid}"""
 
+DJANGO_START = """python {manage} runfcgi socket={sock} pidfile={pid} {args}"""
+
 def get_pid(name):
     """
     Get pid path /var/run + NAME.lower() + name
     """
-    dir = os.path.join( '/var/run', NAME.lower( ) )
-    if not os.path.exists( dir ):
-        os.mkdir( dir )
-    os.chown( dir, getpwnam( USER ).pw_uid, getpwnam( GROUP ).pw_gid )
-    file = os.path.join( dir, name )
+    if not os.path.exists( RUN_DIR ):
+        os.mkdir( RUN_DIR )
+    file = os.path.join( RUN_DIR, name )
     return file
+
+
+def chmod():
+    """
+    Chown run directory
+    """
+    for file in os.listdir( RUN_DIR ):
+        path = os.path.join( RUN_DIR, file )
+        os.chown( path, getpwnam( USER ).pw_uid, getpwnam( GROUP ).pw_gid )
+        os.chmod( path, int( "775", 8 ) )
 
 
 def list_files( path, ends=None ):
@@ -54,7 +66,7 @@ def list_files( path, ends=None ):
             if os.path.isfile( full_path ):
                 if ends is not None:
                     for ext in ends:
-                        if full_path.endswith( '.' + ext ):
+                        if full_path.endswith( "." + ext ):
                             array.append( full_path )
         return array
 
@@ -63,32 +75,52 @@ def list_files( path, ends=None ):
 
 def start():
     """
-    Start celery daemon from manage.py with default django settings file.
+    Start celery and django daemon from manage.py with default django settings file.
     djcelery should be installed, but can not be in install apps.
     settings: NICE=0, USER=www-data, GROUP=www-data, CELERY_ARGS=-B
     """
-    args = {
-        'home': HOME,
-        'name': NAME,
-        'nice': NICE,
-        'pid': get_pid( 'celery.pid' ),
-        'user': USER,
-        'daemon': MANAGE_PY,
-        'options': 'celeryd ' + CELERY_ARGS,
+    celery_args = {
+        "home": HOME,
+        "name": NAME,
+        "nice": NICE,
+        "pid": get_pid( "celery.pid" ),
+        "user": USER,
+        "daemon": MANAGE_PY,
+        "options": "celeryd " + CELERY_ARGS,
+        }
+    django_args = {
+        "manage": MANAGE_PY,
+        "pid": get_pid( "django.pid" ),
+        "sock": get_pid( "django.sock" ),
+        "args": DJANGO_ARGS,
         }
     with cd( HOME ):
-        local( CELERY_START.format( **args ) )
+        print( "[ INFO ] Start celery" )
+        os.system( CELERY_START.format( **celery_args ) )
+        print( "[ INFO ] Start django" )
+        os.system( DJANGO_START.format( **django_args ) )
+    chmod( )
 
 
 def stop():
     """
-    Stop celery daemon
+    Stop celery and django daemon
     """
-    print( "[ INFO ] Start celery" )
+    print( "[ INFO ] Stop celery" )
     args = {
-        'pid': get_pid( 'celery.pid' ),
+        "pid": get_pid( "celery.pid" ),
         }
-    local( CELERY_STOP.format( **args ) )
+    os.system( CELERY_STOP.format( **args ) )
+    print( "[ INFO ] Stop django" )
+    os.system( "kill `cat {pid}`".format( pid=get_pid( "django.pid" ) ) )
+
+
+def restart():
+    """
+    Restart celery and django
+    """
+    stop( )
+    start( )
 
 
 def syncdb():
@@ -96,7 +128,7 @@ def syncdb():
     Sync database, just a proxy command
     """
     print( "[ INFO ] Sync database" )
-    local( '{0} syncdb'.format( MANAGE_PY ) )
+    os.system( "python {0} syncdb".format( MANAGE_PY ) )
 
 
 def clear():
@@ -114,15 +146,15 @@ def static():
     Delete previous folder.
     """
 
-    print( "[ INFO ] Collect and gzip static " )
+    print( "[ INFO ] Collect and gzip static" )
     if os.path.exists( settings.STATIC_ROOT ):
         shutil.rmtree( settings.STATIC_ROOT )
-    local( "python {manage} collectstatic --noinput".format( manage=MANAGE_PY ) )
+    os.system( "python {manage} collectstatic --noinput".format( manage=MANAGE_PY ) )
 
     files = list_files( settings.STATIC_ROOT, ("css", "js",) )
     for item in files:
         os.system( "gzip -6 -c {0} > {0}.gz".format( item ) )
-    local( "find {0} -type f -exec chmod {1} {{}} \;".format( settings.STATIC_ROOT, 644 ) )
+    os.system( "find {0} -type f -exec chmod {1} {{}} \;".format( settings.STATIC_ROOT, 644 ) )
 
 
 def help():
