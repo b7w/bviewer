@@ -9,6 +9,11 @@ from django.conf import settings
 # each user have his own sub folder
 VIEWER_CACHE_PATH = getattr( settings, 'VIEWER_CACHE_PATH', "../cache" )
 
+# When run clear old cache, for more examples look here
+# http://ask.github.com/celery/userguide/periodic-tasks.html
+# default 6:00 hours
+VIEWER_CLEAR = getattr( settings, 'VIEWER_CLEAR', {'minute': 0, 'hour': 6} )
+
 # Start path where full images are located
 # each user will have his own home, in profile.storage
 VIEWER_STORAGE_PATH = getattr( settings, 'VIEWER_STORAGE_PATH' )
