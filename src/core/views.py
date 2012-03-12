@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from core.utils import ResizeOptions, ResizeOptionsError, get_gallery_user
 from core.files import Storage
 from core.files.serve import DownloadResponse
-from core.images import CacheImage
+from core.images import CacheImageAsync
 from core.models import Gallery, Image, Video
 
 import logging
@@ -123,10 +123,10 @@ def DownloadVideoThumbnail( request, id, user=None ):
     name = video.uid + ".jpg"
     try:
         options = ResizeOptions( "small", user=holder.url, storage=holder.home, name=str( video.id ) )
-        image = CacheImage( video.thumbnail_url, options )
-        image.download( )
+        cache = CacheImageAsync( video.thumbnail_url, options )
+        cache.download( )
 
-        response = DownloadResponse.build( image.url, name )
+        response = DownloadResponse.build( cache.url, name )
 
     except ResizeOptionsError as e:
         logger.error( "id:%s, holder:%s \n %s", id, holder, e )
@@ -153,10 +153,10 @@ def DownloadImage( request, size, id, user=None ):
     name = Storage.name( image.path )
     try:
         options = ResizeOptions( size, user=holder.url, storage=holder.home )
-        image = CacheImage( image.path, options )
-        image.process( )
+        cache = CacheImageAsync( image.path, options )
+        cache.process( )
 
-        response = DownloadResponse.build( image.url, name )
+        response = DownloadResponse.build( cache.url, name )
 
     except ResizeOptionsError as e:
         logger.error( "id:%s, holder:%s \n %s", id, holder, e )
