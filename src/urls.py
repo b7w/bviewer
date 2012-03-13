@@ -1,9 +1,9 @@
 from django.conf.urls.defaults import patterns, include, url
-
-# Uncomment the next two lines to enable the admin:
 from django.contrib import admin
+import djcelery
 
 admin.autodiscover( )
+djcelery.setup_loader()
 
 urlpatterns = patterns( '',
     url( r'^', include( 'core.urls' ) ),

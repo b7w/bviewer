@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from django.db import transaction
-from core.images import ThreadCache
+from core.images import BulkCache
 
 from core.models import Gallery, Image, Video
 from api.utils import JSONResponse, JSONRequest, gallery_tree, login_required_ajax
@@ -215,11 +215,7 @@ def JsonGalleryPreCache( request ):
             if "each" in kwargs:
                 each = int( kwargs["each"] )
             size = kwargs["size"]
-            if isinstance( size, basestring ):
-                if size == "full":
-                    return JSONResponse.Error( "Size can not be full" )
-                size = [size]
-            elif "full" in size:
+            if "full" in size:
                 return JSONResponse.Error( "Size can not be full" )
 
             images = Image.objects.filter( gallery=id, gallery__user__id=req.user.id )
@@ -227,9 +223,10 @@ def JsonGalleryPreCache( request ):
                 return JSONResponse.Error( "No such gallery" )
 
             paths = [images[i].path for i in range( 0, len( images ), each )]
-            options = [ResizeOptions( s, user=holder.url, storage=holder.home ) for s in size]
-            work = ThreadCache( paths, options )
-            work.start( )
+            options = ResizeOptions( size, user=holder.url, storage=holder.home )
+            work = BulkCache( )
+            work.setArgs( paths, options )
+            work.send( )
 
             return JSONResponse.Success( )
         except Exception as e:

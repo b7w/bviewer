@@ -189,7 +189,41 @@ LOGOUT_URL = "/logout/"
 VIEWER_CACHE_PATH = os.path.join( PROJECT_PATH, "cache" )
 VIEWER_STORAGE_PATH = PROJECT_PATH
 
+# X-Accel-Redirect for web server to improve file serving
 VIEWER_SERVE = {
     'BACKEND': 'core.files.serve.nginx',
     'INTERNAL_URL': '/protected',
     }
+
+# When run clear old cache, for more examples look here
+# http://ask.github.com/celery/userguide/periodic-tasks.html
+VIEWER_CLEAR = {
+    'minute': 0,
+    'hour': 6,
+    }
+
+
+#
+# Celery configs
+# it is need to process images
+#
+CELERY_IMPORTS = ('core.tasks', )
+
+# Redis is very simple to install
+# and it can be used with django sessions, django cache and `cacheotps` for cache queries.
+# But also you can add `djcelery` in install apps and use you database
+BROKER_URL = "redis://localhost:6379/0"
+
+# Store results in redis
+CELERY_RESULT_BACKEND = "redis"
+CELERY_REDIS_HOST = "localhost"
+CELERY_REDIS_PORT = 6379
+CELERY_REDIS_DB = 0
+
+#
+# Run service configs
+# if you use fabfile to start django and celery
+#
+USER = 'www-data'
+GROUP = 'www-data'
+DJANGO_ARGS = 'maxspare=4 maxchildren=8'
