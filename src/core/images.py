@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-import threading
 import urllib2
 import cStringIO
 from PIL import Image
 
 from core import settings
 from core.utils import FileUniqueName
+from core.tasks import cache_image_process, cache_image_download
 
 import logging
 
@@ -187,28 +187,53 @@ class CacheImage( object ):
             os.mkdir( self.cache_dir )
 
 
-class ThreadCache( threading.Thread ):
+class CacheImageAsync( object ):
     """
-    Cache images in new thread
+    Proxy for `CacheImage` but it run in celery container.
+    It send task and wait for result
+    In this case we think it is a thread pool that help to minimize system resource.
     """
 
-    def __init__(self, paths, options):
+    def __init__(self, path, options ):
+        self.url = None
+        self.path = path
+        self.options = options
+        self.cache = CacheImage( path, options )
+
+    def process(self):
+        async = cache_image_process.delay( self.cache )
+        self.image = async.get( )
+        self.url = self.image.url
+
+    def download(self):
+        async = cache_image_download.delay( self.cache )
+        self.image = async.get( )
+        self.url = self.image.url
+
+
+class BulkCache( object ):
+    """
+    Cache images in bulk
+    """
+
+    def __init__(self):
+        self.args = []
+
+    def setArgs(self, path, options ):
         """
         paths -> list of image paths from user home
-        options -> list of option, for example for different size
+        options -> option, for this images
         """
-        threading.Thread.__init__( self )
-        self.paths = paths
-        self.options = options
-        self.daemon = True
+        self.args.append( (path, options) )
 
-    def run(self):
+    def send(self):
         logger.info( "start tread %s", hash( self ) )
-        for path in self.paths:
-            for option in self.options:
+        for item in self.args:
+            paths, options = item
+            for path in paths:
                 try:
-                    image = CacheImage( path, option )
-                    image.process( )
+                    image = CacheImage( path, options )
+                    cache_image_process.delay( image )
                     logger.debug( "tread %s, process image '%s'", hash( self ), path )
                 except Exception as e:
                     logger.error( "tread %s, %s", hash( self ), e )

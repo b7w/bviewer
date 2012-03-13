@@ -284,7 +284,12 @@ function remove_image(id) {
 
 function pre_cache_album(id) {
     console.log( 'pre cache album ' + id );
-    var json = '{"id":"' + id + '","each":2,"size":["small","big"]}';
+    var json = '{"id":"' + id + '","size":"small"}';
+    $.ajax( {
+        url:'/api/gallery/cache/?data=' + json,
+        dataType:'json'
+    } );
+    var json = '{"id":"' + id + '","each":2,"size":"big"}';
     $.ajax( {
         url:'/api/gallery/cache/?data=' + json,
         dataType:'json'
