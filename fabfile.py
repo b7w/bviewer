@@ -13,8 +13,6 @@ __all__ = ["help", "start", "stop", "restart", "syncdb", "clear", "static"]
 HOME = settings.SOURCE_PATH
 
 NAME = getattr( settings, "NAME", "believe" )
-PID = getattr( settings, "PID", "/var/run/limited" )
-NICE = getattr( settings, "NICE", 0 )
 USER = getattr( settings, "USER", "www-data" )
 GROUP = getattr( settings, "GROUP", "www-data" )
 
@@ -22,15 +20,15 @@ MANAGE_PY = os.path.join( getattr( settings, "SOURCE_PATH" ), "manage.py" )
 RUN_DIR = os.path.join( "/var/run", NAME.lower( ) )
 
 CELERY_ARGS = getattr( settings, "CELERY_ARGS", "-B" )
+CELERY_NICE = getattr( settings, "CELERY_NICE", 0 )
 DJANGO_ARGS = getattr( settings, "DJANGO_ARGS", "maxspare=4 maxchildren=8" )
 
 CELERY_START = """start-stop-daemon --start --quiet --oknodo --background --make-pidfile \
  --chdir {home} --name {name} --pidfile {pid} --nicelevel {nice} --chuid {user} \
  --exec {daemon} -- {options}"""
 
-CELERY_STOP = """start-stop-daemon --stop --pidfile {pid}"""
+DJANGO_START = """su {user} -c "python {manage} runfcgi socket={sock} pidfile={pid} {args}" """
 
-DJANGO_START = """python {manage} runfcgi socket={sock} pidfile={pid} {args}"""
 
 def get_pid(name):
     """
@@ -77,50 +75,57 @@ def start():
     """
     Start celery and django daemon from manage.py with default django settings file.
     djcelery should be installed, but can not be in install apps.
-    settings: NICE=0, USER=www-data, GROUP=www-data, CELERY_ARGS=-B
+    settings: CELERY_NICE=0, USER=www-data, GROUP=www-data, CELERY_ARGS=-B
     """
-    celery_args = {
-        "home": HOME,
-        "name": NAME,
-        "nice": NICE,
-        "pid": get_pid( "celery.pid" ),
-        "user": USER,
-        "daemon": MANAGE_PY,
-        "options": "celeryd " + CELERY_ARGS,
-        }
-    django_args = {
-        "manage": MANAGE_PY,
-        "pid": get_pid( "django.pid" ),
-        "sock": get_pid( "django.sock" ),
-        "args": DJANGO_ARGS,
-        }
-    with cd( HOME ):
-        print( "[ INFO ] Start celery" )
-        os.system( CELERY_START.format( **celery_args ) )
-        print( "[ INFO ] Start django" )
-        os.system( DJANGO_START.format( **django_args ) )
-    chmod( )
+    if os.getuid( ):
+        print("Only root can run program from another user")
+    else:
+        celery_args = {
+            "home": HOME,
+            "name": NAME,
+            "nice": CELERY_NICE,
+            "pid": get_pid( "celery.pid" ),
+            "user": USER,
+            "daemon": MANAGE_PY,
+            "options": "celeryd " + CELERY_ARGS,
+            }
+        django_args = {
+            "manage": MANAGE_PY,
+            "user": USER,
+            "pid": get_pid( "django.pid" ),
+            "sock": get_pid( "django.sock" ),
+            "args": DJANGO_ARGS,
+            }
+        with cd( HOME ):
+            print( "[ INFO ] Start celery" )
+            os.system( CELERY_START.format( **celery_args ) )
+            print( "[ INFO ] Start django" )
+            os.system( DJANGO_START.format( **django_args ) )
+        chmod( )
 
 
 def stop():
     """
     Stop celery and django daemon
     """
-    print( "[ INFO ] Stop celery" )
-    args = {
-        "pid": get_pid( "celery.pid" ),
-        }
-    os.system( CELERY_STOP.format( **args ) )
-    print( "[ INFO ] Stop django" )
-    os.system( "kill `cat {pid}`".format( pid=get_pid( "django.pid" ) ) )
+    if os.getuid( ):
+        print("Only root can stop program of another user")
+    else:
+        print( "[ INFO ] Stop celery" )
+        os.system( "kill `cat {pid}`".format( pid=get_pid( "celery.pid" ) ) )
+        print( "[ INFO ] Stop django" )
+        os.system( "kill `cat {pid}`".format( pid=get_pid( "django.pid" ) ) )
 
 
 def restart():
     """
     Restart celery and django
     """
-    stop( )
-    start( )
+    if os.getuid( ):
+        print("Only root can restart program of another user")
+    else:
+        stop( )
+        start( )
 
 
 def syncdb():
