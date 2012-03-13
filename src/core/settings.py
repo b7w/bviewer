@@ -36,6 +36,7 @@ VIEWER_BIG_SIZE = getattr( settings, 'VIEWER_BIG_SIZE', {
     'CROP': False,
     } )
 
+# X-Accel-Redirect for web server to improve file serving
 VIEWER_SERVE = getattr( settings, 'VIEWER_SERVE', {
     'BACKEND': 'core.files.serve.default',
     'INTERNAL_URL': '/protected',
