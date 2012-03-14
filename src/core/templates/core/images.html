@@ -8,7 +8,7 @@
             <p>{{ main.description|linebreaksbr }}</p>
             <ul class="thumbnails">
                 {% for item in videos %}
-                    <li class="span3 control" ontouchstart="window.location='{% url core.video user_url item.id %}';return false;">
+                    <li class="span3 control" data-ref-touch="{% url core.video user_url item.id %}">
                         <a href="{{ item.url }}" class="thumbnail preview" rel="shadowbox[videos];width=720;height=480;title={{ item.title }}">
                             <img class="hidden" src="#{% url core.video.thumbnail user_url item.id %}" style="display:none">
                         </a>
@@ -25,7 +25,7 @@
                     </li>
                 {% endfor %}
                 {% for item in images %}
-                    <li class="span3 control" ontouchstart="window.location='{% url core.image user_url item.id %}';return false;">
+                    <li class="span3 control" data-ref-touch="{% url core.image user_url item.id %}">
                         <a href="{% url core.download user_url 'big' item.id %}" rel="shadowbox[images]" class="thumbnail preview">
                             <img class="hidden" src="#{% url core.download user_url 'small' item.id %}" style="display:none">
                         </a>
@@ -47,14 +47,38 @@
     <link id="shadowbox.css" href="{{ STATIC_URL }}core/css/shadowbox.css" rel="stylesheet" type="text/css">
     <script id="shadowbox.js" src="{{ STATIC_URL }}core/js/shadowbox.js" type="text/javascript"></script>
     <script type="text/javascript">
-        Shadowbox.init( {
-            "overlayOpacity":0.95,
-            "slideshowDelay":3,
-            onOpen:function (currentImage) {
-                Shadowbox.play();
-                Shadowbox.pause();
+        function full_support() {
+            var touch = 'ontouchstart' in document.documentElement;
+            var agent = navigator.userAgent.toLowerCase();
+            if (!touch) {
+            } else {
+                if (agent.indexOf( 'android 4' ) != -1)
+                    return true;
+                else if (agent.indexOf( 'iphone' ) != -1)
+                    return true;
+                else
+                    return false;
             }
-        } );
+            return true;
+        }
+
+        if (full_support()) {
+            Shadowbox.init( {
+                "overlayOpacity":0.95,
+                "slideshowDelay":3,
+                "viewportPadding":12,
+                onOpen:function (currentImage) {
+                    Shadowbox.play();
+                    Shadowbox.pause();
+                }
+            } );
+        } else {
+            $( '.thumbnails a' ).bind( 'click', function (e) {
+                e.preventDefault();
+                var ref = jQuery( this ).parent().attr( 'data-ref-touch' );
+                window.location = ref;
+            } );
+        }
 
         function load_next() {
             var image = $( '.thumbnails .hidden:first' );
@@ -77,7 +101,7 @@
                 a.attr( 'href', '#404' );
                 a.attr( 'rel', '' );
                 var li = a.parent();
-                li.attr( 'ontouchstart', '' );
+                li.attr( 'data-ref-touch', '' );
                 li.children( '.caption' ).html( '<div style="color:#555;font-size: 12px;">Image not found</dim>' );
                 it.attr( 'src', '{{ STATIC_URL }}core/img/gallery.png' );
                 it.css( 'opacity', '0.5' );

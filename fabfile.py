@@ -18,6 +18,7 @@ GROUP = getattr( settings, "GROUP", "www-data" )
 
 MANAGE_PY = os.path.join( getattr( settings, "SOURCE_PATH" ), "manage.py" )
 RUN_DIR = os.path.join( "/var/run", NAME.lower( ) )
+os.chmod( MANAGE_PY, int( "0755", 8 ) )
 
 CELERY_ARGS = getattr( settings, "CELERY_ARGS", "-B" )
 CELERY_NICE = getattr( settings, "CELERY_NICE", 0 )
@@ -96,6 +97,7 @@ def start():
             "sock": get_pid( "django.sock" ),
             "args": DJANGO_ARGS,
             }
+        os.chown( RUN_DIR, getpwnam( USER ).pw_uid, getpwnam( GROUP ).pw_gid )
         with cd( HOME ):
             print( "[ INFO ] Start celery" )
             os.system( CELERY_START.format( **celery_args ) )
