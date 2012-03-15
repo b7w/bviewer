@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from celery.decorators import periodic_task, task
+
+from celery.task import periodic_task, task
 from celery.schedules import crontab
 
 from core import settings
