@@ -138,15 +138,20 @@ class GalleryTest( TestCase ):
         month = Gallery.objects.get( title="Happy new month" )
         assert month.parent == None
 
-        res = self.client.get_extra( "api.gallery.child.add", {"id": 1, "child": 1} )
+        res = self.client.get_extra( "api.gallery.child.add", {"id": 10, "child": 10} )
         assert res.status_code == 200
         assert "error" in res.json
 
-        res = self.client.get_extra( "api.gallery.child.add", {"id": -1, "child": 1} )
+        res = self.client.get_extra( "api.gallery.child.add", {"id": -1, "child": 10} )
         assert res.status_code == 200
         assert "error" in res.json
 
-        res = self.client.get_extra( "api.gallery.child.add", {"id": 1, "child": -1} )
+        res = self.client.get_extra( "api.gallery.child.add", {"id": 10, "child": -1} )
+        assert res.status_code == 200
+        assert "error" in res.json
+
+        top = self.data.user_b7w.top_gallery_id
+        res = self.client.get_extra( "api.gallery.child.add", {"id": 10, "child": top} )
         assert res.status_code == 200
         assert "error" in res.json
 

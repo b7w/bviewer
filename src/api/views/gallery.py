@@ -72,7 +72,7 @@ def JsonGalleryTree( request ):
                 return JSONResponse.Error( "No main gallery" )
 
             tree = gallery_tree( holder.top_gallery_id )
-            isolated = Gallery.objects.filter( parent=None ).exclude( id=holder.top_gallery_id )
+            isolated = Gallery.objects.filter( parent=None, user=holder ).exclude( id=holder.top_gallery_id )
             galleries = [tree]
             galleries.extend( [gallery_tree( i.id ) for i in isolated] )
             return JSONResponse( galleries )
@@ -143,13 +143,16 @@ def JsonGalleryChild( request, action=None ):
     req = JSONRequest( request )
     if req.is_data( ):
         try:
+            holder, user_url = get_gallery_user( request )
             kwargs = req.data( )
             if kwargs["id"] == kwargs["child"]:
                 return JSONResponse.Error( "Id main and child is equal '{0}'".format( kwargs["id"] ) )
             id = int( kwargs["id"] )
             child_id = int( kwargs["child"] )
-            main = Gallery.objects.safe_get( id=id, user=req.user )
+            if child_id == holder.top_gallery_id:
+                return JSONResponse.Error( "You can not modify patent of top gallery" )
 
+            main = Gallery.objects.safe_get( id=id, user=req.user )
             if main is None:
                 return JSONResponse.Error( "No '{0}' gallery".format( id ) )
 
