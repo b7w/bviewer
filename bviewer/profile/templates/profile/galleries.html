@@ -1,4 +1,5 @@
 {% extends 'profile/base.html' %}
+{% load staticfiles %}
 
 {% block tabs %}
     <div id="galleries">
@@ -50,7 +51,7 @@
                         <td>
                             <i class="help-block">To change thumbnail go to "<a href="{% url profile.images %}">Gallery images</a>"</i>
                             <a href="#" class="thumbnail thumbnail-admin preview ">
-                                <img id="gallery-thumbnail" src="/static/core/img/gallery.png" alt="">
+                                <img id="gallery-thumbnail" src="{% static "core/img/gallery.png" %}" alt="">
                             </a>
                         </td>
                     </tr>
