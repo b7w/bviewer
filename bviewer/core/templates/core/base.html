@@ -1,3 +1,4 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,8 +8,8 @@
     <meta name="author" content="B7W">
     <meta name="robots" content="NONE,NOARCHIVE"/>
 
-    <link href="{{ STATIC_URL }}core/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{ STATIC_URL }}core/css/main.css" rel="stylesheet">
+    <link href="{% static "core/css/bootstrap.min.css" %}" rel="stylesheet">
+    <link href="{% static "core/css/main.css" %}" rel="stylesheet">
     {% block css %}
     {% endblock %}
 
@@ -78,8 +79,8 @@
 </div>
 
 {% block media %}
-    <script src="{{ STATIC_URL }}core/js/jquery.min.js" type="text/javascript"></script>
-    <script src="{{ STATIC_URL }}core/js/bootstrap-dropdown.js" type="text/javascript"></script>
+    <script src="{% static "core/js/jquery.min.js" %}" type="text/javascript"></script>
+    <script src="{% static "core/js/bootstrap-dropdown.js" %}" type="text/javascript"></script>
     <script type="text/javascript">$( '.dropdown-toggle' ).dropdown()</script>
 {% endblock %}
 

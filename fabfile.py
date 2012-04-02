@@ -150,12 +150,9 @@ def clear():
 def static():
     """
     Collect and gzip static files.
-    Delete previous folder.
     """
 
     print( "[ INFO ] Collect and gzip static" )
-    if os.path.exists( settings.STATIC_ROOT ):
-        shutil.rmtree( settings.STATIC_ROOT )
     os.system( "python {manage} collectstatic --noinput".format( manage=MANAGE_PY ) )
 
     files = list_files( settings.STATIC_ROOT, ("css", "js",) )

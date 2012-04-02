@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load staticfiles %}
 
 {% block main %}
     <div class="row-fluid">
@@ -14,7 +15,7 @@
                             {% if item.thumbnail_id %}
                                 <img class="hidden" src="#{% url core.download user_url 'small' item.thumbnail_id  %}" style="display:none">
                             {% else %}
-                                <img src="{{ STATIC_URL }}core/img/gallery.png" alt="" style="opacity: 0.8;">
+                                <img src="{% static "core/img/gallery.png" %}" alt="" style="opacity: 0.8;">
                             {% endif %}
 
                             <div class="carousel-caption">
@@ -53,7 +54,7 @@
         $( '.thumbnails .hidden' ).bind( 'error', function () {
             var it = jQuery( this );
             if (!( it.attr( 'src' ).indexOf( '#' ) == 0)) {
-                it.attr( 'src', '{{ STATIC_URL }}core/img/gallery.png' );
+                it.attr( 'src', '{% static "core/img/gallery.png" %}' );
                 it.css( 'opacity', '0.8' );
             }
         } );

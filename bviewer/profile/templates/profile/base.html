@@ -1,7 +1,8 @@
 {% extends 'core/base.html' %}
+{% load staticfiles %}
 
 {% block css %}
-    <link href="{{ STATIC_URL }}profile/css/admin.css" rel="stylesheet">
+    <link href="{% static "profile/css/admin.css" %}" rel="stylesheet">
 {% endblock %}
 
 {% block main %}
@@ -29,5 +30,5 @@
 
 {% block media %}
     {{ block.super }}
-    <script src="{{ STATIC_URL }}profile/js/main.js" type="text/javascript"></script>
+    <script src="{% static "profile/js/main.js" %}" type="text/javascript"></script>
 {% endblock %}

@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load staticfiles %}
 
 {% block main %}
     <div class="row-fluid">
@@ -14,7 +15,7 @@
                         </a>
 
                         <div class="video-tag">
-                            <img src="{{ STATIC_URL }}core/img/video.png" alt="">
+                            <img src="{% static "core/img/video.png" %}" alt="">
                         </div>
 
                         <div class="caption">
@@ -44,8 +45,8 @@
 
 {% block media %}
     {{ block.super }}
-    <link id="shadowbox.css" href="{{ STATIC_URL }}core/css/shadowbox.css" rel="stylesheet" type="text/css">
-    <script id="shadowbox.js" src="{{ STATIC_URL }}core/js/shadowbox.js" type="text/javascript"></script>
+    <link id="shadowbox.css" href="{% static "core/css/shadowbox.css" %}" rel="stylesheet" type="text/css">
+    <script id="shadowbox.js" src="{% static "core/js/shadowbox.js" %}" type="text/javascript"></script>
     <script type="text/javascript">
         //$('.span12 h2').html(navigator.userAgent);
         function full_support() {
@@ -106,7 +107,7 @@
                 var li = a.parent();
                 li.attr( 'data-ref-touch', '' );
                 li.children( '.caption' ).html( '<div style="color:#555;font-size: 12px;">Image not found</dim>' );
-                it.attr( 'src', '{{ STATIC_URL }}core/img/gallery.png' );
+                it.attr( 'src', '{% static "core/img/gallery.png" %}' );
                 it.css( 'opacity', '0.5' );
             }
         } );
