@@ -1,0 +1,117 @@
+{% extends 'core/base.html' %}
+{% load staticfiles %}
+
+{% block main %}
+    <div class="row-fluid">
+        <div class="span12">
+            <h2>{{ main.name }}</h2>
+
+            <p>{{ main.description|linebreaksbr }}</p>
+            <ul class="thumbnails">
+                {% for item in videos %}
+                    <li class="span3 control" data-ref-touch="{% url core.video user_url item.id %}">
+                        <a href="{{ item.url }}" class="thumbnail preview" rel="shadowbox[videos];width=720;height=480;title={{ item.title }}">
+                            <img class="hidden" src="#{% url core.video.thumbnail user_url item.id %}" style="display:none">
+                        </a>
+
+                        <div class="video-tag">
+                            <img src="{% static "core/img/video.png" %}" alt="">
+                        </div>
+
+                        <div class="caption">
+                            <a href="{% url core.video user_url item.id %}">
+                                <i class="icon-white icon-zoom-in"></i>
+                            </a>
+                        </div>
+                    </li>
+                {% endfor %}
+                {% for item in images %}
+                    <li class="span3 control" data-ref-touch="{% url core.image user_url item.id %}">
+                        <a href="{% url core.download user_url 'big' item.id %}" rel="shadowbox[images]" class="thumbnail preview">
+                            <img class="hidden" src="#{% url core.download user_url 'small' item.id %}" style="display:none">
+                        </a>
+
+                        <div class="caption">
+                            <a href="{% url core.image user_url item.id %}">
+                                <i class="icon-white icon-zoom-in"></i>
+                            </a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block media %}
+    {{ block.super }}
+    <link id="shadowbox.css" href="{% static "core/css/shadowbox.css" %}" rel="stylesheet" type="text/css">
+    <script id="shadowbox.js" src="{% static "core/js/shadowbox.js" %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        //$('.span12 h2').html(navigator.userAgent);
+        function full_support() {
+            var touch = 'ontouchstart' in document.documentElement;
+            var agent = navigator.userAgent.toLowerCase();
+            if (!touch) {
+            } else {
+                if (agent.indexOf( 'crmo' ) != -1)
+                    return false;
+                else if (agent.indexOf( 'android 4' ) != -1)
+                    return true;
+                else if (agent.indexOf( 'ipad' ) != -1)
+                    return true;
+                else
+                    return false;
+            }
+            return true;
+        }
+
+        if (full_support()) {
+            Shadowbox.init( {
+                "overlayOpacity":0.95,
+                "slideshowDelay":3,
+                "viewportPadding":12,
+                onOpen:function (currentImage) {
+                    Shadowbox.play();
+                    Shadowbox.pause();
+                }
+            } );
+        } else {
+            $( '.thumbnails a' ).bind( 'click', function (e) {
+                e.preventDefault();
+                var ref = jQuery( this ).parent().attr( 'data-ref-touch' );
+                window.location = ref;
+            } );
+        }
+
+        function load_next() {
+            var image = $( '.thumbnails .hidden:first' );
+            if (image.size() != 0) {
+                var link = jQuery( image ).attr( 'src' );
+                jQuery( image ).attr( 'src', link.substring( 1 ) );
+            }
+        }
+
+        $( '.thumbnails .hidden' ).bind( 'load', function () {
+            jQuery( this ).removeClass( 'hidden' );
+            jQuery( this ).fadeIn( 'slow' );
+            load_next();
+        } );
+
+        $( '.thumbnails .hidden' ).bind( 'error', function () {
+            var it = jQuery( this );
+            if (!( it.attr( 'src' ).indexOf( '#' ) == 0)) {
+                var a = it.parent();
+                a.attr( 'href', '#404' );
+                a.attr( 'rel', '' );
+                var li = a.parent();
+                li.attr( 'data-ref-touch', '' );
+                li.children( '.caption' ).html( '<div style="color:#555;font-size: 12px;">Image not found</dim>' );
+                it.attr( 'src', '{% static "core/img/gallery.png" %}' );
+                it.css( 'opacity', '0.5' );
+            }
+        } );
+
+        load_next();
+    </script>
+{% endblock %}
