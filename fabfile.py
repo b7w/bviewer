@@ -6,7 +6,7 @@ import shutil
 
 from fabric.context_managers import cd
 
-from src import settings
+from bviewer import settings
 
 __all__ = ["help", "start", "stop", "restart", "syncdb", "clear", "static"]
 
@@ -16,7 +16,7 @@ NAME = getattr( settings, "NAME", "believe" )
 USER = getattr( settings, "USER", "www-data" )
 GROUP = getattr( settings, "GROUP", "www-data" )
 
-MANAGE_PY = os.path.join( getattr( settings, "SOURCE_PATH" ), "manage.py" )
+MANAGE_PY = os.path.join( getattr( settings, "PROJECT_PATH" ), "manage.py" )
 RUN_DIR = os.path.join( "/var/run", NAME.lower( ) )
 os.chmod( MANAGE_PY, int( "0755", 8 ) )
 
@@ -150,12 +150,9 @@ def clear():
 def static():
     """
     Collect and gzip static files.
-    Delete previous folder.
     """
 
     print( "[ INFO ] Collect and gzip static" )
-    if os.path.exists( settings.STATIC_ROOT ):
-        shutil.rmtree( settings.STATIC_ROOT )
     os.system( "python {manage} collectstatic --noinput".format( manage=MANAGE_PY ) )
 
     files = list_files( settings.STATIC_ROOT, ("css", "js",) )
