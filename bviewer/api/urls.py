@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 
 urlpatterns = patterns( '',
     url( r'^gallery/tree/main/$', 'bviewer.api.views.gallery.JsonGalleryTree', name='api.gallery.tree.main' ),

@@ -1,6 +1,12 @@
 {% extends 'core/base.html' %}
 {% load staticfiles %}
 
+{% block navigation %}
+    <li><a href="{% url core.home user_url %}">Home</a></li>
+    <li><a href="{% url archive.archive user_url main.id %}" title="Download all images in archive">Download</a></li>
+    <li><a href="{% url core.about user_url %}">About</a></li>
+{% endblock %}
+
 {% block main %}
     <div class="row-fluid">
         <div class="span12">
