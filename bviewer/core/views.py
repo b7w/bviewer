@@ -115,11 +115,11 @@ def DownloadVideoThumbnail( request, id, user=None ):
     """
     holder, user_url = get_gallery_user( request, user )
     if not holder:
-        return Http404( "No user defined" )
+        raise Http404( "No user defined" )
 
     video = Video.objects.safe_get( gallery__user__id=holder.id, id=id )
     if video is None:
-        return Http404( "No such video" )
+        raise Http404( "No such video" )
     name = video.uid + ".jpg"
     try:
         options = ResizeOptions( "small", user=holder.url, storage=holder.home, name=str( video.id ) )
@@ -144,7 +144,7 @@ def DownloadImage( request, size, id, user=None ):
     """
     holder, user_url = get_gallery_user( request, user )
     if not holder:
-        return Http404( "No user defined" )
+        raise Http404( "No user defined" )
 
     image = Image.objects.safe_get( gallery__user__id=holder.id, id=id )
     if image is None:

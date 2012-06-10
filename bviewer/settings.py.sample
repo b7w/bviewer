@@ -142,6 +142,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'bviewer.core',
+    'bviewer.archive',
     'bviewer.api',
     'bviewer.profile',
     )
@@ -172,12 +173,12 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['log-file'],
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'propagate': True,
             },
-        'limited': {
+        'bviewer': {
             'handlers': ['log-file'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,
             },
         }
@@ -216,7 +217,10 @@ VIEWER_CLEAR = {
 # Celery configs
 # it is need to process images
 #
-CELERY_IMPORTS = ('core.tasks', )
+CELERY_IMPORTS = (
+    'bviewer.core.tasks',
+    'bviewer.archive.tasks',
+    )
 
 # Redis is very simple to install
 # and it can be used with django sessions, django cache and `cacheotps` for cache queries.

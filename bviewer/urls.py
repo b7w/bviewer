@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import patterns, include, url
+from django.conf.urls import patterns, include, url
 from django.contrib import admin
 import djcelery
 
@@ -8,6 +8,7 @@ djcelery.setup_loader()
 
 urlpatterns = patterns( '',
     url( r'^', include( 'bviewer.core.urls' ) ),
+    url( r'^', include( 'bviewer.archive.urls' ) ),
     url( r'^api/', include( 'bviewer.api.urls' ) ),
     url( r'^admin/', include( admin.site.urls ) ),
     url( r'^profile/', include( 'bviewer.profile.urls' ) ),
