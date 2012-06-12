@@ -18,9 +18,10 @@ class ZipArchive:
     :type storage: string
     """
 
-    def __init__(self, images, storage):
+    def __init__(self, images, storage, user):
         self.images = images
         self.storage = storage
+        self.user = user
         self._hash = None
 
     @property
@@ -37,25 +38,27 @@ class ZipArchive:
         return self._hash
 
     @classmethod
-    def url(cls, hash):
+    def url(cls, user, hash):
         """
         Get utl for download via unique name
 
+        :type user: string
         :type hash: string
         :rtype: string
         """
-        return os.path.join("zip", "{0}.zip".format(hash))
+        return os.path.join(user, "{0}.zip".format(hash))
 
     @classmethod
-    def file_name(cls, hash, part=False):
+    def file_name(cls, user, hash, part=False):
         """
-        Return full path fot `hash` name, if `part` add '.part' to the end
+        Return full path fot `hash` name and `user`, if `part` add '.part' to the end
 
+        :type user: string
         :type hash: string
         :type part: bool # some
         :rtype: string
         """
-        path = os.path.join(settings.VIEWER_CACHE_PATH, "zip")
+        path = os.path.join(settings.VIEWER_CACHE_PATH, user)
         if not os.path.exists(path):
             os.mkdir(path)
         if part:
@@ -63,24 +66,29 @@ class ZipArchive:
         return os.path.join(path, "{0}.zip".format(hash))
 
     @classmethod
-    def status(cls, hash):
+    def status(cls, user, hash):
         """
         Return status DONE, PROCESSING, NONE in strings
+        where `user` - username
 
+        :type user: string
         :type hash: string
         :rtype: string
         """
-        if os.path.exists(cls.file_name(hash)):
+        if os.path.exists(cls.file_name(user, hash)):
             return "DONE"
-        elif os.path.exists(cls.file_name(hash, part=True)):
+        elif os.path.exists(cls.file_name(user, hash, part=True)):
             return "PROCESSING"
         return "NONE"
 
     def process(self):
-        cache_tmp = self.file_name(self.hash, part=True)
-        cache = self.file_name(self.hash)
+        """
+        Process if `self.status` == NONE
+        """
+        cache_tmp = self.file_name(self.user, self.hash, part=True)
+        cache = self.file_name(self.user, self.hash)
 
-        if self.status(self.hash) == "NONE":
+        if self.status(self.user, self.hash) == "NONE":
             with open(cache_tmp, mode='wb') as f:
                 with zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED) as z:
                     for image in self.images:
@@ -102,5 +110,5 @@ class ZipArchiveTask(ZipArchive):
         """
         from bviewer.archive.tasks import cache_archive
 
-        return cache_archive.delay(self.images, self.storage)
+        return cache_archive.delay(self.images, self.storage, self.user)
 

@@ -111,16 +111,16 @@ class FileUniqueName:
     """
     Create unique hash name for file
 
-    >>> builder = FileUnicName( )
-    >>> time = builder.time()
-    >>> time
-    1323242186.620497
-    >>> builder.build( "some/file", time=time )
-    'fb41bb28d2614159246163f8dc77ac14'
-    >>> builder.build( "some/file", time=builder.time() )
-    '6ef61d7c41d391fcd17dd59e1d29dfc2'
-    >>> builder.build( "some/file", time=time, extra='tag1' )
-    'bb89a8697e7f2acfd5d904bc96ce5b81'
+        >>> builder = FileUnicName( )
+        >>> time = builder.time()
+        >>> time
+        1323242186.620497
+        >>> builder.build( "some/file", time=time )
+        'fb41bb28d2614159246163f8dc77ac14'
+        >>> builder.build( "some/file", time=builder.time() )
+        '6ef61d7c41d391fcd17dd59e1d29dfc2'
+        >>> builder.build( "some/file", time=time, extra='tag1' )
+        'bb89a8697e7f2acfd5d904bc96ce5b81'
     """
 
     def __init__(self ):
@@ -159,6 +159,10 @@ def get_gallery_user( request, name=None ):
     """
     Detect gallery user. first try to get from [www.]{username}.domain.com[:port], than /{username}/..., and get auth user.
     If nothing return ( None, '' ). first is user, second is user url.
+
+    :type request: django.http.HttpRequest
+    :type name: string
+    :rtype: (bviewer.core.models.ProxyUser, string)
     """
     match = domain_match.match( request.get_host( ) )
     if match:
