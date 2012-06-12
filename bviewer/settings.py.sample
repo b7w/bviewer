@@ -199,10 +199,13 @@ LOGOUT_URL = '/logout/'
 VIEWER_CACHE_PATH = os.path.join( PROJECT_PATH, 'cache' )
 VIEWER_STORAGE_PATH = PROJECT_PATH
 
-# X-Accel-Redirect for web server to improve file serving
+# X-Accel-Redirect for web server to improve file serving, highly recommended!
+# Set cache true to activate redirect response caching, it save 2 queries per image.
+# Be careful, it can't work with `default`! because it return hole file
 VIEWER_SERVE = {
     'BACKEND': 'bviewer.core.files.serve.nginx',
     'INTERNAL_URL': '/protected',
+    'CACHE': False,
     }
 
 # When run clear old cache, for more examples look here
@@ -212,6 +215,15 @@ VIEWER_CLEAR = {
     'hour': 6,
     }
 
+# It is really recommended to set cache. redis is pretty nice.
+CACHES = {
+    'default': {
+        #'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': 'localhost:6379',
+        'OPTIONS': {'DB': 0},
+        }
+}
 
 #
 # Celery configs
