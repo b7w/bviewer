@@ -95,11 +95,11 @@
             if (image.size() != 0) {
                 var link = jQuery( image ).attr( 'src' );
                 jQuery( image ).attr( 'src', link.substring( 1 ) );
+                jQuery( image ).removeClass( 'hidden' );
             }
         }
 
         $( '.thumbnails .hidden' ).bind( 'load', function () {
-            jQuery( this ).removeClass( 'hidden' );
             jQuery( this ).fadeIn( 'slow' );
             load_next();
         } );
@@ -118,6 +118,8 @@
             }
         } );
 
+        load_next();
+        load_next();
         load_next();
     </script>
 {% endblock %}

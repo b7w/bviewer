@@ -3,6 +3,7 @@
 import re
 import time
 from hashlib import sha1
+from django.core.cache import cache
 from django.shortcuts import redirect
 from django.utils.decorators import available_attrs
 
@@ -158,24 +159,31 @@ domain_match = re.compile( "([w]{3})?\.?(?P<sub>\w+)\.(\w+)\.([a-z]+):?(\d{0,4})
 def get_gallery_user( request, name=None ):
     """
     Detect gallery user. first try to get from [www.]{username}.domain.com[:port], than /{username}/..., and get auth user.
-    If nothing return ( None, '' ). first is user, second is user url.
+    If nothing return ( None, '' ). first is user, second is user url. Cached, 3h.
 
     :type request: django.http.HttpRequest
     :type name: string
     :rtype: (bviewer.core.models.ProxyUser, string)
     """
     match = domain_match.match( request.get_host( ) )
+    key = "core.utils.get_gallery_user({0},{1})".format(match,name)
+    data = cache.get(key)
+    if data:
+        return data
     if match:
         name = match.group( 'sub' )
         user = ProxyUser.objects.safe_get( url=name )
         if user:
+            cache.set(key, (user, ''))
             return user, ''
     elif name:
         user = ProxyUser.objects.safe_get( url=name )
         if user:
+            cache.set(key, (user, name + '/'), 3 * 60 * 60)
             return user, name + '/'
     elif request.user.is_authenticated( ):
         user = ProxyUser.objects.get( id=request.user.id )
+        cache.set(key, (user, user.username.lower( ) + '/'))
         return user, user.username.lower( ) + '/'
     return None, ''
 
@@ -201,4 +209,15 @@ def perm_any_required( *args, **kwargs):
 
         return _wrapped_view
 
+    return decorator
+
+
+def decor_on(conditions, decor, *args, **kwargs ):
+    """
+    Return decorator with args and kwargs if conditions is True. Else function
+    """
+    def decorator(func):
+        if conditions:
+            return decor(*args, **kwargs)(func)
+        return func
     return decorator

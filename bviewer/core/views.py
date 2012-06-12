@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
-
+from django.core.cache import cache
 from django.http import Http404
 from django.shortcuts import render, redirect
+from django.views.decorators.cache import cache_page
+from bviewer.core import settings
 
-from bviewer.core.utils import ResizeOptions, ResizeOptionsError, get_gallery_user
+from bviewer.core.utils import ResizeOptions, ResizeOptionsError, get_gallery_user, decor_on
 from bviewer.core.files import Storage
 from bviewer.core.files.serve import DownloadResponse
 from bviewer.core.images import CacheImageAsync
@@ -15,6 +17,7 @@ import logging
 logger = logging.getLogger( __name__ )
 
 
+@cache_page(10 * 60)
 def ShowHome( request, user=None ):
     """
     Show home pages with galleries
@@ -35,6 +38,7 @@ def ShowHome( request, user=None ):
         } )
 
 
+@cache_page(10 * 60)
 def ShowGallery( request, id, user=None ):
     """
     Show sub galleries or images with videos
@@ -67,6 +71,7 @@ def ShowGallery( request, id, user=None ):
         } )
 
 
+@cache_page(60 * 60)
 def ShowImage( request, id, user=None ):
     """
     Show image with description
@@ -88,6 +93,7 @@ def ShowImage( request, id, user=None ):
         } )
 
 
+@cache_page(60 * 60)
 def ShowVideo( request, id, user=None ):
     """
     Show video with description
@@ -109,6 +115,7 @@ def ShowVideo( request, id, user=None ):
         } )
 
 
+@decor_on(settings.VIEWER_SERVE["CACHE"], cache_page, 60)
 def DownloadVideoThumbnail( request, id, user=None ):
     """
     Get video thumbnail from video hosting and cache it
@@ -123,10 +130,10 @@ def DownloadVideoThumbnail( request, id, user=None ):
     name = video.uid + ".jpg"
     try:
         options = ResizeOptions( "small", user=holder.url, storage=holder.home, name=str( video.id ) )
-        cache = CacheImageAsync( video.thumbnail_url, options )
-        cache.download( )
+        image_async = CacheImageAsync( video.thumbnail_url, options )
+        image_async.download( )
 
-        response = DownloadResponse.build( cache.url, name )
+        response = DownloadResponse.build( image_async.url, name )
 
     except ResizeOptionsError as e:
         logger.error( "id:%s, holder:%s \n %s", id, holder, e )
@@ -138,6 +145,7 @@ def DownloadVideoThumbnail( request, id, user=None ):
     return response
 
 
+@decor_on(settings.VIEWER_SERVE["CACHE"], cache_page, 60)
 def DownloadImage( request, size, id, user=None ):
     """
     Get image with special size
@@ -145,18 +153,22 @@ def DownloadImage( request, size, id, user=None ):
     holder, user_url = get_gallery_user( request, user )
     if not holder:
         raise Http404( "No user defined" )
-
-    image = Image.objects.safe_get( gallery__user__id=holder.id, id=id )
+    key = "core.views.downloadimage({0},{1})".format(holder.id, id)
+    image = cache.get(key)
     if image is None:
-        raise Http404( "No such image" )
+        print key
+        image = Image.objects.safe_get(gallery__user__id=holder.id, id=id)
+        if image is None:
+            raise Http404( "No such image" )
+        cache.set(key, image, 60 * 60)
 
     name = Storage.name( image.path )
     try:
         options = ResizeOptions( size, user=holder.url, storage=holder.home )
-        cache = CacheImageAsync( image.path, options )
-        cache.process( )
+        image_async = CacheImageAsync( image.path, options )
+        image_async.process( )
 
-        response = DownloadResponse.build( cache.url, name )
+        response = DownloadResponse.build( image_async.url, name )
 
     except ResizeOptionsError as e:
         logger.error( "id:%s, holder:%s \n %s", id, holder, e )
