@@ -27,13 +27,13 @@ def Archive( request, id, user=None ):
         raise Http404("No gallery found")
 
     images = Image.objects.filter(gallery__user__id=holder.id, gallery=id)
-    z = ZipArchiveTask(images, holder.home)
+    z = ZipArchiveTask(images, holder.home, holder.url)
 
     # links for redirect to download, and check status
     redirect = reverse("archive.download", kwargs={"user": user_url, "id": id, "hash": z.hash})
     link = reverse("archive.status", kwargs={"user": user_url, "id": id, "hash": z.hash})
 
-    if z.status(z.hash) != "NONE":
+    if z.status(holder.url, z.hash) == "DONE":
         return HttpResponseRedirect(redirect)
     z.process()
     return render(request, "archive/download.html", {
@@ -54,7 +54,7 @@ def ArchiveStatus( request, id, hash, user=None ):
     if not holder:
         raise Http404("No user defined")
 
-    status = ZipArchive.status(hash)
+    status = ZipArchive.status(holder.url, hash)
     data = {"status": status, "gallery": id, "id": hash}
 
     return HttpResponse(simplejson.dumps(data))
@@ -72,10 +72,10 @@ def Download( request, id, hash, user=None ):
     if not main:
         raise Http404("No gallery found")
 
-    if ZipArchive.status(hash) == "NONE":
+    if ZipArchive.status(holder.url, hash) == "NONE":
         raise Http404("No file found")
 
     logger.info("download archive '%s'", main.title)
-    url = ZipArchive.url(hash)
+    url = ZipArchive.url(holder.url, hash)
     name = u"{0} - {1}.zip".format(main.time.strftime("%Y-%m-%d"), main.title)
     return DownloadResponse.build(url, name)

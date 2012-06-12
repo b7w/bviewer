@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
+
 import os
+from operator import itemgetter
 from datetime import datetime, timedelta
 
 from django.core.management.base import BaseCommand
@@ -11,12 +13,39 @@ from bviewer.core.models import ProxyUser
 
 import logging
 
-logger = logging.getLogger( __name__ )
+logger = logging.getLogger(__name__)
 
 
-class ClearCache( object ):
+def multi_sort(items, columns):
+    """
+    Multi key sort. Get list of `columns` in str, with '-{key}' as reverse.
+
+        >>> multi_sort(files, columns=('-size', 'time'))
+
+    :type items: list
+    :type columns: tuple
+    :rtype: list
+    """
+    compares = [((itemgetter(col[1:].strip()), -1) if col.startswith('-') else (itemgetter(col.strip()), 1)) for col in columns]
+
+    def compare(left, right):
+        for fn, multi, in compares:
+            result = cmp(fn(left), fn(right))
+            if result:
+                return multi * result
+        else:
+            return 0
+
+    return sorted(items, cmp=compare)
+
+
+class ClearCache(object):
+    """
+    Delete old files in cache directory. First big size.
+    So all zip archive will be deleted first by schedule, if no user space available
+    """
     def __init__(self, path, size=None, time=None):
-        self.max_size = size
+        self.max_size = size or 32
         self.older = time or 7 * 24 * 60 * 60
         self.cache_path = path
 
@@ -42,12 +71,12 @@ class ClearCache( object ):
             logger.info( "clear %s user '%s' link", user, path )
 
     def clear_size(self, files, user):
-        profile = ProxyUser.objects.get( url=user )
-        if not self.max_size:
+        profile = ProxyUser.objects.safe_get(url=user)
+        if profile:
             size = profile.cache_size * 2 ** 20
         else:
             size = self.max_size
-        files = sorted( files, key=lambda f: f["time"] )
+        files = multi_sort(files, columns=('size', 'time'))
         flag = True
         while flag:
             s = sum( i["size"] for i in files )
