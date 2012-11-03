@@ -18,10 +18,10 @@ class DownloadResponse:
         Return file serving backend
         """
         import_path = settings.VIEWER_SERVE['BACKEND']
-        dot = import_path.rindex( '.' )
+        dot = import_path.rindex('.')
         module, class_name = import_path[:dot], import_path[dot + 1:]
-        mod = import_module( module )
-        return getattr( mod, class_name )
+        mod = import_module(module)
+        return getattr(mod, class_name)
 
     @classmethod
     def build(cls, path, name ):
@@ -29,9 +29,9 @@ class DownloadResponse:
         Return HttpResponse object with file
         or instruction to http server where file exists.
         """
-        Backend = cls.get_backend( )
-        backend = Backend( settings.VIEWER_SERVE )
-        response = backend.generate( path, name )
+        Backend = cls.get_backend()
+        backend = Backend(settings.VIEWER_SERVE)
+        response = backend.generate(path, name)
 
         return response
 
@@ -44,7 +44,7 @@ class BaseDownloadResponse:
 
     def __init__(self, settings):
         self.settings = settings
-        if not self.settings.has_key( 'Content-Type' ):
+        if 'Content-Type' not in self.settings:
             self.settings['Content-Type'] = u"image/jpeg"
 
     def generate(self, path, name):
@@ -52,34 +52,34 @@ class BaseDownloadResponse:
         Return HttpResponse obj.
         path and name better to encode utf-8
         """
-        raise NotImplementedError( )
+        raise NotImplementedError()
 
 
-class nginx( BaseDownloadResponse ):
+class nginx(BaseDownloadResponse):
     """
     Nginx X-Accel-Redirect backend
     """
 
     def generate(self, path, name):
-        response = HttpResponse( )
-        url = self.settings['INTERNAL_URL'] + '/' + path.encode( 'utf-8' )
+        response = HttpResponse()
+        url = self.settings['INTERNAL_URL'] + '/' + path.encode('utf-8')
         response['X-Accel-Charset'] = "utf-8"
         response['X-Accel-Redirect'] = url
         response['Content-Type'] = self.settings['Content-Type']
-        response['Content-Disposition'] = "attachment; filename=\"%s\"" % name.encode( 'utf-8' )
+        response['Content-Disposition'] = "attachment; filename=\"%s\"" % name.encode('utf-8')
         return response
 
 
-class default( BaseDownloadResponse ):
+class default(BaseDownloadResponse):
     """
     Django serving backend
     """
 
     def generate(self, path, name):
-        path = os.path.join( settings.VIEWER_CACHE_PATH, path )
-        wrapper = FileWrapper( open( path ) )
-        response = HttpResponse( wrapper )
+        path = os.path.join(settings.VIEWER_CACHE_PATH, path)
+        wrapper = FileWrapper(open(path))
+        response = HttpResponse(wrapper)
         response['Content-Type'] = self.settings['Content-Type']
-        response['Content-Disposition'] = "attachment; filename=\"%s\"" % name.encode( 'utf-8' )
-        response['Content-Length'] = os.path.getsize( path )
+        response['Content-Disposition'] = "attachment; filename=\"%s\"" % name.encode('utf-8')
+        response['Content-Length'] = os.path.getsize(path)
         return response

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from django.core.cache import cache
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.decorators.cache import cache_page

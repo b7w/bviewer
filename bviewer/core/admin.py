@@ -9,6 +9,7 @@ from django.forms import models
 from bviewer.core.utils import RaisingRange
 from bviewer.core.models import ProxyUser, Gallery, Image, Video
 
+
 class ModelAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         """
