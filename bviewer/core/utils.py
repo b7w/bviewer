@@ -156,7 +156,7 @@ class FileUniqueName:
 
 domain_match = re.compile( "([w]{3})?\.?(?P<sub>\w+)\.(\w+)\.([a-z]+):?(\d{0,4})" )
 
-def get_gallery_user( request, name=None ):
+def get_gallery_user(request, name=None):
     """
     Detect gallery user. first try to get from [www.]{username}.domain.com[:port], than /{username}/..., and get auth user.
     If nothing return ( None, '' ). first is user, second is user url. Cached, 3h.
@@ -165,26 +165,26 @@ def get_gallery_user( request, name=None ):
     :type name: string
     :rtype: (bviewer.core.models.ProxyUser, string)
     """
-    match = domain_match.match( request.get_host( ) )
-    key = "core.utils.get_gallery_user({0},{1})".format(match,name)
+    match = domain_match.match(request.get_host())
+    key = "core.utils.get_gallery_user({0},{1})".format(request.get_host(), name)
     data = cache.get(key)
     if data:
         return data
     if match:
-        name = match.group( 'sub' )
-        user = ProxyUser.objects.safe_get( url=name )
+        name = match.group('sub')
+        user = ProxyUser.objects.safe_get(url=name)
         if user:
             cache.set(key, (user, ''))
             return user, ''
     elif name:
-        user = ProxyUser.objects.safe_get( url=name )
+        user = ProxyUser.objects.safe_get(url=name)
         if user:
             cache.set(key, (user, name + '/'), 3 * 60 * 60)
             return user, name + '/'
-    elif request.user.is_authenticated( ):
-        user = ProxyUser.objects.get( id=request.user.id )
-        cache.set(key, (user, user.username.lower( ) + '/'))
-        return user, user.username.lower( ) + '/'
+    elif request.user.is_authenticated():
+        user = ProxyUser.objects.get(id=request.user.id)
+        cache.set(key, (user, user.username.lower() + '/'))
+        return user, user.username.lower() + '/'
     return None, ''
 
 

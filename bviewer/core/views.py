@@ -4,6 +4,7 @@ from django.core.cache import cache
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
 from bviewer.core import settings
 
 from bviewer.core.utils import ResizeOptions, ResizeOptionsError, get_gallery_user, decor_on
@@ -17,7 +18,8 @@ import logging
 logger = logging.getLogger( __name__ )
 
 
-@cache_page(10 * 60)
+@cache_page(60 * 60)
+@vary_on_cookie
 def ShowHome( request, user=None ):
     """
     Show home pages with galleries
@@ -38,7 +40,8 @@ def ShowHome( request, user=None ):
         } )
 
 
-@cache_page(10 * 60)
+@cache_page(60 * 60)
+@vary_on_cookie
 def ShowGallery( request, id, user=None ):
     """
     Show sub galleries or images with videos
@@ -71,7 +74,8 @@ def ShowGallery( request, id, user=None ):
         } )
 
 
-@cache_page(60 * 60)
+@cache_page(60 * 60 * 24)
+@vary_on_cookie
 def ShowImage( request, id, user=None ):
     """
     Show image with description
@@ -93,7 +97,8 @@ def ShowImage( request, id, user=None ):
         } )
 
 
-@cache_page(60 * 60)
+@cache_page(60 * 60 * 24)
+@vary_on_cookie
 def ShowVideo( request, id, user=None ):
     """
     Show video with description
@@ -115,7 +120,8 @@ def ShowVideo( request, id, user=None ):
         } )
 
 
-@decor_on(settings.VIEWER_SERVE["CACHE"], cache_page, 60)
+@decor_on(settings.VIEWER_SERVE["CACHE"], cache_page, 60 * 60)
+@vary_on_cookie
 def DownloadVideoThumbnail( request, id, user=None ):
     """
     Get video thumbnail from video hosting and cache it
@@ -145,7 +151,8 @@ def DownloadVideoThumbnail( request, id, user=None ):
     return response
 
 
-@decor_on(settings.VIEWER_SERVE["CACHE"], cache_page, 60)
+@decor_on(settings.VIEWER_SERVE["CACHE"], cache_page, 60 * 60 * 24)
+@vary_on_cookie
 def DownloadImage( request, size, id, user=None ):
     """
     Get image with special size
