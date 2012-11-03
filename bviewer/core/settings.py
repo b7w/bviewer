@@ -2,6 +2,9 @@
 
 from django.conf import settings
 
+# Some setting that needed for tests
+TESTS = False
+
 # Path where cache will bw stored
 # It is a resize images so it can be huge
 # also it is soft links to full images
