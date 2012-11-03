@@ -195,15 +195,17 @@ class CacheImageAsync(object):
     """
 
     def __init__(self, path, options ):
-        self.url = None
+        self.url = ''
         self.path = path
         self.options = options
         self.cache = CacheImage(path, options)
 
     def process(self):
-        async = cache_image_process.delay(self.cache)
-        self.image = async.get()
-        self.url = self.image.url
+        # hack not to run task in tests
+        if not settings.TESTS:
+            async = cache_image_process.delay(self.cache)
+            self.image = async.get()
+            self.url = self.image.url
 
     def download(self):
         async = cache_image_download.delay(self.cache)
