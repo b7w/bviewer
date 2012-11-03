@@ -29,7 +29,7 @@ class ProxyUser( User ):
     cache_size = models.PositiveIntegerField( default=32, validators=[MinValueValidator( 16 ), MaxValueValidator( 256 )] )
     top_gallery = models.ForeignKey( "Gallery", related_name="top", null=True, blank=True )
     about_title = models.CharField( max_length=256, blank=True )
-    about_text = models.TextField( max_length=256, blank=True )
+    about_text = models.TextField( max_length=1024, blank=True )
     avatar = models.ForeignKey( "Image", related_name="avatar", null=True, blank=True )
 
     objects = ProxyManager( )
@@ -79,9 +79,9 @@ post_save.connect( add_top_gallery, sender=ProxyUser )
 
 class Gallery( models.Model ):
     parent = models.ForeignKey( "self", null=True, blank=True, related_name="children" )
-    title = models.CharField( max_length=128 )
+    title = models.CharField( max_length=256 )
     user = models.ForeignKey( ProxyUser )
-    description = models.TextField( max_length=256, null=True, blank=True )
+    description = models.TextField( max_length=512, null=True, blank=True )
     thumbnail = models.ForeignKey( "Image", null=True, blank=True, related_name="thumbnail" )
     time = models.DateTimeField( default=datetime.now )
 
@@ -126,7 +126,7 @@ class Gallery( models.Model ):
 
 class Image( models.Model ):
     gallery = models.ForeignKey( Gallery )
-    path = models.CharField( max_length=128 )
+    path = models.CharField( max_length=256 )
 
     objects = ProxyManager( )
 
@@ -149,8 +149,8 @@ class Image( models.Model ):
 class Video( models.Model ):
     uid = models.CharField( max_length=32 )
     gallery = models.ForeignKey( Gallery )
-    title = models.CharField( max_length=128 )
-    description = models.TextField( max_length=256, null=True, blank=True )
+    title = models.CharField( max_length=256 )
+    description = models.TextField( max_length=512, null=True, blank=True )
 
     objects = ProxyManager( )
 
