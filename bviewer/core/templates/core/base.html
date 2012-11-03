@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Believe Viewer</title>
+    <title>{% block title %}{% endblock %}</title>
     <meta name="description" content="">
     <meta name="author" content="B7W">
     <meta name="robots" content="NONE,NOARCHIVE"/>
@@ -27,7 +27,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </a>
-            <a class="brand" href="{% url core.home user_url %}">BelieveViewer</a>
+            <a class="brand" href="{% url core.home user_url %}">Believe Viewer</a>
 
             <div class="nav-collapse">
                 <ul class="nav">

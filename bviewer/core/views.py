@@ -59,7 +59,7 @@ def ShowGallery( request, id, user=None ):
     images = []
     template = u"core/galleries.html"
     if not len( galleries ):
-        template = u"core/images.html"
+        template = u"core/gallery.html"
         videos = Video.objects.filter( gallery__user__id=holder.id, gallery=id )
         images = Image.objects.filter( gallery__user__id=holder.id, gallery=id )
 
