@@ -15,7 +15,7 @@ from bviewer.core.models import ProxyUser
 
 import logging
 
-logger = logging.getLogger( __name__ )
+logger = logging.getLogger(__name__)
 
 
 class RaisingRange:
@@ -50,10 +50,10 @@ class RaisingRange:
             raise StopIteration
 
     def __str__(self):
-        return str( list( self ) )
+        return str(list(self))
 
 
-class ResizeOptionsError( Exception ):
+class ResizeOptionsError(Exception):
     """
     Resize options error.
     """
@@ -80,19 +80,19 @@ class ResizeOptions:
         self.height = 0
         self.size = 0
         self.crop = False
-        self.chooseSetting( size )
+        self.chooseSetting(size)
 
     def chooseSetting(self, size):
         if size == "small":
-            self.setFromSetting( settings.VIEWER_SMALL_SIZE )
+            self.setFromSetting(settings.VIEWER_SMALL_SIZE)
         elif size == "middle":
-            self.setFromSetting( settings.VIEWER_MIDDLE_SIZE )
+            self.setFromSetting(settings.VIEWER_MIDDLE_SIZE)
         elif size == "big":
-            self.setFromSetting( settings.VIEWER_BIG_SIZE )
+            self.setFromSetting(settings.VIEWER_BIG_SIZE)
         elif size == "full":
             self.width = self.height = self.size = 10 ** 6
         else:
-            raise ResizeOptionsError( "Undefined size format '{0}'".format( size ) )
+            raise ResizeOptionsError("Undefined size format '{0}'".format(size))
 
     def setFromSetting(self, value):
         """
@@ -100,12 +100,12 @@ class ResizeOptions:
         """
         self.width = value['WIDTH']
         self.height = value['HEIGHT']
-        self.size = max( self.width, self.height )
+        self.size = max(self.width, self.height)
         self.crop = 'CROP' in value and value['CROP'] == True
 
     def __str__(self):
         return u"ResizeOptions{{user={us},storage={st},size={sz},crop={cr}}}"\
-        .format( us=self.user, st=self.storage, sz=self.size, cr=self.crop )
+        .format(us=self.user, st=self.storage, sz=self.size, cr=self.crop)
 
 
 class FileUniqueName:
@@ -131,13 +131,13 @@ class FileUniqueName:
         """
         Return md5 of "files.storage" + name
         """
-        return sha1( "files.storage" + smart_str( name ) ).hexdigest( )
+        return sha1("files.storage" + smart_str(name)).hexdigest()
 
     def time(self):
         """
         Return just time.time( )
         """
-        return time.time( )
+        return time.time()
 
     def build(self, path, time=None, extra=None):
         """
@@ -146,15 +146,15 @@ class FileUniqueName:
         full_name = settings.VIEWER_CACHE_PATH + path
         if time:
             if time == True:
-                full_name += str( self.time( ) )
+                full_name += str(self.time())
             else:
-                full_name += str( time )
+                full_name += str(time)
         if extra:
-            full_name += str( extra )
-        return self.hash( full_name )
+            full_name += str(extra)
+        return self.hash(full_name)
 
 
-domain_match = re.compile( "([w]{3})?\.?(?P<sub>\w+)\.(\w+)\.([a-z]+):?(\d{0,4})" )
+domain_match = re.compile("([w]{3})?\.?(?P<sub>\w+)\.(\w+)\.([a-z]+):?(\d{0,4})")
 
 def get_gallery_user(request, name=None):
     """
@@ -193,19 +193,19 @@ def perm_any_required( *args, **kwargs):
     Decorator for views that checks if at least one permission return True,
     redirecting to the `url` page on False.
     """
-    url = kwargs.get( "url", '/' )
+    url = kwargs.get("url", '/')
 
     def test_func( user ):
         for perm in args:
-            if user.has_perm( perm ):
+            if user.has_perm(perm):
                 return True
 
     def decorator(view_func):
-        @wraps( view_func, assigned=available_attrs( view_func ) )
+        @wraps(view_func, assigned=available_attrs(view_func))
         def _wrapped_view(request, *args, **kwargs):
-            if test_func( request.user ):
-                return view_func( request, *args, **kwargs )
-            return redirect( url )
+            if test_func(request.user):
+                return view_func(request, *args, **kwargs)
+            return redirect(url)
 
         return _wrapped_view
 
@@ -216,8 +216,10 @@ def decor_on(conditions, decor, *args, **kwargs ):
     """
     Return decorator with args and kwargs if conditions is True. Else function
     """
+
     def decorator(func):
         if conditions:
             return decor(*args, **kwargs)(func)
         return func
+
     return decorator

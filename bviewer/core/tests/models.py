@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from bviewer.core.models import ProxyUser, Gallery
 
-class ModelTest( TestCase ):
+class ModelTest(TestCase):
     def setUp(self):
         pass
 
@@ -16,8 +16,8 @@ class ModelTest( TestCase ):
         """
         Tests domain match
         """
-        ProxyUser.objects.create( username="Test", password="secret" )
-        assert User.objects.filter( username="Test" ).exists( )
-        assert ProxyUser.objects.filter( username="Test" ).exists( )
-        assert ProxyUser.objects.get( username="Test" ).top_gallery
-        assert Gallery.objects.filter( user__username="Test" ).exists( )
+        ProxyUser.objects.create(username="Test", password="secret")
+        assert User.objects.filter(username="Test").exists()
+        assert ProxyUser.objects.filter(username="Test").exists()
+        assert ProxyUser.objects.get(username="Test").top_gallery
+        assert Gallery.objects.filter(user__username="Test").exists()
