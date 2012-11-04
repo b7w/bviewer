@@ -157,7 +157,12 @@ class Image(models.Model):
 
 
 class Video(models.Model):
+    VIMIO = 1
+    YOUTUBE = 2
+    TYPE_CHOICE = ((YOUTUBE, "YouTube"), (VIMIO, "Vimio"),)
+
     uid = models.CharField(max_length=32)
+    type = models.SmallIntegerField(max_length=1, choices=TYPE_CHOICE)
     gallery = models.ForeignKey(Gallery)
     title = models.CharField(max_length=256)
     description = models.TextField(max_length=512, null=True, blank=True)
@@ -168,6 +173,7 @@ class Video(models.Model):
         data = {
             "id": self.id,
             "uid": self.uid,
+            "type": self.type,
             "gallery": self.gallery_id,
             "title": self.title,
             "description": self.description,
@@ -179,17 +185,26 @@ class Video(models.Model):
         """
         Build escaped url to video
         """
-        return escape("http://player.vimeo.com/video/" + self.uid)
+        if self.type == self.VIMIO:
+            return escape("http://player.vimeo.com/video/{0}".format(self.uid))
+        elif self.type == self.YOUTUBE:
+            return escape("http://youtube.com/embed/{0}".format(self.uid))
+        raise ValueError("unknown video type: {0}".format(self.type))
+
 
     @property
     def thumbnail_url(self):
         """
         Get video thumbnail url.
         """
-        url = "http://vimeo.com/api/v2/video/{0}.json".format(self.uid)
-        json = urllib2.urlopen(url).read()
-        info = simplejson.loads(json, encoding="UTF-8").pop()
-        return info["thumbnail_large"]
+        if self.type == self.VIMIO:
+            url = "http://vimeo.com/api/v2/video/{0}.json".format(self.uid)
+            json = urllib2.urlopen(url).read()
+            info = simplejson.loads(json, encoding="UTF-8").pop()
+            return info["thumbnail_large"]
+        elif self.type == self.YOUTUBE:
+            return "http://img.youtube.com/vi/{0}/hqdefault.jpg".format(self.uid)
+        raise ValueError("unknown video type: {0}".format(self.type))
 
     def __unicode__(self):
         return self.title
