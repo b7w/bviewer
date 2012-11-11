@@ -228,7 +228,7 @@ def JsonGalleryPreCache( request ):
             paths = [images[i].path for i in range( 0, len( images ), each )]
             options = ResizeOptions( size, user=holder.url, storage=holder.home )
             work = BulkCache( )
-            work.setArgs( paths, options )
+            work.appendTasks( paths, options )
             work.send( )
 
             return JSONResponse.Success( )

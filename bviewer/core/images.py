@@ -221,7 +221,7 @@ class BulkCache(object):
     def __init__(self):
         self.args = []
 
-    def setArgs(self, path, options ):
+    def appendTasks(self, path, options ):
         """
         paths -> list of image paths from user home
         options -> option, for this images

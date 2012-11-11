@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from collections import deque
 import urllib2
 
 from django.contrib.auth.models import User
@@ -95,6 +96,11 @@ class Gallery(models.Model):
 
     @classmethod
     def get_galleries(cls, top_id, private=None):
+        """
+        :type top_id: int
+        :type private: bool
+        :rtype: (Gallery, list of Gallery)
+        """
         if private is not None:
             query = Gallery.objects.filter(Q(private=private), Q(id=top_id) | Q(parent=top_id))
         else:
@@ -109,6 +115,33 @@ class Gallery(models.Model):
             else:
                 galleries.append(item)
         return main, galleries
+
+    @classmethod
+    def as_tree(cls, user):
+        """
+        :type user: django.contrib.auth.models.User
+        :rtype: GalleryTree
+        """
+        objects = Gallery.objects.filter(user=user)
+        return GalleryTree.make(objects)
+
+    def is_child_of(self, parent_id):
+        """
+        Check if self is child of parent_id
+
+        :type parent_id: int
+        :rtype: bool
+        """
+        objects = deque(Gallery.objects.filter(parent=parent_id))
+        ids = deque()
+        while len(objects):
+            obj = objects.popleft()
+            if obj.id == self.id:
+                return True
+            ids.append(obj.id)
+            if not len(objects) and len(ids):
+                objects.extend(Gallery.objects.filter(parent=ids.popleft()))
+        return False
 
     def for_json(self):
         data = {
@@ -132,6 +165,44 @@ class Gallery(models.Model):
         verbose_name_plural = "Galleries"
         ordering = ["-time"]
         unique_together = (("title", "user"),)
+
+
+class GalleryTree:
+    """
+    Class to represent list of `bviewer.core.models.Gallery` as a tree
+    """
+
+    def __init__(self, value, objects):
+        """
+        :type value: bviewer.core.models.Gallery
+        :type objects: list of bviewer.core.models.Gallery
+        """
+        self.value = value
+        self._gen = (GalleryTree(i, objects) for i in objects if i.parent_id == value.id)
+        self._children = None
+
+    @property
+    def children(self):
+        if not self._children:
+            self._children = list(self._gen)
+        return self._children
+
+    @property
+    def has_children(self):
+        return bool(len(self.children))
+
+    @classmethod
+    def make(cls, objects):
+        """
+        Convert Models list to list of GalleryTree
+
+        :type objects: list of bviewer.core.models.Gallery
+        :rtype: list of GalleryTree
+        """
+        return [GalleryTree(i, objects) for i in objects if i.parent_id is None]
+
+    def __str__(self):
+        return 'GalleryTree{{v={0}}}'.format(self.value)
 
 
 class Image(models.Model):
