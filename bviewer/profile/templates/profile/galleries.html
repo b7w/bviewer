@@ -2,126 +2,87 @@
 {% load staticfiles %}
 
 {% block tabs %}
-    <div id="galleries">
+    <div>
         <div class="row-fluid">
             <div class="span12">
                 <div class="pull-right">
-                    <a href="#" id="gallery-button-remove" class="btn btn-oblong">Remove</a>
-                    <a href="#" id="gallery-button-precache" class="btn btn-oblong">Pre cache</a>
-                    <a href="#" id="gallery-button-save" class="btn btn-oblong">Save</a>
+                    <a href="{% url profile.gallery.action 'del' %}?id={{ gallery.id }}" class="btn btn-oblong">Remove</a>
+                    <a href="{% url profile.gallery.action 'unset' %}?id={{ gallery.id }}" class="btn btn-oblong">Unset parent</a>
+                    <a href="{% url profile.gallery.action 'cache' %}?id={{ gallery.id }}" class="btn btn-oblong">Pre cache</a>
+                    <a href="#" class="btn btn-oblong" onclick="document.getElementById('gallery-form').submit()">Save</a>
                 </div>
             </div>
         </div>
         <div class="row-fluid">
             <div class="span6">
                 <div class="admin-list">
-                    <form>
-                        <label for="gallery-input-add">Add new album</label>
-                        <input id="gallery-input-add" type="text" class="span8">
-                        <button id="gallery-button-add" type="button" class="btn">Add</button>
+                    <form action="{% url profile.gallery.action 'add' %}" method="get">{% csrf_token %}
+                        <label>Add new album</label>
+                        <input type="text" name="name" class="span8">
+                        <button type="submit" class="btn">Add</button>
                     </form>
                     <p>
                         To select album just click to it name.
-                        If you want add album as sub album, select sub album and click <strong>+</strong> of a parent.
-                        If you want delete sub album, select it and click <strong>-</strong> of a parent.
+                        If you want add album as sub album, select album and click <strong>+</strong> of a parent.
                     </p>
-                    <ul class="unstyled" id="galleries-tree">
+                    <ul class="unstyled">
+                        {% for node in galleries %}
+                            {% include "profile/inline_li.html" %}
+                        {% endfor %}
                     </ul>
                 </div>
             </div>
             <div class="span6 data-table">
-                <table class="table pull-right">
-                    <thead>
-                    <tr>
-                        <th width="20%">Name</th>
-                        <th>Value</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>Name</td>
-                        <td>
-
-                            <label for="gallery-name"><i>Full gallery name</i></label>
-                            <input id="gallery-name" type="text" class="input-xlarge">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Thumbnail</td>
-                        <td>
-                            <i class="help-block">To change thumbnail go to "<a href="{% url profile.images %}">Gallery images</a>"</i>
-                            <a href="#" class="thumbnail thumbnail-admin preview ">
-                                <img id="gallery-thumbnail" src="{% static "core/img/gallery.png" %}" alt="">
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Description</td>
-                        <td>
-                            <label for="gallery-description"></label>
-                            <textarea id="gallery-description" class="input-xlarge"></textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Time</td>
-                        <td>
-                            <label for="gallery-time"></label>
-                            <input id="gallery-time" type="datetime" class="input-xlarge">
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+                <form id="gallery-form" method="post">{% csrf_token %}
+                    <table class="table pull-right">
+                        <thead>
+                        <tr>
+                            <th width="20%">Name</th>
+                            <th>Value</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Name</td>
+                            <td>
+                                {{ form.title }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Is private</td>
+                            <td>
+                                {{ form.private }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Thumbnail</td>
+                            <td>
+                                <i class="help-block">To change thumbnail go to "<a href="{% url profile.images %}">Gallery images</a>"</i>
+                                <a href="#" class="thumbnail thumbnail-admin preview ">
+                                    {% if gallery.thumbnail %}
+                                        <img src="{% url core.download user_url 'small' gallery.thumbnail_id %}" alt="">
+                                    {% else %}
+                                        <img src="{% static "core/img/gallery.png" %}" alt="">
+                                    {% endif %}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Description</td>
+                            <td>
+                                {{ form.description }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Time</td>
+                            <td>
+                                {{ form.time }}
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </form>
             </div>
         </div>
     </div>
-{% endblock %}
-
-{% block media %}
-    {{ block.super }}
-    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/vader/jquery-ui.css" rel="stylesheet" type="text/css"/>
-    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
-
-    <script type="text/javascript">
-        $( document ).ready( function () {
-            active_tab( 'galleries' );
-            load_galleries_tree( true );
-
-            $( '#galleries-tree li span' ).live( 'click', function (e) {
-                var li = jQuery( this ).parent();
-                var id = jQuery( li ).attr( 'id' ).split( '-' )[1];
-                $( '#galleries-tree .active' ).removeClass( 'active' );
-                jQuery( li ).addClass( 'active' );
-                load_album( id );
-            } );
-            $( '#galleries-tree .btn-plus' ).live( 'click', function (e) {
-                var li = jQuery( this ).parent().parent();
-                var id = jQuery( li ).attr( 'id' ).split( '-' )[1];
-                var child_id = jQuery( '#galleries-tree .active' ).attr( 'id' ).split( '-' )[1];
-                add_sub_album( id, child_id );
-            } );
-            $( '#galleries-tree .btn-minus' ).live( 'click', function (e) {
-                var li = jQuery( this ).parent().parent();
-                var id = jQuery( li ).attr( 'id' ).split( '-' )[1];
-                var child_id = jQuery( '#galleries-tree .active' ).attr( 'id' ).split( '-' )[1];
-                del_sub_album( id, child_id );
-            } );
-            $( '#gallery-button-add' ).click( function (e) {
-                var text = jQuery( this ).parent().children( 'input' ).attr( 'value' );
-                add_album( text );
-            } );
-            $( '#gallery-button-remove' ).click( function (e) {
-                var id = $( '#galleries-tree .active' ).attr( 'id' ).split( '-' )[1];
-                remove_album( id );
-            } );
-            $( '#gallery-button-precache' ).click( function (e) {
-                var id = $( '#galleries-tree .active' ).attr( 'id' ).split( '-' )[1];
-                pre_cache_album( id );
-            } );
-            $( '#gallery-button-save' ).click( function (e) {
-                var id = $( '#galleries-tree .active' ).attr( 'id' ).split( '-' )[1];
-                update_album( id );
-            } );
-            $( "#gallery-time" ).datepicker( { "dateFormat":"dd/mm/yy"} );
-        } );
-    </script>
 {% endblock %}

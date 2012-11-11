@@ -1,0 +1,24 @@
+{% if node.value.id == gallery.id %}
+    <li class="active">
+        {% else %}
+    <li>
+{% endif %}
+
+<span>
+    <a href="?id={{ node.value.id }}">{{ node.value.title }}</a>
+</span>
+
+<span>
+    <a href="{% url profile.gallery.action 'set' %}?id={{ gallery.id }}&parent={{ node.value.id }}"><i class="icon-plus"></i></a>
+</span>
+
+{% if node.has_children %}
+    <ul>
+        {% for child in node.children %}
+            {% with node=child template_name="profile/inline_li.html" %}
+                {% include template_name %}
+            {% endwith %}
+        {% endfor %}
+    </ul>
+{% endif %}
+</li>

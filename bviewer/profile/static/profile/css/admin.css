@@ -53,7 +53,11 @@ input, textarea {
     margin-right: 10px;
 }
 
-.admin-list .active span {
+.admin-list a {
+    color: #999;
+}
+
+.admin-list .active > span {
     font-weight: bold;
     color: #BBB;
 }
@@ -131,7 +135,7 @@ input, textarea {
 }
 
 #gallery-parents .btn {
-    padding: 1px 10px 0px;
+    padding: 1px 10px 0;
 }
 
 #gallery-parents > li {
