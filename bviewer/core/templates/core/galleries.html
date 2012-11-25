@@ -11,7 +11,7 @@
             <p>{{ main.description|linebreaksbr }}</p>
             <ul class="thumbnails">
                 {% for item in galleries %}
-                    <li class="span3">
+                    <li>
                         <a href="{% url core.gallery user_url item.id %}" class="thumbnail preview">
 
                             {% if item.thumbnail_id %}
