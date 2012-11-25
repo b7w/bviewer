@@ -23,11 +23,9 @@ body {
 }
 
 .border {
-    padding: 20px 30px 70px;
-    border-top: 2px solid #444;
-    border-right: 1px solid #444;
-    border-bottom: 1px solid #444;
-    border-left: 1px solid #444;
+    padding: 16px 16px 64px 20px;
+    border: 1px solid #444;
+    border-top-width: 2px;
 }
 
 .login {
@@ -41,8 +39,12 @@ body {
     border-radius: 0;
 }
 
+.thumbnails {
+    margin-left: 0px;
+}
+
 .thumbnails > li {
-    margin: 0 0 18px 12px;
+    margin: 0 5px 18px 5px;
 }
 
 .preview {
