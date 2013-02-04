@@ -84,6 +84,10 @@ input, textarea {
     margin-bottom: auto;
 }
 
+#admin select {
+    background-color: #333;
+}
+
 .data-table input {
     width: 100%;
 }
@@ -105,8 +109,8 @@ input, textarea {
     border-style: none;
     padding: 0;
     margin-bottom: 6px;
-    height: 90px;
-    width: 90px;
+    height: 150px;
+    width: 150px;
 }
 
 #images .caption {
@@ -125,9 +129,13 @@ input, textarea {
     text-align: center;
     left: 0;
     right: 0;
-    bottom: 0;
-    max-height: 90px;
+    bottom: -10px;
     overflow: hidden;
+}
+
+#images .caption-checkbox {
+    position: absolute;
+    margin: 2px;
 }
 
 .btn-oblong {

@@ -6,10 +6,10 @@
         <div class="row-fluid">
             <div class="span12">
                 <div class="pull-right">
-                    <a href="{% url profile.gallery.action 'del' %}?id={{ gallery.id }}" class="btn btn-oblong">Remove</a>
-                    <a href="{% url profile.gallery.action 'unset' %}?id={{ gallery.id }}" class="btn btn-oblong">Unset parent</a>
-                    <a href="{% url profile.gallery.action 'cache' %}?id={{ gallery.id }}" class="btn btn-oblong">Pre cache</a>
-                    <a href="#" class="btn btn-oblong" onclick="document.getElementById('gallery-form').submit()">Save</a>
+                    <a href="{% url profile.gallery.action 'del' %}?id={{ gallery.id }}" class="btn btn-oblong btn-inverse">Remove</a>
+                    <a href="{% url profile.gallery.action 'unset' %}?id={{ gallery.id }}" class="btn btn-oblong btn-inverse">Unset parent</a>
+                    <a href="{% url profile.gallery.action 'cache' %}?id={{ gallery.id }}" class="btn btn-oblong btn-inverse">Pre cache</a>
+                    <a href="#" class="btn btn-oblong btn-inverse" onclick="document.getElementById('gallery-form').submit()">Save</a>
                 </div>
             </div>
         </div>
