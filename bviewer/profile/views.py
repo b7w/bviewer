@@ -9,6 +9,7 @@ from bviewer.core.files.serve import DownloadResponse
 from bviewer.core.images import CacheImage, BulkCache
 from bviewer.core.models import Gallery, Image
 from bviewer.core.utils import ResizeOptions, get_gallery_user, perm_any_required
+from bviewer.profile.controllers import ImageController
 from bviewer.profile.forms import GalleryForm
 from bviewer.profile.utils import  redirect
 
@@ -100,7 +101,24 @@ def GalleryAction( request, action ):
 @perm_any_required("core.user_holder")
 def ShowImages( request ):
     user, user_url = get_gallery_user(request)
+    if not user:
+        raise Http404()
+
+    path = request.GET.get('p') or ''
+    gallery_id = int(request.GET.get('g') or 0)
+
+    controller = ImageController(gallery_id, user)
+    controller.setPath(path)
+
+    if request.method == 'POST':
+        controller.setChecked(request.POST.getlist('images'))
+
+    galleries = Gallery.objects.filter(user=user)
+
     return render(request, "profile/images.html", {
+        'gallery_id': gallery_id,
+        'galleries': galleries,
+        'folder': controller.getFolder(),
         'tab_name': 'images',
         'path': request.path,
         'user_url': user_url,
@@ -135,8 +153,8 @@ def DownloadImage( request ):
     if request.GET.get("p", None):
         path = request.GET["p"]
         user, user_url = get_gallery_user(request)
-        if not user.home:
-            return Http404("You have no access to storage")
+        if user.home is None:
+            raise Http404("You have no access to storage")
         storage = Storage(user.home)
         try:
             if storage.exists(path):
