@@ -1,0 +1,5 @@
+django
+django-celery
+django-debug-toolbar
+fabric
+flup
