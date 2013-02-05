@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+
 import os
 import zipfile
+
 from bviewer.core import settings
 from bviewer.core.files import Storage
 from bviewer.core.utils import FileUniqueName
@@ -33,7 +35,7 @@ class ZipArchive:
         """
         if not self._hash:
             self.hash_builder = FileUniqueName()
-            slice = ";".join([i.path for i in self.images])
+            slice = ';'.join([i.path for i in self.images])
             self._hash = self.hash_builder.build(slice)
         return self._hash
 
@@ -46,7 +48,7 @@ class ZipArchive:
         :type hash: string
         :rtype: string
         """
-        return os.path.join(user, "{0}.zip".format(hash))
+        return os.path.join(user, '{0}.zip'.format(hash))
 
     @classmethod
     def file_name(cls, user, hash, part=False):
@@ -62,8 +64,8 @@ class ZipArchive:
         if not os.path.exists(path):
             os.mkdir(path)
         if part:
-            return os.path.join(path, "{0}.zip.part".format(hash))
-        return os.path.join(path, "{0}.zip".format(hash))
+            return os.path.join(path, '{0}.zip.part'.format(hash))
+        return os.path.join(path, '{0}.zip'.format(hash))
 
     @classmethod
     def status(cls, user, hash):
@@ -76,10 +78,10 @@ class ZipArchive:
         :rtype: string
         """
         if os.path.exists(cls.file_name(user, hash)):
-            return "DONE"
+            return 'DONE'
         elif os.path.exists(cls.file_name(user, hash, part=True)):
-            return "PROCESSING"
-        return "NONE"
+            return 'PROCESSING'
+        return 'NONE'
 
     def process(self):
         """
@@ -88,7 +90,7 @@ class ZipArchive:
         cache_tmp = self.file_name(self.user, self.hash, part=True)
         cache = self.file_name(self.user, self.hash)
 
-        if self.status(self.user, self.hash) == "NONE":
+        if self.status(self.user, self.hash) == 'NONE':
             with open(cache_tmp, mode='wb') as f:
                 with zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED) as z:
                     for image in self.images:
