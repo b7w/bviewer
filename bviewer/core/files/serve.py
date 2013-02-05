@@ -45,7 +45,7 @@ class BaseDownloadResponse:
     def __init__(self, settings):
         self.settings = settings
         if 'Content-Type' not in self.settings:
-            self.settings['Content-Type'] = u"image/jpeg"
+            self.settings['Content-Type'] = u'image/jpeg'
 
     def generate(self, path, name):
         """
@@ -63,10 +63,10 @@ class nginx(BaseDownloadResponse):
     def generate(self, path, name):
         response = HttpResponse()
         url = self.settings['INTERNAL_URL'] + '/' + path.encode('utf-8')
-        response['X-Accel-Charset'] = "utf-8"
+        response['X-Accel-Charset'] = 'utf-8'
         response['X-Accel-Redirect'] = url
         response['Content-Type'] = self.settings['Content-Type']
-        response['Content-Disposition'] = "attachment; filename=\"%s\"" % name.encode('utf-8')
+        response['Content-Disposition'] = 'attachment; filename="%s"' % name.encode('utf-8')
         return response
 
 
@@ -80,6 +80,6 @@ class default(BaseDownloadResponse):
         wrapper = FileWrapper(open(path))
         response = HttpResponse(wrapper)
         response['Content-Type'] = self.settings['Content-Type']
-        response['Content-Disposition'] = "attachment; filename=\"%s\"" % name.encode('utf-8')
+        response['Content-Disposition'] = 'attachment; filename="%s"' % name.encode('utf-8')
         response['Content-Length'] = os.path.getsize(path)
         return response

@@ -69,8 +69,7 @@ class StorageTest(TestCase):
             os.remove(os.path.join(settings.TMP_PATH, i))
 
     def test_list(self):
-        out = self.storage.list("")
-        #out.files.sort()
+        out = self.storage.list('')
         self.assertEqual([i.path for i in out.dirs], ['test'])
         self.assertEqual(out.back, '')
         self.assertEqual([i.path for i in out.files], self.data)

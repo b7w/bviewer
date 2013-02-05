@@ -23,7 +23,7 @@ class ResizeImage(object):
         if self.file.mode not in ('L', 'RGB'):
             self.file = self.file.convert('RGB')
         self.quality = 95
-        self.type = "JPEG"
+        self.type = 'JPEG'
 
     @property
     def width(self):
@@ -126,8 +126,8 @@ class CacheImage(object):
         self.cache_dir = os.path.join(settings.VIEWER_CACHE_PATH, options.user)
 
         self.hash = self.get_hash_name()
-        self.url = os.path.join(options.user, self.hash + ".jpg")
-        self.cache = os.path.join(self.cache_dir, self.hash + ".jpg")
+        self.url = os.path.join(options.user, self.hash + '.jpg')
+        self.cache = os.path.join(self.cache_dir, self.hash + '.jpg')
 
     def get_hash_name(self):
         self.hash_builder = FileUniqueName()
@@ -157,9 +157,9 @@ class CacheImage(object):
                         newImage.resize(w, h)
                     with open(self.cache, mode='wb') as fileout:
                         newImage.saveTo(fileout)
-                    logger.info("resize '%s' with %s", self.path, self.options)
+                    logger.info('resize \'%s\' with %s', self.path, self.options)
                 else:
-                    logger.info("link '%s' with %s", self.path, self.options)
+                    logger.info('link \'%s\' with %s', self.path, self.options)
                     os.symlink(abs_path, self.cache)
 
     def download(self):
@@ -180,7 +180,7 @@ class CacheImage(object):
                 newImage.cropCenter(self.options.width, self.options.height)
                 with open(self.cache, mode='wb') as fileout:
                     newImage.saveTo(fileout)
-            logger.info("download image '%s' %s", self.path, "and resize" if bigger else "")
+            logger.info('download image \'%s\' %s', self.path, 'and resize' if bigger else '')
 
     def checkCacheDir(self):
         if not os.path.exists(self.cache_dir):
@@ -229,13 +229,13 @@ class BulkCache(object):
         self.args.append((path, options))
 
     def send(self):
-        logger.info("start tread %s", hash(self))
+        logger.info('start tread %s', hash(self))
         for item in self.args:
             paths, options = item
             for path in paths:
                 try:
                     image = CacheImage(path, options)
                     cache_image_process.delay(image)
-                    logger.debug("tread %s, process image '%s'", hash(self), path)
+                    logger.debug('tread %s, process image \'%s\'', hash(self), path)
                 except Exception as e:
-                    logger.error("tread %s, %s", hash(self), e)
+                    logger.error('tread %s, %s', hash(self), e)

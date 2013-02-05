@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from datetime import datetime
 from collections import deque
 import urllib2
@@ -28,26 +29,26 @@ class ProxyUser(User):
     url = models.CharField(max_length=16, unique=True)
     home = models.CharField(max_length=256, null=True, blank=True)
     cache_size = models.PositiveIntegerField(default=32, validators=[MinValueValidator(16), MaxValueValidator(256)])
-    top_gallery = models.ForeignKey("Gallery", related_name="top", null=True, blank=True)
+    top_gallery = models.ForeignKey('Gallery', related_name='top', null=True, blank=True)
     about_title = models.CharField(max_length=256, blank=True)
     about_text = models.TextField(max_length=1024, blank=True)
-    avatar = models.ForeignKey("Image", related_name="avatar", null=True, blank=True)
+    avatar = models.ForeignKey('Image', related_name='avatar', null=True, blank=True)
 
     objects = ProxyManager()
 
     def for_json(self):
         data = {
-            "username": self.username,
-            "email": self.email,
-            "is_active": self.is_active,
-            "is_staff": self.is_staff,
-            "is_superuser": self.is_superuser,
-            "last_login": self.last_login,
-            "date_joined": self.date_joined,
-            "profile": {
-                "avatar": self.avatar_id,
-                "about_text": self.about_text,
-                "about_title": self.about_title,
+            'username': self.username,
+            'email': self.email,
+            'is_active': self.is_active,
+            'is_staff': self.is_staff,
+            'is_superuser': self.is_superuser,
+            'last_login': self.last_login,
+            'date_joined': self.date_joined,
+            'profile': {
+                'avatar': self.avatar_id,
+                'about_text': self.about_text,
+                'about_title': self.about_title,
             }
         }
         return data
@@ -64,18 +65,18 @@ class ProxyUser(User):
 
 
     class Meta:
-        db_table = "core_profile"
-        ordering = ["username"]
-        verbose_name = "Gallery user"
-        verbose_name_plural = "Gallery users"
+        db_table = 'core_profile'
+        ordering = ['username']
+        verbose_name = 'Gallery user'
+        verbose_name_plural = 'Gallery users'
         permissions = (
-            ("user_holder", "User is galleries holder"),
+            ('user_holder', 'User is galleries holder'),
             )
 
 
 def add_top_gallery(sender, instance, created, **kwargs):
     if created:
-        gal = Gallery(user=instance, title="Welcome", description="Edit main gallery to change it")
+        gal = Gallery(user=instance, title='Welcome', description='Edit main gallery to change it')
         gal.save()
         instance.top_gallery = gal
         instance.save()
@@ -84,12 +85,12 @@ post_save.connect(add_top_gallery, sender=ProxyUser)
 
 
 class Gallery(models.Model):
-    parent = models.ForeignKey("self", null=True, blank=True, related_name="children")
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
     title = models.CharField(max_length=256)
     user = models.ForeignKey(ProxyUser)
     private = models.BooleanField(default=False)
     description = models.TextField(max_length=512, null=True, blank=True)
-    thumbnail = models.ForeignKey("Image", null=True, blank=True, related_name="thumbnail")
+    thumbnail = models.ForeignKey('Image', null=True, blank=True, related_name='thumbnail')
     time = models.DateTimeField(default=datetime.now)
 
     objects = ProxyManager()
@@ -145,26 +146,26 @@ class Gallery(models.Model):
 
     def for_json(self):
         data = {
-            "id": self.id,
-            "title": self.title,
-            "private": self.private,
-            "description": self.description,
-            "time": self.time,
+            'id': self.id,
+            'title': self.title,
+            'private': self.private,
+            'description': self.description,
+            'time': self.time,
         }
         if self.thumbnail:
-            data["thumbnail"] = self.thumbnail_id
+            data['thumbnail'] = self.thumbnail_id
         return data
 
     def __unicode__(self):
         if self.parent:
-            return self.title + u" -> " + unicode(self.parent)
+            return self.title + u' -> ' + unicode(self.parent)
         return self.title
 
     class Meta:
-        verbose_name = "Gallery"
-        verbose_name_plural = "Galleries"
-        ordering = ["-time"]
-        unique_together = (("title", "user"),)
+        verbose_name = 'Gallery'
+        verbose_name_plural = 'Galleries'
+        ordering = ['-time']
+        unique_together = (('title', 'user'),)
 
 
 class GalleryTree:
@@ -213,24 +214,24 @@ class Image(models.Model):
 
     def for_json(self):
         data = {
-            "id": self.id,
-            "gallery": self.gallery_id,
-            "path": self.path,
+            'id': self.id,
+            'gallery': self.gallery_id,
+            'path': self.path,
         }
         return data
 
     def __unicode__(self):
-        return unicode(self.gallery.title) + u": " + self.path
+        return unicode(self.gallery.title) + u': ' + self.path
 
     class Meta:
-        ordering = ["path"]
-        unique_together = (("gallery", "path"),)
+        ordering = ['path']
+        unique_together = (('gallery', 'path'),)
 
 
 class Video(models.Model):
     VIMIO = 1
     YOUTUBE = 2
-    TYPE_CHOICE = ((YOUTUBE, "YouTube"), (VIMIO, "Vimio"),)
+    TYPE_CHOICE = ((YOUTUBE, 'YouTube'), (VIMIO, 'Vimio'),)
 
     uid = models.CharField(max_length=32)
     type = models.SmallIntegerField(max_length=1, choices=TYPE_CHOICE)
@@ -242,12 +243,12 @@ class Video(models.Model):
 
     def for_json(self):
         data = {
-            "id": self.id,
-            "uid": self.uid,
-            "type": self.type,
-            "gallery": self.gallery_id,
-            "title": self.title,
-            "description": self.description,
+            'id': self.id,
+            'uid': self.uid,
+            'type': self.type,
+            'gallery': self.gallery_id,
+            'title': self.title,
+            'description': self.description,
         }
         return data
 
@@ -257,10 +258,10 @@ class Video(models.Model):
         Build escaped url to video
         """
         if self.type == self.VIMIO:
-            return escape("http://player.vimeo.com/video/{0}".format(self.uid))
+            return escape('http://player.vimeo.com/video/{0}'.format(self.uid))
         elif self.type == self.YOUTUBE:
-            return escape("http://youtube.com/embed/{0}".format(self.uid))
-        raise ValueError("unknown video type: {0}".format(self.type))
+            return escape('http://youtube.com/embed/{0}'.format(self.uid))
+        raise ValueError('unknown video type: {0}'.format(self.type))
 
 
     @property
@@ -269,16 +270,16 @@ class Video(models.Model):
         Get video thumbnail url.
         """
         if self.type == self.VIMIO:
-            url = "http://vimeo.com/api/v2/video/{0}.json".format(self.uid)
+            url = 'http://vimeo.com/api/v2/video/{0}.json'.format(self.uid)
             json = urllib2.urlopen(url).read()
-            info = simplejson.loads(json, encoding="UTF-8").pop()
-            return info["thumbnail_large"]
+            info = simplejson.loads(json, encoding='UTF-8').pop()
+            return info['thumbnail_large']
         elif self.type == self.YOUTUBE:
-            return "http://img.youtube.com/vi/{0}/hqdefault.jpg".format(self.uid)
-        raise ValueError("unknown video type: {0}".format(self.type))
+            return 'http://img.youtube.com/vi/{0}/hqdefault.jpg'.format(self.uid)
+        raise ValueError('unknown video type: {0}'.format(self.type))
 
     def __unicode__(self):
         return self.title
 
     class Meta:
-        unique_together = (("uid", "gallery"),)
+        unique_together = (('uid', 'gallery'),)

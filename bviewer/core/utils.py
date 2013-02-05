@@ -3,10 +3,10 @@
 import re
 import time
 from hashlib import sha1
+
 from django.core.cache import cache
 from django.shortcuts import redirect
 from django.utils.decorators import available_attrs
-
 from django.utils.encoding import smart_str
 from django.utils.functional import wraps
 
@@ -83,16 +83,16 @@ class ResizeOptions:
         self.chooseSetting(size)
 
     def chooseSetting(self, size):
-        if size == "small":
+        if size == 'small':
             self.setFromSetting(settings.VIEWER_SMALL_SIZE)
-        elif size == "middle":
+        elif size == 'middle':
             self.setFromSetting(settings.VIEWER_MIDDLE_SIZE)
-        elif size == "big":
+        elif size == 'big':
             self.setFromSetting(settings.VIEWER_BIG_SIZE)
-        elif size == "full":
+        elif size == 'full':
             self.width = self.height = self.size = 10 ** 6
         else:
-            raise ResizeOptionsError("Undefined size format '{0}'".format(size))
+            raise ResizeOptionsError('Undefined size format \'{0}\''.format(size))
 
     def setFromSetting(self, value):
         """
@@ -104,7 +104,7 @@ class ResizeOptions:
         self.crop = 'CROP' in value and value['CROP'] == True
 
     def __str__(self):
-        return u"ResizeOptions{{user={us},storage={st},size={sz},crop={cr}}}"\
+        return u'ResizeOptions{{user={us},storage={st},size={sz},crop={cr}}}'\
         .format(us=self.user, st=self.storage, sz=self.size, cr=self.crop)
 
 
@@ -131,7 +131,7 @@ class FileUniqueName:
         """
         Return md5 of "files.storage" + name
         """
-        return sha1("files.storage" + smart_str(name)).hexdigest()
+        return sha1('files.storage' + smart_str(name)).hexdigest()
 
     def time(self):
         """
@@ -154,7 +154,7 @@ class FileUniqueName:
         return self.hash(full_name)
 
 
-domain_match = re.compile("([w]{3})?\.?(?P<sub>\w+)\.(\w+)\.([a-z]+):?(\d{0,4})")
+domain_match = re.compile('([w]{3})?\.?(?P<sub>\w+)\.(\w+)\.([a-z]+):?(\d{0,4})')
 
 def get_gallery_user(request, name=None):
     """
@@ -166,7 +166,7 @@ def get_gallery_user(request, name=None):
     :rtype: (bviewer.core.models.ProxyUser, string)
     """
     match = domain_match.match(request.get_host())
-    key = "core.utils.get_gallery_user({0},{1})".format(request.get_host(), name)
+    key = 'core.utils.get_gallery_user({0},{1})'.format(request.get_host(), name)
     data = cache.get(key)
     if data:
         return data
@@ -193,7 +193,7 @@ def perm_any_required( *args, **kwargs):
     Decorator for views that checks if at least one permission return True,
     redirecting to the `url` page on False.
     """
-    url = kwargs.get("url", '/')
+    url = kwargs.get('url', '/')
 
     def test_func( user ):
         for perm in args:

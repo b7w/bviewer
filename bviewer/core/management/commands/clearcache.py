@@ -51,9 +51,9 @@ class ClearCache(object):
         self.cache_path = path
 
     def clear(self):
-        logger.info("Start clearing cache")
+        logger.info('Start clearing cache')
         for user in os.listdir(self.cache_path):
-            logger.debug("Start clearing %s user cache", user)
+            logger.debug('Start clearing %s user cache', user)
             user_full = os.path.join(self.cache_path, user)
             data = []
             for item in os.listdir(user_full):
@@ -61,7 +61,7 @@ class ClearCache(object):
                 if os.path.islink(file):
                     self.clear_time(file, user)
                 else:
-                    i = {"path": file, "size": self.getsize(file), "time": self.getctime(file)}
+                    i = dict(path=file, size=self.getsize(file), time=self.getctime(file))
                     data.append(i)
             self.clear_size(data, user)
 
@@ -69,7 +69,7 @@ class ClearCache(object):
         created = self.getctime(path)
         if datetime.now() - created > timedelta(seconds=self.older):
             os.remove(path)
-            logger.info("clear %s user '%s' link", user, path)
+            logger.info('clear %s user \'%s\' link', user, path)
 
     def clear_size(self, files, user):
         profile = ProxyUser.objects.safe_get(url=user)
@@ -80,11 +80,11 @@ class ClearCache(object):
         files = multi_sort(files, columns=('size', 'time'))
         flag = True
         while flag:
-            s = sum(i["size"] for i in files)
+            s = sum(i['size'] for i in files)
             if s > size:
                 file = files.pop()
-                os.remove(file["path"])
-                logger.info("clear %s user '%s' cache", user, file["path"])
+                os.remove(file['path'])
+                logger.info('clear %s user \'%s\' cache', user, file['path'])
             else:
                 flag = False
 
@@ -96,8 +96,8 @@ class ClearCache(object):
 
 
 class Command(BaseCommand):
-    args = u"[size in MB]"
-    help = u"Clear old links and delete old files if size of user cache is bigger or given"
+    args = '[size in MB]'
+    help = 'Clear old links and delete old files if size of user cache is bigger or given'
 
     def handle(self, *args, **options):
         self.style = no_style()
