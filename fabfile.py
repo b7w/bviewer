@@ -12,9 +12,9 @@ __all__ = ["help", "start", "stop", "restart", "syncdb", "clear", "static"]
 
 HOME = settings.SOURCE_PATH
 
-NAME = getattr( settings, "NAME", "believe" )
-USER = getattr( settings, "USER", "www-data" )
-GROUP = getattr( settings, "GROUP", "www-data" )
+NAME = getattr( settings, "PROCESS_NAME", "believe" )
+USER = getattr( settings, "PROCESS_USER", "www-data" )
+GROUP = getattr( settings, "PROCESS_GROUP", "www-data" )
 
 MANAGE_PY = os.path.join( getattr( settings, "PROJECT_PATH" ), "manage.py" )
 RUN_DIR = os.path.join( "/var/run", NAME.lower( ) )
