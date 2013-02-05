@@ -32,7 +32,7 @@ class PrivateGalleriesTest(TestCase):
             parent=self.user.top_gallery
         )
         self.image_first = Image.objects.create(gallery=self.gallery_first)
-        self.video_first = Video.objects.create(gallery=self.gallery_first)
+        self.video_first = Video.objects.create(gallery=self.gallery_first, type=Video.VIMIO)
         self.gallery_second = Gallery.objects.create(
             title='Second',
             user=self.user,
@@ -40,7 +40,7 @@ class PrivateGalleriesTest(TestCase):
             private=True
         )
         self.image_second = Image.objects.create(gallery=self.gallery_second)
-        self.video_second = Video.objects.create(gallery=self.gallery_second)
+        self.video_second = Video.objects.create(gallery=self.gallery_second, type=Video.VIMIO)
 
     def login(self):
         assert self.client.login(username='B7W', password='root')

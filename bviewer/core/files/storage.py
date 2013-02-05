@@ -5,7 +5,17 @@ import os
 from bviewer.core import settings
 
 class File(object):
+    """
+    Store full `path`, `name` and `checked` flag.
+    """
+
     def __init__(self, root, name):
+        """
+        Get folder path and file name.
+
+        :type root: str
+        :type name: str
+        """
         self.path = os.path.join(root, name)
         self.name = name
         self.checked = False
@@ -15,7 +25,16 @@ class File(object):
 
 
 class Folder(object):
+    """
+    Store `path`, `back` path, sorted `dirs` and `files`
+    """
+
     def __init__(self, path, dirs, files):
+        """
+        :type path: str
+        :type dirs: list of File
+        :type files: list of File
+        """
         self.path = path
         self.back = "/".join(path.split('/')[:-1])
         self.dirs = sorted(dirs)
@@ -24,12 +43,12 @@ class Folder(object):
     def split_path(self):
         """
         Split path for folders name with path fot this name.
-        Return list of pairs.
 
         Example::
 
-            /root/path1/path2 ->
-            root:/root, path1:/root/path2, path2:/root/path1/path2
+            /r/p1/p2 -> r:/r, p1:/r/p2, p2:/r/p1/p2
+
+        :rtype: list of (str,str)
         """
 
         def _split( path, data ):
@@ -60,6 +79,10 @@ class Storage(object):
 
 
     def list(self, path):
+        """
+        :type path: str
+        :rtype: Folder
+        """
         root = self.join(path)
         if not os.path.exists(root):
             raise IOError('No such directory')
