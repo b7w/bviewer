@@ -19,10 +19,10 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
-@perm_any_required("core.user_holder")
+@perm_any_required('core.user_holder')
 def ShowHome( request ):
     user, user_url = get_gallery_user(request)
-    return render(request, "profile/home.html", {
+    return render(request, 'profile/home.html', {
         'tab_name': 'home',
         'path': request.path,
         'user_url': user_url,
@@ -30,7 +30,7 @@ def ShowHome( request ):
 
 
 @login_required
-@perm_any_required("core.user_holder")
+@perm_any_required('core.user_holder')
 def ShowGalleries( request ):
     user, user_url = get_gallery_user(request)
     if not user:
@@ -46,7 +46,7 @@ def ShowGalleries( request ):
     else:
         form = GalleryForm(instance=gallery)
 
-    return render(request, "profile/galleries.html", {
+    return render(request, 'profile/galleries.html', {
         'tab_name': 'galleries',
         'path': request.path,
         'user_url': user_url,
@@ -57,7 +57,7 @@ def ShowGalleries( request ):
 
 
 @login_required
-@perm_any_required("core.user_holder")
+@perm_any_required('core.user_holder')
 def GalleryAction( request, action ):
     user, user_url = get_gallery_user(request)
     if not user:
@@ -98,7 +98,7 @@ def GalleryAction( request, action ):
 
 
 @login_required
-@perm_any_required("core.user_holder")
+@perm_any_required('core.user_holder')
 def ShowImages( request ):
     user, user_url = get_gallery_user(request)
     if not user:
@@ -115,7 +115,7 @@ def ShowImages( request ):
 
     galleries = Gallery.objects.filter(user=user)
 
-    return render(request, "profile/images.html", {
+    return render(request, 'profile/images.html', {
         'gallery_id': gallery_id,
         'galleries': galleries,
         'folder': controller.getFolder(),
@@ -126,10 +126,10 @@ def ShowImages( request ):
 
 
 @login_required
-@perm_any_required("core.user_holder")
+@perm_any_required('core.user_holder')
 def ShowVideos( request ):
     user, user_url = get_gallery_user(request)
-    return render(request, "profile/videos.html", {
+    return render(request, 'profile/videos.html', {
         'tab_name': 'videos',
         'path': request.path,
         'user_url': user_url,
@@ -137,10 +137,10 @@ def ShowVideos( request ):
 
 
 @login_required
-@perm_any_required("core.user_holder")
+@perm_any_required('core.user_holder')
 def ShowAbout( request ):
     user, user_url = get_gallery_user(request)
-    return render(request, "profile/about.html", {
+    return render(request, 'profile/about.html', {
         'tab_name': 'about',
         'path': request.path,
         'user_url': user_url,
@@ -148,24 +148,24 @@ def ShowAbout( request ):
 
 
 @login_required
-@perm_any_required("core.user_holder")
+@perm_any_required('core.user_holder')
 def DownloadImage( request ):
-    if request.GET.get("p", None):
-        path = request.GET["p"]
+    if request.GET.get('p', None):
+        path = request.GET['p']
         user, user_url = get_gallery_user(request)
         if user.home is None:
-            raise Http404("You have no access to storage")
+            raise Http404('You have no access to storage')
         storage = Storage(user.home)
         try:
             if storage.exists(path):
-                options = ResizeOptions("small", user=user.url, storage=user.home)
+                options = ResizeOptions('small', user=user.url, storage=user.home)
                 image = CacheImage(path, options)
                 image.process()
                 name = Storage.name(path)
                 response = DownloadResponse.build(image.url, name)
                 return response
-            raise Http404("No such file")
+            raise Http404('No such file')
         except IOError as e:
             raise Http404(e)
 
-    raise Http404("No Image")
+    raise Http404('No Image')

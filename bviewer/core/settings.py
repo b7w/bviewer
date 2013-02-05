@@ -10,7 +10,7 @@ TESTS = False
 # also it is soft links to full images
 # check that this folder can be seen from nginx
 # each user have his own sub folder
-VIEWER_CACHE_PATH = getattr(settings, 'VIEWER_CACHE_PATH', "../cache")
+VIEWER_CACHE_PATH = getattr(settings, 'VIEWER_CACHE_PATH', '../cache')
 
 # When run clear old cache, for more examples look here
 # http://ask.github.com/celery/userguide/periodic-tasks.html

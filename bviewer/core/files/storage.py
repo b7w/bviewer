@@ -67,15 +67,15 @@ class Storage(object):
     """
     Simple class to list only images on file system and restrict '../' and etc operations
     """
-    types = [".jpeg", ".jpg", ]
-    path_checkers = ["../", "./", "/.", ]
+    types = ['.jpeg', '.jpg', ]
+    path_checkers = ['../', './', '/.', ]
 
     def __init__(self, path):
         self.root = settings.VIEWER_STORAGE_PATH
         if self.is_valid_path(path):
             self.root = os.path.join(self.root, path)
         else:
-            raise IOError("Wrong path'{0}'".format(path))
+            raise IOError('Wrong path\'{0}\''.format(path))
 
 
     def list(self, path):
