@@ -20,12 +20,12 @@ class ModelAdmin(admin.ModelAdmin):
 
 class GalleryAdmin(ModelAdmin):
     list_select_related = True
+
     list_display = ('title', 'parent', 'user', 'private', 'time',)
     list_filter = (  'parent__title', 'user__username', 'time', )
     ordering = ('user', 'parent', 'time',)
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        print self.object
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         if db_field.name == 'parent' and self.object:
             kwargs['queryset'] = Gallery.objects.filter(user__id=self.object.user.id)
         return super(GalleryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
@@ -35,6 +35,7 @@ admin.site.register(Gallery, GalleryAdmin)
 
 class ImageAdmin(ModelAdmin):
     list_select_related = True
+
     list_display = ('gallery_title', 'gallery_user', 'path', )
     list_filter = ( 'gallery__title', 'gallery__user__username', )
     ordering = ('gallery__user__username', 'path',)
@@ -45,7 +46,7 @@ class ImageAdmin(ModelAdmin):
     def gallery_user(self, obj):
         return obj.gallery.user.username
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         if db_field.name == 'gallery' and self.object:
             kwargs['queryset'] = Gallery.objects.filter(user__id=self.object.gallery.user.id)
         return super(ImageAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
@@ -55,6 +56,7 @@ admin.site.register(Image, ImageAdmin)
 
 class VideoAdmin(ModelAdmin):
     list_select_related = True
+
     list_display = ('gallery_title', 'gallery_user', 'title', 'uid',)
     list_filter = ( 'gallery__title', 'gallery__user__username', )
     ordering = ('gallery__user__username', 'uid',)
@@ -65,7 +67,7 @@ class VideoAdmin(ModelAdmin):
     def gallery_user(self, obj):
         return obj.gallery.user.username
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """
         Show in drop down menu only user galleries and images
         """
@@ -94,6 +96,7 @@ class ProxyUserForm(models.ModelForm):
 
 class UserAdmin(UserAdmin, ModelAdmin):
     list_select_related = True
+
     list_display = ('username', 'email', 'is_staff', 'home', 'top_gallery', )
     fieldsets = (
         ('Main', {'fields': ('username', 'email', 'password',)}),
@@ -104,7 +107,7 @@ class UserAdmin(UserAdmin, ModelAdmin):
     readonly_fields = ( 'password', 'is_active', 'is_staff', 'last_login', 'date_joined', )
     form = ProxyUserForm
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """
         Show in drop down menu only user galleries and images
         """

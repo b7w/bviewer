@@ -163,7 +163,6 @@ class Gallery(models.Model):
 
     class Meta:
         verbose_name = 'Gallery'
-        verbose_name_plural = 'Galleries'
         ordering = ['-time']
         unique_together = (('title', 'user'),)
 
@@ -224,6 +223,7 @@ class Image(models.Model):
         return unicode(self.gallery.title) + u': ' + self.path
 
     class Meta:
+        verbose_name = 'Image'
         ordering = ['path']
         unique_together = (('gallery', 'path'),)
 
@@ -282,4 +282,5 @@ class Video(models.Model):
         return self.title
 
     class Meta:
+        verbose_name = 'Video'
         unique_together = (('uid', 'gallery'),)
