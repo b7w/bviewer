@@ -9,7 +9,7 @@ from bviewer.core.files.serve import DownloadResponse
 from bviewer.core.images import CacheImage, BulkCache
 from bviewer.core.models import Gallery, Image
 from bviewer.core.utils import ResizeOptions, get_gallery_user, perm_any_required
-from bviewer.profile.controllers import ImageController
+from bviewer.profile.controllers import ImageController, VideoController
 from bviewer.profile.forms import GalleryForm
 from bviewer.profile.utils import  redirect
 
@@ -129,7 +129,26 @@ def ShowImages( request ):
 @perm_any_required('core.user_holder')
 def ShowVideos( request ):
     user, user_url = get_gallery_user(request)
+    if not user:
+        raise Http404()
+
+    galleries = Gallery.objects.filter(user=user)
+    gallery_id = int(request.GET.get('g') or 0)
+    video_id = int(request.GET.get('v') or 0)
+    new = request.GET.get('new')
+
+    controller = VideoController(gallery_id, user, video_id, new)
+    if request.method == 'POST':
+        form = controller.perform_post_form(request.POST)
+    else:
+        form = controller.perform_get_form()
+
     return render(request, 'profile/videos.html', {
+        'gallery_id': gallery_id,
+        'galleries': galleries,
+        'video_id': video_id,
+        'videos': controller.get_videos(),
+        'form': form,
         'tab_name': 'videos',
         'path': request.path,
         'user_url': user_url,
