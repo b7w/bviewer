@@ -41,7 +41,7 @@ input, textarea {
 
 .admin-list ul {
     margin-left: 18px;
-    font-size: 16px;
+    /*font-size: 16px;*/
 }
 
 .admin-list > ul {
@@ -53,8 +53,14 @@ input, textarea {
     margin-right: 10px;
 }
 
-.admin-list a {
+.admin-list a, .video-list a {
     color: #999;
+    font-size: 16px;
+}
+
+.video-list .active {
+    font-weight: bold;
+    color: #BBB;
 }
 
 .admin-list .active > span {
