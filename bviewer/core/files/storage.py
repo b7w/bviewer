@@ -4,6 +4,7 @@ import os
 
 from bviewer.core import settings
 
+
 class File(object):
     """
     Store full `path`, `name` and `checked` flag.
@@ -51,7 +52,7 @@ class Folder(object):
         :rtype: list of (str,str)
         """
 
-        def _split( path, data ):
+        def _split(path, data):
             name = os.path.basename(path)
             if name:
                 second = os.path.dirname(path)
@@ -77,7 +78,6 @@ class Storage(object):
         else:
             raise IOError('Wrong path\'{0}\''.format(path))
 
-
     def list(self, path):
         """
         :type path: str
@@ -86,15 +86,15 @@ class Storage(object):
         root = self.join(path)
         if not os.path.exists(root):
             raise IOError('No such directory')
-        objs = os.listdir(root)
+        items = os.listdir(root)
         dirs = []
         files = []
-        for item in objs:
+        for item in items:
             if not item.startswith('.'):
-                file = os.path.join(root, item)
-                if os.path.isdir(file):
+                fname = os.path.join(root, item)
+                if os.path.isdir(fname):
                     dirs.append(File(path, item))
-                elif self.is_image(item) and os.path.isfile(file):
+                elif self.is_image(item) and os.path.isfile(fname):
                     files.append(File(path, item))
         return Folder(path, dirs, files)
 

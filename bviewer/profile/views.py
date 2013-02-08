@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render
@@ -11,16 +13,15 @@ from bviewer.core.models import Gallery, Image
 from bviewer.core.utils import ResizeOptions, get_gallery_user, perm_any_required
 from bviewer.profile.controllers import ImageController, VideoController
 from bviewer.profile.forms import GalleryForm
-from bviewer.profile.utils import  redirect
+from bviewer.profile.utils import redirect, JSONResponse
 
-import logging
 
 logger = logging.getLogger(__name__)
 
 
 @login_required
 @perm_any_required('core.user_holder')
-def ShowHome( request ):
+def ShowHome(request):
     user, user_url = get_gallery_user(request)
     return render(request, 'profile/home.html', {
         'tab_name': 'home',
@@ -31,14 +32,14 @@ def ShowHome( request ):
 
 @login_required
 @perm_any_required('core.user_holder')
-def ShowGalleries( request ):
+def ShowGalleries(request):
     user, user_url = get_gallery_user(request)
     if not user:
         raise Http404()
     galleries = Gallery.as_tree(user)
 
-    id = request.GET.get('id') or user.top_gallery_id
-    gallery = Gallery.objects.get(pk=id)
+    gallery_id = request.GET.get('id') or user.top_gallery_id
+    gallery = Gallery.objects.get(pk=gallery_id)
     if request.method == 'POST':
         form = GalleryForm(request.POST, instance=gallery)
         if form.is_valid():
@@ -58,21 +59,21 @@ def ShowGalleries( request ):
 
 @login_required
 @perm_any_required('core.user_holder')
-def GalleryAction( request, action ):
+def GalleryAction(request, action):
     user, user_url = get_gallery_user(request)
     if not user:
         raise Http404()
 
-    id = int(request.GET.get('id') or 0)
+    gallery_id = int(request.GET.get('id') or 0)
     if action == 'add':
         name = request.GET.get('name')
         if name:
             obj = Gallery.objects.create(user=user, title=name)
-            id = obj.id
+            gallery_id = obj.id
     elif action == 'cache':
         step = request.GET.get('step') or 1
-        size = request.GET.get('size') or 'small' # small|middle|big
-        images = Image.objects.filter(gallery=id, gallery__user=user)
+        size = request.GET.get('size') or 'small'  # small|middle|big
+        images = Image.objects.filter(gallery=gallery_id, gallery__user=user)
         if images:
             paths = [images[i].path for i in range(0, len(images), step)]
             work = BulkCache()
@@ -80,26 +81,26 @@ def GalleryAction( request, action ):
             work.send()
     elif action == 'set':
         parent_id = int(request.GET.get('parent'))
-        if id != parent_id:
+        if gallery_id != parent_id:
             new_upper = Gallery.objects.get(pk=parent_id)
-            obj = Gallery.objects.get(pk=id)
+            obj = Gallery.objects.get(pk=gallery_id)
             # check that we not make a loop
             # and set to child his parent
             if not new_upper.is_child_of(obj.id):
                 obj.parent = new_upper
                 obj.save()
     elif action == 'unset':
-        Gallery.objects.filter(pk=id).update(parent=None)
+        Gallery.objects.filter(pk=gallery_id).update(parent=None)
     elif action == 'del':
-        Gallery.objects.filter(pk=id).delete()
-        id = None
+        Gallery.objects.filter(pk=gallery_id).delete()
+        gallery_id = None
 
-    return redirect('profile.galleries', id=id)
+    return redirect('profile.galleries', id=gallery_id)
 
 
 @login_required
 @perm_any_required('core.user_holder')
-def ShowImages( request ):
+def ShowImages(request):
     user, user_url = get_gallery_user(request)
     if not user:
         raise Http404()
@@ -127,7 +128,7 @@ def ShowImages( request ):
 
 @login_required
 @perm_any_required('core.user_holder')
-def ShowVideos( request ):
+def ShowVideos(request):
     user, user_url = get_gallery_user(request)
     if not user:
         raise Http404()
@@ -146,7 +147,7 @@ def ShowVideos( request ):
     return render(request, 'profile/videos.html', {
         'gallery_id': gallery_id,
         'galleries': galleries,
-        'video_id': video_id,
+        'video_id': controller.video_id,
         'videos': controller.get_videos(),
         'form': form,
         'tab_name': 'videos',
@@ -157,7 +158,7 @@ def ShowVideos( request ):
 
 @login_required
 @perm_any_required('core.user_holder')
-def ShowAbout( request ):
+def ShowAbout(request):
     user, user_url = get_gallery_user(request)
     return render(request, 'profile/about.html', {
         'tab_name': 'about',
@@ -168,7 +169,7 @@ def ShowAbout( request ):
 
 @login_required
 @perm_any_required('core.user_holder')
-def DownloadImage( request ):
+def DownloadImage(request):
     if request.GET.get('p', None):
         path = request.GET['p']
         user, user_url = get_gallery_user(request)
@@ -188,3 +189,26 @@ def DownloadImage( request ):
             raise Http404(e)
 
     raise Http404('No Image')
+
+
+@login_required
+@perm_any_required('core.user_holder')
+def ShowImagesAdmin(request):
+    user, user_url = get_gallery_user(request)
+    return render(request, 'profile/admin/images.html', {
+        'path': request.path,
+        'user_url': user_url,
+    })
+
+
+@login_required
+@perm_any_required('core.user_holder')
+def JsonStorageList(request):
+    user, user_url = get_gallery_user(request)
+    if not user:
+        raise Http404()
+    if user.home is None:
+        raise Http404('You have no access to storage')
+    storage = Storage(user.home)
+    folder = storage.list(request.GET.get('p', ''))
+    return JSONResponse(folder)
