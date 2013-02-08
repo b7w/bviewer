@@ -21,9 +21,9 @@
                 </form>
             </div>
             <div class="span6">
-                <form id="add-video-form" method="get">
+                <form id="add-video-form" method="post">
                     <label for="video-input-add">Add new video ID</label>
-                    <input id="video-input-add" type="text" name="new" class="span10">
+                    <input id="video-input-add" type="text" name="add-video" class="span10">
                     <input type="hidden" name="g" value="{{ gallery_id }}">
                     <button id="video-button-add" type="button" class="btn btn-inverse" onclick="document.getElementById('add-video-form').submit()">Add</button>
                 </form>

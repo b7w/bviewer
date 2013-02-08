@@ -53,17 +53,17 @@ class ImageController(object):
                 Image.objects.filter(
                     gallery=self.gallery,
                     gallery__user=self.user,
-                    path__in=diff_del)\
-                .delete()
+                    path__in=diff_del) \
+                    .delete()
 
     def getFolder(self):
         """
         :rtype : bviewer.core.files.storage.Folder
         """
         checked = self.checked if self.checked else self.images_path
-        for file in self.folder.files:
-            if file.path in checked:
-                file.checked = True
+        for item in self.folder.files:
+            if item.path in checked:
+                item.checked = True
         return self.folder
 
 
@@ -82,7 +82,16 @@ class VideoController(object):
         self.init()
 
     def init(self):
-        if self.new:
+        if self.video_id:
+            self.video = Video.objects.get(id=self.video_id, gallery__user=self.user)
+
+    def perform_post_form(self, data):
+        """
+        Get POST data.
+
+        :raise: ValueError on no video id
+        """
+        if 'add-video' in data:
             if not self.gallery_id:
                 raise ValueError("Select gallery")
             self.video = Video.objects.create(
@@ -92,16 +101,12 @@ class VideoController(object):
                 title='New video',
             )
             self.video_id = self.video.id
+            return VideoForm(data, instance=self.video)
+        elif 'del-video' in data:
+            if not self.gallery_id:
+                raise ValueError("Select gallery")
+            Video.objects.filter(id=self.video_id, gallery__user=self.user)
         elif self.video_id:
-            self.video = Video.objects.get(id=self.video_id, gallery__user=self.user)
-
-    def perform_post_form(self, data):
-        """
-        Get POST data.
-
-        :raise: ValueError on no video id
-        """
-        if self.video_id:
             form = VideoForm(data, instance=self.video)
             if form.is_valid():
                 form.save()
@@ -115,5 +120,5 @@ class VideoController(object):
 
     def get_videos(self):
         if self.gallery_id:
-            return  Video.objects.filter(gallery_id=self.gallery_id, gallery__user=self.user)
+            return Video.objects.filter(gallery_id=self.gallery_id, gallery__user=self.user)
         return []
