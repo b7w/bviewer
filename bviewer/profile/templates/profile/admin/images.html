@@ -75,9 +75,11 @@
             <div class="form-row">
                 <label>Path:</label>
 
-                <div class="split-path" data-bind="foreach: splitPath">
-                    › <a href="#" class="label" data-bind="text: name, click: $parent.select"></a>
-                </div>
+
+                <a href="#" class="split-path" data-bind="click: selectHome">Home</a>
+                <span class="split-path" data-bind="foreach: splitPath">
+                    › <a href="#" data-bind="text: name, click: $parent.select"></a>
+                </span>
             </div>
 
             <div class="form-row">
@@ -122,6 +124,41 @@
 
 
     <script type="text/javascript">
+        var LocationHash = function () {
+            var self = this;
+            self.hash = '#!';
+            self.map = {};
+
+            self.set = function (key, val) {
+                self.map[key] = val;
+                self.hash = '#!';
+                for (var key in self.map) {
+                    self.hash += key + '=' + self.map[key] + '&';
+                }
+                window.location.hash = self.hash.slice(0, -1);
+            };
+
+            self.get = function (key, def) {
+                if (key in self.map) {
+                    return self.map[key];
+                }
+                return def;
+            };
+
+            self.init = function () {
+                var kwargs = window.location.hash.slice(2).split('&');
+                for (var i = 0; i < kwargs.length; i++) {
+                    var items = kwargs[i].split('=');
+                    var key = items[0], val = items[1];
+                    if (key != '')
+                        self.map[key] = val;
+                }
+            };
+            self.init();
+        };
+
+        var locationHash = new LocationHash();
+
         var Gallery = function (id, name) {
             var self = this;
             self.id = id;
@@ -164,13 +201,23 @@
             self.files = ko.observableArray();
 
             self.selectedImages = ko.computed(function () {
-                return ko.utils.arrayFilter(self.files(), function (file) {
+                return ko.utils.arrayFilter(self.files(),function (file) {
                     return file.checked();
                 }).length;
             });
 
+            self.chosenGallery.subscribe(function (value) {
+                locationHash.set('g', value.id);
+            });
+            self.path.subscribe(function (value) {
+                locationHash.set('p', value);
+            });
+
             self.select = function (item) {
                 self.loadFolder(item.path)
+            };
+            self.selectHome = function () {
+                self.loadFolder('');
             };
             self.selectBack = function () {
                 self.loadFolder(self.back());
@@ -196,7 +243,16 @@
                 })
             };
 
-            self.loadFolder('');
+            self.init = function () {
+                var gallery_id = locationHash.get('g', null);
+                jQuery.each(self.galleries(), function (key, value) {
+                    if (value.id == gallery_id)
+                        self.chosenGallery(value);
+                });
+                var path = locationHash.get('p', '');
+                self.loadFolder(path);
+            };
+            self.init();
 
         };
 

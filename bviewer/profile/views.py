@@ -196,6 +196,7 @@ def DownloadImage(request):
 def ShowImagesAdmin(request):
     user, user_url = get_gallery_user(request)
     return render(request, 'profile/admin/images.html', {
+        'title': 'Add images',
         'path': request.path,
         'user_url': user_url,
     })
