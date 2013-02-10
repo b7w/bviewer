@@ -36,23 +36,6 @@ class ProxyUser(User):
 
     objects = ProxyManager()
 
-    def for_json(self):
-        data = {
-            'username': self.username,
-            'email': self.email,
-            'is_active': self.is_active,
-            'is_staff': self.is_staff,
-            'is_superuser': self.is_superuser,
-            'last_login': self.last_login,
-            'date_joined': self.date_joined,
-            'profile': {
-                'avatar': self.avatar_id,
-                'about_text': self.about_text,
-                'about_title': self.about_title,
-            }
-        }
-        return data
-
     def save(self, force_insert=False, force_update=False, using=None):
         if not self.url:
             self.url = self.username.lower()
@@ -63,7 +46,6 @@ class ProxyUser(User):
             return self.id == other.id
         return False
 
-
     class Meta:
         db_table = 'core_profile'
         ordering = ['username']
@@ -71,7 +53,7 @@ class ProxyUser(User):
         verbose_name_plural = 'Gallery users'
         permissions = (
             ('user_holder', 'User is galleries holder'),
-            )
+        )
 
 
 def add_top_gallery(sender, instance, created, **kwargs):
@@ -80,6 +62,7 @@ def add_top_gallery(sender, instance, created, **kwargs):
         gal.save()
         instance.top_gallery = gal
         instance.save()
+
 
 post_save.connect(add_top_gallery, sender=ProxyUser)
 
@@ -144,18 +127,6 @@ class Gallery(models.Model):
                 objects.extend(Gallery.objects.filter(parent=ids.popleft()))
         return False
 
-    def for_json(self):
-        data = {
-            'id': self.id,
-            'title': self.title,
-            'private': self.private,
-            'description': self.description,
-            'time': self.time,
-        }
-        if self.thumbnail:
-            data['thumbnail'] = self.thumbnail_id
-        return data
-
     def __unicode__(self):
         if self.parent:
             return self.title + u' -> ' + unicode(self.parent)
@@ -211,14 +182,6 @@ class Image(models.Model):
 
     objects = ProxyManager()
 
-    def for_json(self):
-        data = {
-            'id': self.id,
-            'gallery': self.gallery_id,
-            'path': self.path,
-        }
-        return data
-
     def __unicode__(self):
         return unicode(self.gallery.title) + u': ' + self.path
 
@@ -241,17 +204,6 @@ class Video(models.Model):
 
     objects = ProxyManager()
 
-    def for_json(self):
-        data = {
-            'id': self.id,
-            'uid': self.uid,
-            'type': self.type,
-            'gallery': self.gallery_id,
-            'title': self.title,
-            'description': self.description,
-        }
-        return data
-
     @property
     def url(self):
         """
@@ -262,7 +214,6 @@ class Video(models.Model):
         elif self.type == self.YOUTUBE:
             return escape('http://youtube.com/embed/{0}'.format(self.uid))
         raise ValueError('unknown video type: {0}'.format(self.type))
-
 
     @property
     def thumbnail_url(self):
