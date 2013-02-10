@@ -37,27 +37,26 @@ def get_pid(name):
     """
     if not os.path.exists(RUN_DIR):
         os.mkdir(RUN_DIR)
-    file = os.path.join(RUN_DIR, name)
-    return file
+    return os.path.join(RUN_DIR, name)
 
 
 def chmod():
     """
     Chown run directory
     """
-    for file in os.listdir(RUN_DIR):
-        path = os.path.join(RUN_DIR, file)
+    for fname in os.listdir(RUN_DIR):
+        path = os.path.join(RUN_DIR, fname)
         os.chown(path, getpwnam(USER).pw_uid, getpwnam(GROUP).pw_gid)
         os.chmod(path, int('775', 8))
 
 
-def list_files( path, ends=None ):
+def list_files(path, ends=None):
     """
     Return list with full path paths to all files under ``path`` directory.
     if ``ends`` contains list of file extensions only this files will be included.
     """
 
-    def _list_files( path, array):
+    def _list_files(path, array):
         for name in os.listdir(path):
             full_path = os.path.join(path, name)
             if os.path.isdir(full_path):
@@ -99,9 +98,9 @@ def start():
         }
         os.chown(RUN_DIR, getpwnam(USER).pw_uid, getpwnam(GROUP).pw_gid)
         with cd(HOME):
-            print( '[ INFO ] Start celery' )
+            print('[ INFO ] Start celery')
             os.system(CELERY_START.format(**celery_args))
-            print( '[ INFO ] Start django' )
+            print('[ INFO ] Start django')
             os.system(DJANGO_START.format(**django_args))
         chmod()
 
@@ -113,9 +112,9 @@ def stop():
     if os.getuid():
         print('Only root can stop program of another user')
     else:
-        print( '[ INFO ] Stop celery' )
+        print('[ INFO ] Stop celery')
         os.system('kill `cat {pid}`'.format(pid=get_pid('celery.pid')))
-        print( '[ INFO ] Stop django' )
+        print('[ INFO ] Stop django')
         os.system('kill `cat {pid}`'.format(pid=get_pid('django.pid')))
 
 
@@ -134,7 +133,7 @@ def syncdb():
     """
     Sync database, just a proxy command
     """
-    print( '[ INFO ] Sync database' )
+    print('[ INFO ] Sync database')
     os.system('python {0} syncdb'.format(MANAGE_PY))
 
 
@@ -142,7 +141,7 @@ def clear():
     """
     Delete cache, just a proxy command
     """
-    print( '[ INFO ] Delete all cache' )
+    print('[ INFO ] Delete all cache')
     for item in os.listdir(settings.VIEWER_CACHE_PATH):
         shutil.rmtree(os.path.join(settings.VIEWER_CACHE_PATH, item))
 
@@ -152,7 +151,7 @@ def static():
     Collect and gzip static files.
     """
 
-    print( '[ INFO ] Collect and gzip static' )
+    print('[ INFO ] Collect and gzip static')
     os.system('python {manage} collectstatic --noinput'.format(manage=MANAGE_PY))
 
     files = list_files(settings.STATIC_ROOT, ('css', 'js',))
@@ -165,9 +164,9 @@ def help():
     """
     Print help for commands
     """
-    print( 'It is a small helper to install and run LimitedFM' )
-    print( 'Usage: fab command[:arg,arg2] command ..' )
-    print( '' )
+    print('It is a small helper to install and run LimitedFM')
+    print('Usage: fab command[:arg,arg2] command ..')
+    print('')
     module = sys.modules[__name__]
     for item in __all__:
         attr = module.__dict__[item]

@@ -14,12 +14,12 @@ def clear_cache():
 
 
 @task
-def cache_image_process( image ):
+def cache_image_process(image):
     image.process()
     return image
 
 
 @task
-def cache_image_download( image ):
+def cache_image_download(image):
     image.download()
     return image

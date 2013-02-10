@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+
 import os
 
-from django.utils.importlib import import_module
 from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse
+from django.utils.importlib import import_module
 
 from bviewer.core import settings
+
 
 class DownloadResponse:
     """
@@ -24,7 +26,7 @@ class DownloadResponse:
         return getattr(mod, class_name)
 
     @classmethod
-    def build(cls, path, name ):
+    def build(cls, path, name):
         """
         Return HttpResponse object with file
         or instruction to http server where file exists.

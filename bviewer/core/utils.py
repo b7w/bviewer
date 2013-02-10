@@ -3,6 +3,7 @@
 import re
 import time
 from hashlib import sha1
+import logging
 
 from django.core.cache import cache
 from django.shortcuts import redirect
@@ -13,7 +14,6 @@ from django.utils.functional import wraps
 from bviewer.core import settings
 from bviewer.core.models import ProxyUser
 
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -22,19 +22,21 @@ class RaisingRange:
     """
     Iterator range that double sum base value if item/base == 8
 
-    >>> RaisingRange(32, start=0, base=1)
-    [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24, 28]
+        >>> list(RaisingRange(32, start=0, base=1))
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24, 28, 32]
     """
 
-    def __init__(self, max, start=None, base=None):
+    def __init__(self, maximum, start=None, base=None):
         """
-        max -> max value
-        start -> start from or 0
-        base -> base or 1
+        Max value, start from or 0, base or 1
+
+        :type maximum: int
+        :type start: int
+        :type base: int
         """
         self.value = start or 0
         self.base = base or 1
-        self.max = max
+        self.max = maximum
 
     def __iter__(self):
         return self
@@ -80,51 +82,57 @@ class ResizeOptions:
         self.height = 0
         self.size = 0
         self.crop = False
-        self.chooseSetting(size)
+        self.choose_setting(size)
 
-    def chooseSetting(self, size):
+    def choose_setting(self, size):
+        """
+        size - [small, middle, big, full]
+
+        :type size: str
+        """
         if size == 'small':
-            self.setFromSetting(settings.VIEWER_SMALL_SIZE)
+            self.from_settings(settings.VIEWER_SMALL_SIZE)
         elif size == 'middle':
-            self.setFromSetting(settings.VIEWER_MIDDLE_SIZE)
+            self.from_settings(settings.VIEWER_MIDDLE_SIZE)
         elif size == 'big':
-            self.setFromSetting(settings.VIEWER_BIG_SIZE)
+            self.from_settings(settings.VIEWER_BIG_SIZE)
         elif size == 'full':
             self.width = self.height = self.size = 10 ** 6
         else:
             raise ResizeOptionsError('Undefined size format \'{0}\''.format(size))
 
-    def setFromSetting(self, value):
+    def from_settings(self, value):
         """
         Set values from settings.VIEWER_BIG_IMAGE for example
+        :type value: dict
         """
         self.width = value['WIDTH']
         self.height = value['HEIGHT']
         self.size = max(self.width, self.height)
-        self.crop = 'CROP' in value and value['CROP'] == True
+        self.crop = 'CROP' in value and value['CROP'] is True
 
     def __str__(self):
-        return u'ResizeOptions{{user={us},storage={st},size={sz},crop={cr}}}'\
-        .format(us=self.user, st=self.storage, sz=self.size, cr=self.crop)
+        return u'ResizeOptions{{user={us},storage={st},size={sz},crop={cr}}}' \
+            .format(us=self.user, st=self.storage, sz=self.size, cr=self.crop)
 
 
 class FileUniqueName:
     """
     Create unique hash name for file
 
-        >>> builder = FileUnicName( )
+        >>> builder = FileUniqueName()
         >>> time = builder.time()
         >>> time
         1323242186.620497
-        >>> builder.build( "some/file", time=time )
+        >>> builder.build("some/file", time=time)
         'fb41bb28d2614159246163f8dc77ac14'
-        >>> builder.build( "some/file", time=builder.time() )
+        >>> builder.build("some/file", time=builder.time())
         '6ef61d7c41d391fcd17dd59e1d29dfc2'
-        >>> builder.build( "some/file", time=time, extra='tag1' )
+        >>> builder.build("some/file", time=time, extra='tag1')
         'bb89a8697e7f2acfd5d904bc96ce5b81'
     """
 
-    def __init__(self ):
+    def __init__(self):
         pass
 
     def hash(self, name):
@@ -145,7 +153,7 @@ class FileUniqueName:
         """
         full_name = settings.VIEWER_CACHE_PATH + path
         if time:
-            if time == True:
+            if time is True:
                 full_name += str(self.time())
             else:
                 full_name += str(time)
@@ -155,6 +163,7 @@ class FileUniqueName:
 
 
 domain_match = re.compile('([w]{3})?\.?(?P<sub>\w+)\.(\w+)\.([a-z]+):?(\d{0,4})')
+
 
 def get_gallery_user(request, name=None):
     """
@@ -188,14 +197,14 @@ def get_gallery_user(request, name=None):
     return None, ''
 
 
-def perm_any_required( *args, **kwargs):
+def perm_any_required(*args, **kwargs):
     """
     Decorator for views that checks if at least one permission return True,
     redirecting to the `url` page on False.
     """
     url = kwargs.get('url', '/')
 
-    def test_func( user ):
+    def test_func(user):
         for perm in args:
             if user.has_perm(perm):
                 return True
@@ -212,7 +221,7 @@ def perm_any_required( *args, **kwargs):
     return decorator
 
 
-def decor_on(conditions, decor, *args, **kwargs ):
+def decor_on(conditions, decor, *args, **kwargs):
     """
     Return decorator with args and kwargs if conditions is True. Else function
     """

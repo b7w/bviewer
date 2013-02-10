@@ -2,12 +2,12 @@
 
 import os
 import zipfile
+import logging
 
 from bviewer.core import settings
 from bviewer.core.files import Storage
 from bviewer.core.utils import FileUniqueName
 
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -113,4 +113,3 @@ class ZipArchiveTask(ZipArchive):
         from bviewer.archive.tasks import cache_archive
 
         return cache_archive.delay(self.images, self.storage, self.user)
-
