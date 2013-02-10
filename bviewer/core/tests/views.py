@@ -7,7 +7,7 @@ from bviewer.core import settings
 from bviewer.core.models import ProxyUser, Gallery, Image, Video
 
 
-def reverse( name, *args):
+def reverse(name, *args):
     """
     django.core.urlresolvers.reverse but with \*args
     """

@@ -2,13 +2,13 @@
 import os
 import urllib2
 import cStringIO
-from PIL import Image
+import logging
 
+from PIL import Image
 from bviewer.core import settings
 from bviewer.core.utils import FileUniqueName
 from bviewer.core.tasks import cache_image_process, cache_image_download
 
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class ResizeImage(object):
         """
         self.file = self.file.resize((width, height), Image.ANTIALIAS)
 
-    def crop(self, x_offset, y_offset, width, height ):
+    def crop(self, x_offset, y_offset, width, height):
         """
         Crop image with ``x_offset``, ``y_offset``, ``width``, ``height``
         """
@@ -55,8 +55,8 @@ class ResizeImage(object):
         """
         Cut out an image with ``width`` and ``height`` of the center
         """
-        x_offset = ( self.width - width ) / 2
-        y_offset = ( self.height - height ) / 2
+        x_offset = (self.width - width) / 2
+        y_offset = (self.height - height) / 2
         self.crop(x_offset, y_offset, x_offset + width, y_offset + height)
 
     def isPortrait(self):
@@ -75,7 +75,7 @@ class ResizeImage(object):
         """
         Is this image bigger that ``width`` and ``height``
         """
-        return self.width > width  and self.height > height
+        return self.width > width and self.height > height
 
     def minSize(self, value):
         """
@@ -103,7 +103,7 @@ class ResizeImage(object):
             height = int(self.height / scale)
             return value, height
 
-    def saveTo(self, fileio ):
+    def saveTo(self, fileio):
         """
         Save to open file ``fileio``. Need to close by yourself.
         """
@@ -115,7 +115,7 @@ class CacheImage(object):
     It is a facade for Resize image that resize images and cache it in `settings.VIEWER_CACHE_PATH`
     """
 
-    def __init__(self, path, options ):
+    def __init__(self, path, options):
         """
         path -> path to image,
         options -> ResizeOptions
@@ -134,7 +134,6 @@ class CacheImage(object):
         if self.options.name:
             return self.hash_builder.build(self.options.name, extra=self.options.size)
         return self.hash_builder.build(self.path, extra=self.options.size)
-
 
     def process(self):
         """
@@ -194,7 +193,7 @@ class CacheImageAsync(object):
     In this case we think it is a thread pool that help to minimize system resource.
     """
 
-    def __init__(self, path, options ):
+    def __init__(self, path, options):
         self.url = ''
         self.path = path
         self.options = options
@@ -221,7 +220,7 @@ class BulkCache(object):
     def __init__(self):
         self.args = []
 
-    def appendTasks(self, path, options ):
+    def appendTasks(self, path, options):
         """
         paths -> list of image paths from user home
         options -> option, for this images

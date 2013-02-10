@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from django.test import TestCase
-from bviewer.core.models import ProxyUser
 
+from bviewer.core.models import ProxyUser
 from bviewer.core.utils import domain_match, get_gallery_user
 
 
 class RequestMock(object):
-    def __init__(self, host ):
+    def __init__(self, host):
         self.user = None
         self.host = host
 

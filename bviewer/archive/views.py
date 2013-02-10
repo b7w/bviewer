@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -10,12 +12,11 @@ from bviewer.core.files.serve import DownloadResponse
 from bviewer.core.models import Gallery, Image
 from bviewer.core.utils import get_gallery_user
 
-import logging
 
 logger = logging.getLogger(__name__)
 
 
-def Archive( request, id, user=None ):
+def Archive(request, id, user=None):
     """
     Start to archive images, or if done redirect to download
     js - waite while done, after redirect to download
@@ -48,7 +49,7 @@ def Archive( request, id, user=None ):
     })
 
 
-def ArchiveStatus( request, id, hash, user=None ):
+def ArchiveStatus(request, id, hash, user=None):
     """
     Check if archive exists and ready for download
     """
@@ -62,7 +63,7 @@ def ArchiveStatus( request, id, hash, user=None ):
     return HttpResponse(simplejson.dumps(data))
 
 
-def Download( request, id, hash, user=None ):
+def Download(request, id, hash, user=None):
     """
     Download archive
     """

@@ -22,13 +22,14 @@ class GalleryAdmin(ModelAdmin):
     list_select_related = True
 
     list_display = ('title', 'parent', 'user', 'private', 'time',)
-    list_filter = (  'parent__title', 'user__username', 'time', )
+    list_filter = ('parent__title', 'user__username', 'time', )
     ordering = ('user', 'parent', 'time',)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         if db_field.name == 'parent' and self.object:
             kwargs['queryset'] = Gallery.objects.filter(user__id=self.object.user.id)
         return super(GalleryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
 
 admin.site.register(Gallery, GalleryAdmin)
 
@@ -37,7 +38,7 @@ class ImageAdmin(ModelAdmin):
     list_select_related = True
 
     list_display = ('gallery_title', 'gallery_user', 'path', )
-    list_filter = ( 'gallery__title', 'gallery__user__username', )
+    list_filter = ('gallery__title', 'gallery__user__username', )
     ordering = ('gallery__user__username', 'path',)
 
     def gallery_title(self, obj):
@@ -51,6 +52,7 @@ class ImageAdmin(ModelAdmin):
             kwargs['queryset'] = Gallery.objects.filter(user__id=self.object.gallery.user.id)
         return super(ImageAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
+
 admin.site.register(Image, ImageAdmin)
 
 
@@ -58,7 +60,7 @@ class VideoAdmin(ModelAdmin):
     list_select_related = True
 
     list_display = ('gallery_title', 'gallery_user', 'title', 'uid',)
-    list_filter = ( 'gallery__title', 'gallery__user__username', )
+    list_filter = ('gallery__title', 'gallery__user__username', )
     ordering = ('gallery__user__username', 'uid',)
 
     def gallery_title(self, obj):
@@ -74,6 +76,7 @@ class VideoAdmin(ModelAdmin):
         if db_field.name == 'gallery' and self.object:
             kwargs['queryset'] = Gallery.objects.filter(user__id=self.object.gallery.user.id)
         return super(VideoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
 
 admin.site.register(Video, VideoAdmin)
 
@@ -103,8 +106,8 @@ class UserAdmin(UserAdmin, ModelAdmin):
         ('Personal info', {'fields': ('url', 'home', 'cache_size', 'top_gallery', 'about_title', 'about_text', 'avatar',)}),
         ('Permissions', {'fields': ('is_active', 'is_staff',)}),
         ('Important dates', {'fields': ('last_login', 'date_joined',)}),
-        )
-    readonly_fields = ( 'password', 'is_active', 'is_staff', 'last_login', 'date_joined', )
+    )
+    readonly_fields = ('password', 'is_active', 'is_staff', 'last_login', 'date_joined', )
     form = ProxyUserForm
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
@@ -116,5 +119,6 @@ class UserAdmin(UserAdmin, ModelAdmin):
         if db_field.name == 'avatar' and self.object:
             kwargs['queryset'] = Image.objects.filter(gallery__user__id=self.object.id)
         return super(UserAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
 
 admin.site.register(ProxyUser, UserAdmin)

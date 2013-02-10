@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-
 import os
 from operator import itemgetter
 from datetime import datetime, timedelta
+import logging
 
 from django.core.management.base import BaseCommand
 from django.core.management.color import no_style
@@ -11,7 +11,6 @@ from django.core.management.color import no_style
 from bviewer.core import settings
 from bviewer.core.models import ProxyUser
 
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -20,9 +19,11 @@ def multi_sort(items, columns):
     """
     Multi key sort. Get list of `columns` in str, with '-{key}' as reverse.
 
+        >>> files = [ {'size':2, 'time':2}, {'size':1, 'time':1}, {'size':2, 'time':1} ]
         >>> multi_sort(files, columns=('-size', 'time'))
+        [{'time': 1, 'size': 2}, {'time': 2, 'size': 2}, {'time': 1, 'size': 1}]
 
-    :type items: list
+    :type items: list of dict
     :type columns: tuple
     :rtype: list
     """
@@ -57,15 +58,15 @@ class ClearCache(object):
             user_full = os.path.join(self.cache_path, user)
             data = []
             for item in os.listdir(user_full):
-                file = os.path.join(user_full, item)
-                if os.path.islink(file):
-                    self.clear_time(file, user)
+                fname = os.path.join(user_full, item)
+                if os.path.islink(fname):
+                    self.clear_time(fname, user)
                 else:
-                    i = dict(path=file, size=self.getsize(file), time=self.getctime(file))
+                    i = dict(path=fname, size=self.getsize(fname), time=self.getctime(fname))
                     data.append(i)
             self.clear_size(data, user)
 
-    def clear_time(self, path, user ):
+    def clear_time(self, path, user):
         created = self.getctime(path)
         if datetime.now() - created > timedelta(seconds=self.older):
             os.remove(path)
@@ -82,9 +83,9 @@ class ClearCache(object):
         while flag:
             s = sum(i['size'] for i in files)
             if s > size:
-                file = files.pop()
-                os.remove(file['path'])
-                logger.info('clear %s user \'%s\' cache', user, file['path'])
+                fname = files.pop()
+                os.remove(fname['path'])
+                logger.info('clear %s user \'%s\' cache', user, fname['path'])
             else:
                 flag = False
 
