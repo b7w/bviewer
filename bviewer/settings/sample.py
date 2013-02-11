@@ -6,15 +6,15 @@ import os
 
 from bviewer.settings.django import *
 
-
+# https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'Believe', # need Mock to run test engine
-        'USER': 'Test', # Not used with sqlite3.
-        'PASSWORD': 'root', # Not used with sqlite3.
-        'HOST': 'localhost', # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '', # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'Believe',
+        'USER': 'Test',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',
+        'PORT': '',
         'TEST_NAME': 'Test',
     }
 }
@@ -87,7 +87,7 @@ VIEWER_CLEAR = {
 CELERY_IMPORTS = (
     'bviewer.core.tasks',
     'bviewer.archive.tasks',
-    )
+)
 
 # Use redis as a queue
 BROKER_URL = "redis://localhost:6379/0"

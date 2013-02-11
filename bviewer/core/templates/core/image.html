@@ -11,7 +11,7 @@
             <p>{{ gallery.description|linebreaksbr }}</p>
 
             <div class="image">
-                <img src="{% url core.download user_url 'middle' image.id  %}" alt="">
+                <img src="{% url core.download user_url 'middle' image.id %}" alt="">
             </div>
 
             {% if image.description %}
@@ -23,7 +23,7 @@
             {% endif %}
 
             <p>
-                <a style="color: #777;" href="{% url core.download user_url 'full' image.id  %}">Download full image link</a>
+                <a style="color: #777;" href="{% url core.download user_url 'full' image.id %}">Download full image link</a>
             </p>
 
         </div>
