@@ -27,19 +27,19 @@ class UtilsTest(TestCase):
         Tests domain match
         """
         match = domain_match.match('demo.test.local')
-        assert match
-        assert match.groups() == (None, 'demo', 'test', 'local', '')
+        self.assertTrue(match)
+        self.assertEqual(match.groups(), (None, 'demo', 'test', 'local', ''))
 
         match = domain_match.match('www.demo.test.local')
-        assert match
-        assert match.groups() == ('www', 'demo', 'test', 'local', '')
+        self.assertTrue(match)
+        self.assertEqual(match.groups(), ('www', 'demo', 'test', 'local', ''))
 
         match = domain_match.match('demo.test.local:8000')
-        assert match
-        assert match.groups() == (None, 'demo', 'test', 'local', '8000')
+        self.assertTrue(match)
+        self.assertEqual(match.groups(), (None, 'demo', 'test', 'local', '8000'))
 
         match = domain_match.match('172.17.1.10:80')
-        assert match is None
+        self.assertIsNone(match)
 
     def test_gallery_user(self):
         """
@@ -50,55 +50,53 @@ class UtilsTest(TestCase):
         ProxyUser.objects.create(username='User3')
 
         holder, url = get_gallery_user(RequestMock('user.test.com'))
-        assert holder.username == 'User'
-        assert url == ''
+        self.assertEqual(holder.username, 'User')
+        self.assertEqual(url, '')
 
         holder, url = get_gallery_user(RequestMock('www.user.test.com:8000'))
-        assert holder.username == 'User'
-        assert url == ''
+        self.assertEqual(holder.username, 'User')
+        self.assertEqual(url, '')
 
         holder, url = get_gallery_user(RequestMock('www.user.test.com'))
-        assert holder.username == 'User'
-        assert url == ''
+        self.assertEqual(holder.username, 'User')
+        self.assertEqual(url, '')
 
         holder, url = get_gallery_user(RequestMock('user.test.com'), 'user')
-        assert holder.username == 'User'
-        assert url == ''
+        self.assertEqual(holder.username, 'User')
+        self.assertEqual(url, '')
 
         holder, url = get_gallery_user(RequestMock('user.test.com'), 'user')
-        assert holder.username == 'User'
-        assert url == ''
+        self.assertEqual(holder.username, 'User')
+        self.assertEqual(url, '')
 
         holder, url = get_gallery_user(RequestMock('user.test.com'), 'user2')
-        assert holder.username == 'User'
-        assert url == ''
+        self.assertEqual(holder.username, 'User')
+        self.assertEqual(url, '')
 
         holder, url = get_gallery_user(RequestMock('test.com'), 'user')
-        assert holder.username == 'User'
-        assert url == 'user/'
+        self.assertEqual(holder.username, 'User')
+        self.assertEqual(url, 'user/')
 
         request = RequestMock('user.test.com')
         request.set_user('User2', 'user2')
         holder, url = get_gallery_user(request, 'user3')
-        assert holder.username == 'User'
-        assert url == ''
+        self.assertEqual(holder.username, 'User')
+        self.assertEqual(url, '')
 
         request = RequestMock('test.com')
         request.set_user('User2', 'user2')
         holder, url = get_gallery_user(request, 'user3')
-        assert holder.username == 'User3'
-        assert url == 'user3/'
+        self.assertEqual(holder.username, 'User3')
+        self.assertEqual(url, 'user3/')
 
         request = RequestMock('test.com')
         request.set_user('User2', 'user2')
         holder, url = get_gallery_user(request)
-        assert holder.username == 'User2'
-        assert url == 'user2/'
+        self.assertEqual(holder.username, 'User2')
+        self.assertEqual(url, 'user2/')
 
         request = RequestMock('test.com')
         request.set_user('User2', 'user2', is_auth=False)
         holder, url = get_gallery_user(request)
-        assert not holder
-        assert url == ''
-
-
+        self.assertIsNone(holder)
+        self.assertEqual(url, '')

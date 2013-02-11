@@ -17,6 +17,7 @@ class TestData:
         self.user_b7w.set_password('pass')
         self.user_b7w.save()
         self.update_to_holder('B7W')
+        return self
 
     def update_to_holder(self, name):
         b7w = User.objects.get(username=name)
@@ -47,6 +48,7 @@ class TestData:
         self.gallery5 = Gallery(user=self.user_b7w, title='Hidden')
         self.gallery5.description = 'Hidden description'
         self.gallery5.save()
+        return self
 
     def load_images(self):
         self.image1 = Image.objects.create(gallery=self.gallery1, path='image1.jpg')
@@ -54,6 +56,7 @@ class TestData:
 
         self.image3 = Image.objects.create(gallery=self.gallery2, path='image3.jpg')
         self.image4 = Image.objects.create(gallery=self.gallery2, path='image4.jpg')
+        return self
 
     def load_videos(self):
         self.video1 = Video.objects.create(gallery=self.gallery1, uid='video1', type=Video.YOUTUBE)
@@ -61,3 +64,4 @@ class TestData:
 
         self.video3 = Video.objects.create(gallery=self.gallery2, uid='video3', type=Video.YOUTUBE)
         self.video4 = Video.objects.create(gallery=self.gallery2, uid='video4', type=Video.VIMIO)
+        return self
