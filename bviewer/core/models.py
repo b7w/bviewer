@@ -197,7 +197,7 @@ class Video(models.Model):
     TYPE_CHOICE = ((YOUTUBE, 'YouTube'), (VIMIO, 'Vimio'),)
 
     uid = models.CharField(max_length=32)
-    type = models.SmallIntegerField(max_length=1, choices=TYPE_CHOICE)
+    type = models.SmallIntegerField(max_length=1, choices=TYPE_CHOICE, default=YOUTUBE)
     gallery = models.ForeignKey(Gallery)
     title = models.CharField(max_length=256)
     description = models.TextField(max_length=512, null=True, blank=True)
