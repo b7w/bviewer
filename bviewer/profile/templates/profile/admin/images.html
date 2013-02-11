@@ -62,7 +62,6 @@
 
 
 {% block content %}
-    <h1>Change Images</h1>
 
     <div id="content-main">
         <div class="module aligned">
@@ -216,6 +215,7 @@
 
             self.chosenGallery.subscribe(function (value) {
                 locationHash.set('g', value.id);
+                //TODO: if change need call `checkExistsFiles`
             });
 
             self.path.subscribe(function (value) {
@@ -234,7 +234,7 @@
 
             self.loadGalleries = function () {
                 jQuery.ajax({
-                    url: '/api/v1/gallery/',
+                    url: '/api/v1/gallery/?user=self',
                     dataType: "json",
                     success: function (data) {
                         var galleries = jQuery.map(data.objects, function (item) {

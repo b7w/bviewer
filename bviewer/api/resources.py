@@ -27,13 +27,22 @@ class UserResource(ModelResource):
 
 class GalleryResource(ModelResource):
     user = fields.ForeignKey(UserResource, 'user')
-    parent = fields.ForeignKey('self', 'parent', null=True)
+    #parent = fields.ForeignKey('self', 'parent', null=True) # Generate parent select per each item
 
     def dehydrate(self, bundle):
         bundle.data['id'] = bundle.obj.id  # make ID integer
         bundle.data['user_id'] = bundle.obj.user_id
         bundle.data['parent_id'] = bundle.obj.parent_id
         return bundle
+
+    def apply_filters(self, request, filters):
+        """
+        If filter `user=self` and is authenticated, replace it with his id
+        """
+        query = 'user__exact'
+        if query in filters and filters[query] == 'self' and request.user.is_authenticated():
+            filters[query] = request.user.id
+        return super(GalleryResource, self).apply_filters(request, filters)
 
     def apply_authorization_limits(self, request, object_list):
         """
@@ -46,7 +55,7 @@ class GalleryResource(ModelResource):
         return super(GalleryResource, self).apply_authorization_limits(request, object_list)
 
     class Meta:
-        queryset = Gallery.objects.all()
+        queryset = Gallery.objects.all().select_related()
         resource_name = 'gallery'
         allowed_methods = ['get', ]
         excludes = ['private', ]
@@ -72,6 +81,15 @@ class GalleryItemResource(ModelResource):
         bundle.data['id'] = bundle.obj.id  # make ID integer
         bundle.data['gallery_id'] = bundle.obj.gallery_id
         return bundle
+
+    def apply_filters(self, request, filters):
+        """
+        If filter `gallery__user=self` and is authenticated, replace it with his id
+        """
+        query = 'gallery__user__exact'
+        if query in filters and filters[query] == 'self' and request.user.is_authenticated():
+            filters[query] = request.user.id
+        return super(GalleryItemResource, self).apply_filters(request, filters)
 
     def apply_authorization_limits(self, request, object_list):
         """
