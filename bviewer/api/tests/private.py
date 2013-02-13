@@ -1,22 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase
-
-from bviewer.api.tests.client import ResourceClient
-from bviewer.core import settings
-from bviewer.core.tests.data import TestData
+from bviewer.api.tests.base import BaseResourceTestCase
 
 
-class PrivateTestCase(TestCase):
-    def setUp(self):
-        settings.TESTS = True
-        self.client = ResourceClient()
-        self.data = TestData()
-        self.data.load_all()
-
-    def login_user(self, user):
-        self.assertTrue(self.client.login(username=user.username, password=TestData.PASSWORD))
-
+class PrivateTestCase(BaseResourceTestCase):
     def test_galleries(self):
         # 2 users home + 4 + 1 b7w private
         response = self.client.read('/api/v1/gallery/')
@@ -34,21 +21,25 @@ class PrivateTestCase(TestCase):
         self.assertEqual(len(response.objects), 6)
 
     def test_images(self):
+        # gallery 1 and 5, other private
         response = self.client.read('/api/v1/image/')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.objects), 3)
 
+        # plus 2 private
         self.login_user(self.data.user_b7w)
         response = self.client.read('/api/v1/image/')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.objects), 5)
 
+        # gallery 1 and 5, other private
         self.login_user(self.data.user_keks)
         response = self.client.read('/api/v1/image/')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.objects), 3)
 
     def test_videos(self):
+        # same as images
         response = self.client.read('/api/v1/video/')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.objects), 3)
@@ -62,3 +53,19 @@ class PrivateTestCase(TestCase):
         response = self.client.read('/api/v1/video/')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.objects), 3)
+
+    def test_image_field_path(self):
+        url = '/api/v1/image/{0}/'.format(self.data.image1.id)
+        response = self.client.read(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('path', response.object)
+
+        self.login_user(self.data.user_b7w)
+        response = self.client.read(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('path', response.object)
+
+        self.login_user(self.data.user_keks)
+        response = self.client.read(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('path', response.object)

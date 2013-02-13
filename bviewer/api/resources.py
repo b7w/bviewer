@@ -107,14 +107,13 @@ class GalleryItemResource(ModelResource):
         filtering = {
             'id': EXACT,
             'gallery': ALL_WITH_RELATIONS,
-            'path': ALL,
         }
 
 
 class ImageResource(GalleryItemResource):
     def dehydrate(self, bundle):
         """
-        Add links to images
+        Add links to images. Show path field only for owner.
         """
         obj_id = bundle.obj.id
         user_url = bundle.obj.gallery.user.url + '/'
@@ -122,11 +121,19 @@ class ImageResource(GalleryItemResource):
         for size in ['small', 'middle', 'big', 'full']:
             key = 'image_{0}'.format(size)
             bundle.data[key] = reverse('core.download', kwargs=dict(user=user_url, size=size, id=obj_id))
+
+        user = bundle.request.user
+        if not (user.is_authenticated() and user.id == bundle.obj.gallery.user_id):
+            del bundle.data['path']
         return super(ImageResource, self).dehydrate(bundle)
 
     class Meta(GalleryItemResource.Meta):
         queryset = Image.objects.all().select_related()
         resource_name = 'image'
+        filtering = dict(
+            path=ALL,
+            **GalleryItemResource.Meta.filtering
+        )
 
 
 class VideoResource(GalleryItemResource):
