@@ -1,14 +1,19 @@
 # -*- coding: utf-8 -*-
+#
+# Simple fab file to help start, run and test application
+#
 
-import os, sys
-from pwd import getpwnam
+import os
+import sys
 import shutil
 
 from fabric.context_managers import cd
 
+from pwd import getpwnam
 from bviewer import settings
 
-__all__ = ['help', 'start', 'stop', 'restart', 'syncdb', 'clear', 'static']
+
+__all__ = ['help', 'start', 'stop', 'restart', 'syncdb', 'test', 'clear', 'static']
 
 HOME = settings.SOURCE_PATH
 
@@ -134,7 +139,17 @@ def syncdb():
     Sync database, just a proxy command
     """
     print('[ INFO ] Sync database')
-    os.system('python {0} syncdb'.format(MANAGE_PY))
+    os.system('python {0} -- syncdb'.format(MANAGE_PY))
+
+
+def test():
+    """
+    Runs app tests, just a proxy command
+    """
+    print('[ INFO ] Run core module tests ')
+    os.system('python {0} test core --settings=bviewer.settings.test'.format(MANAGE_PY))
+    print('[ INFO ] Run api module tests ')
+    os.system('python {0} test api --settings=bviewer.settings.test'.format(MANAGE_PY))
 
 
 def clear():
