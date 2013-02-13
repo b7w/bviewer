@@ -189,7 +189,7 @@
             });
 
             self.back = ko.observable('');
-            self.path = ko.observable('');
+            self.path = ko.observable(null);
 
             self.splitPath = ko.observableArray();
             self.dirs = ko.observableArray();
@@ -202,24 +202,27 @@
             });
 
             self.checkExistsFiles = function () {
-                jQuery.getJSON('/api/v1/image/?gallery=' + self.chosenGalleryId(), function (data) {
-                    self.images = jQuery.map(data.objects, function (item) {
-                        jQuery.each(self.files(), function (fid, fvalue) {
-                            if (fvalue.path == item.path) {
-                                fvalue.checked(true);
-                            }
+                if (self.path() != null && self.chosenGallery() != null) {
+                    jQuery.getJSON('/api/v1/image/?gallery=' + self.chosenGalleryId(), function (data) {
+                        self.images = jQuery.map(data.objects, function (item) {
+                            jQuery.each(self.files(), function (fid, fvalue) {
+                                if (fvalue.path == item.path) {
+                                    fvalue.checked(true);
+                                }
+                            });
                         });
                     });
-                });
+                }
             };
 
             self.chosenGallery.subscribe(function (value) {
                 locationHash.set('g', value.id);
-                //TODO: if change need call `checkExistsFiles`
+                self.checkExistsFiles();
             });
 
             self.path.subscribe(function (value) {
-                locationHash.set('p', value);
+                if (value != null)
+                    locationHash.set('p', value);
             });
 
             self.select = function (item) {
