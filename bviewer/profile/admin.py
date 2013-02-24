@@ -1,28 +1,28 @@
 # -*- coding: utf-8 -*-
 
-from django.contrib.admin import StackedInline, site
+from django.contrib.admin import site
 from django.contrib.auth.admin import UserAdmin
+from django.core.urlresolvers import reverse
 
 from bviewer.core.admin import ModelAdmin, ProxyUserForm
 from bviewer.core.models import Gallery, Image
 from bviewer.profile.models import ProfileProxyUser, ProfileGallery, ProfileImage, ProfileVideo
 
 
-class ImageInline(StackedInline):
-    model = ProfileImage
-    fk_name = 'gallery'
-
-
 class ProfileGalleryAdmin(ModelAdmin):
     list_select_related = True
 
-    list_display = ('title', 'parent', 'private', 'time',)
+    list_display = ('title', 'parent', 'private', 'images', 'time',)
     list_filter = ('parent__title', 'time', )
     ordering = ('parent', 'time',)
 
-    fields = ('parent', 'title', 'private', 'description', 'thumbnail', 'time')
+    readonly_fields = ('images', )
+    fields = ('parent', 'title', 'private', 'images', 'description', 'thumbnail', 'time')
 
-    inlines = [ImageInline, ]
+    def images(self, obj):
+        return '<b><a href="{0}#!g={1}" target="_blank">edit</a></b>'.format(reverse('profile.images2'), obj.id)
+
+    images.allow_tags = True
 
     def queryset(self, request):
         return super(ProfileGalleryAdmin, self).queryset(request).filter(user=request.user)
