@@ -40,7 +40,7 @@ class ImageController(object):
         """
         if checked:
             self.checked = set(checked)
-            if not (self.checked <= set(self.folder.files)):
+            if not (self.checked <= set(i.path for i in self.folder.files)):
                 raise IOError('Some files not found in path')
 
             diff_add = self.checked - self.images_path

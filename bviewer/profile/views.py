@@ -199,6 +199,9 @@ def ShowImagesAdmin(request):
         'title': 'Add images',
         'path': request.path,
         'user_url': user_url,
+        'show_save': True,
+        'show_save_and_continue': True,
+        'onclick_attrib': 'data-bind=\"click: selectHome\"',
     })
 
 
@@ -213,3 +216,28 @@ def JsonStorageList(request):
     storage = Storage(user.home)
     folder = storage.list(request.GET.get('p', ''))
     return JSONResponse(folder)
+
+
+@login_required
+@perm_any_required('core.user_holder')
+def JsonImageService(request):
+    user, user_url = get_gallery_user(request)
+    if not user:
+        raise Http404()
+    if user.home is None:
+        raise Http404('You have no access to image service')
+
+    if request.method == 'POST':
+        try:
+            path = request.POST.get('path')
+            gallery_id = int(request.POST.get('gallery'))
+            images = request.POST.getlist('images[]')
+
+            controller = ImageController(gallery_id, user)
+            controller.setPath(path)
+            controller.setChecked(images)
+            return JSONResponse(dict(status='ok'))
+        except Exception as e:
+            return JSONResponse(dict(error=str(e)), status=400)
+
+    return JSONResponse(dict(error='Need post request'), status=400)
