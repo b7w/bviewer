@@ -1,15 +1,46 @@
 # -*- coding: utf-8 -*-
 
-from django.contrib.admin import site
+from django.contrib.admin import AdminSite
 from django.contrib.auth.admin import UserAdmin
 from django.core.urlresolvers import reverse
 
 from bviewer.core.admin import ModelAdmin, ProxyUserForm
 from bviewer.core.models import Gallery, Image
-from bviewer.profile.models import ProfileProxyUser, ProfileGallery, ProfileImage, ProfileVideo
+from bviewer.profile.models import ProfileProxyUser, ProfileGallery, ProfileVideo, ProfileImage
 
 
-class ProfileGalleryAdmin(ModelAdmin):
+class ProfileSite(AdminSite):
+    """
+    Separate admin site only to edit user galleries, images, profile
+    """
+
+    def __init__(self, name='profile', app_name='admin'):
+        super(ProfileSite, self).__init__(name, app_name)
+
+    def has_permission(self, request):
+        user = request.user
+        return user.is_active and request.user.has_perm('core.user_holder')
+
+
+profile = ProfileSite()
+
+
+class ProfileModelAdmin(ModelAdmin):
+    """
+    Override permissions, get from `ProfileSite.has_permission`
+    """
+
+    def has_add_permission(self, request):
+        return self.admin_site.has_permission(request)
+
+    def has_change_permission(self, request, obj=None):
+        return self.admin_site.has_permission(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return self.admin_site.has_permission(request)
+
+
+class ProfileGalleryAdmin(ProfileModelAdmin):
     list_select_related = True
 
     list_display = ('title', 'parent', 'private', 'images', 'time',)
@@ -37,10 +68,10 @@ class ProfileGalleryAdmin(ModelAdmin):
         return super(ProfileGalleryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-site.register(ProfileGallery, ProfileGalleryAdmin)
+profile.register(ProfileGallery, ProfileGalleryAdmin)
 
 
-class ProfileImageAdmin(ModelAdmin):
+class ProfileImageAdmin(ProfileModelAdmin):
     list_select_related = True
 
     list_display = ('gallery_title', 'path', )
@@ -62,10 +93,10 @@ class ProfileImageAdmin(ModelAdmin):
         return super(ProfileImageAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-site.register(ProfileImage, ProfileImageAdmin)
+profile.register(ProfileImage, ProfileImageAdmin)
 
 
-class ProfileVideoAdmin(ModelAdmin):
+class ProfileVideoAdmin(ProfileModelAdmin):
     list_select_related = True
 
     list_display = ('gallery_title', 'title', 'type', 'uid',)
@@ -90,25 +121,19 @@ class ProfileVideoAdmin(ModelAdmin):
         return super(ProfileVideoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-site.register(ProfileVideo, ProfileVideoAdmin)
+profile.register(ProfileVideo, ProfileVideoAdmin)
 
 
-class ProfileUserAdmin(UserAdmin, ModelAdmin):
+class ProfileUserAdmin(UserAdmin, ProfileModelAdmin):
     list_select_related = True
-    list_display = ('username', 'email', 'home', 'top_gallery', 'is_staff', )
+    list_display = ('username', 'email', 'top_gallery', 'is_staff', )
     list_filter = ()
     fieldsets = (
-        ('Personal info', {'fields': ('url', 'home', 'cache_size', 'top_gallery', 'about_title', 'about_text', 'avatar',)}),
+        ('Personal info', {'fields': ('url', 'cache_size', 'top_gallery', 'about_title', 'about_text', 'avatar',)}),
         ('Important dates', {'fields': ('last_login', 'date_joined',)}),
     )
     readonly_fields = ('password', 'last_login', 'date_joined', )
     form = ProxyUserForm
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
 
     def queryset(self, request):
         return super(ProfileUserAdmin, self).queryset(request).filter(id=request.user.id)
@@ -124,4 +149,4 @@ class ProfileUserAdmin(UserAdmin, ModelAdmin):
         return super(ProfileUserAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-site.register(ProfileProxyUser, ProfileUserAdmin)
+profile.register(ProfileProxyUser, ProfileUserAdmin)
