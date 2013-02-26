@@ -44,7 +44,7 @@
                 {% endif %}
                 {% if request.user.is_authenticated %}
                     {% if perms.core.user_holder %}
-                        <li><a href="{% url admin:index %}">Profile</a></li>
+                        <li><a href="{% url profile:index %}">Profile</a></li>
                     {% endif %}
                     <li><a href="{% url core.logout %}">Log out</a></li>
                 {% else %}
