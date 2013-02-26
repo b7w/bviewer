@@ -1,71 +1,96 @@
-{% extends 'profile/base.html' %}
-{% load staticfiles %}
+{% extends 'admin/base_site.html' %}
+{% load i18n %}
+{% load admin_static %}
 
-{% block tabs %}
-    <div id="images">
-        <div class="row-fluid">
-            <div class="span12">
-                <a href="#" id="images-button-save" class="btn btn-oblong btn-inverse pull-right" onclick="document.getElementById('images-form').submit()">Save</a>
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="{% static "admin/js/jquery.min.js" %}" type="text/javascript"></script>
+    <script src="{% static "profile/js/knockout.js" %}" type="text/javascript"></script>
+    <script src="{% static "profile/js/profile.js" %}" type="text/javascript"></script>
+{% endblock %}
+
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static "profile/css/profile.css" %}"/>
+{% endblock %}
+
+
+{% block messages %}
+    <ul class="messagelist" data-bind="visible: messages().length > 0, foreach: messages">
+        <li class="info" data-bind="text: message, attr: { class: tags }"></li>
+    </ul>
+{% endblock messages %}
+
+
+{% block content %}
+
+    <div id="content-main">
+        <div class="module aligned">
+            <div class="form-row">
+                <label for="id_gallery" class="required">Gallery:</label>
+                <select id="id_gallery" data-bind="options: galleries, optionsText: 'name', value: chosenGallery, optionsCaption: 'Choose...'"></select>
             </div>
-        </div>
-        <div class="row-fluid">
-            <div class="span12">
-                <form id="gallery-form" method="get">
-                    <input type="hidden" name="p" value="{{ folder.path }}">
-                    <label for="find-album">Find album</label>
-                    <select id="find-album" name="g" class="span6" onchange="document.getElementById('gallery-form').submit()">
-                        <option value="0">Select gallery</option>
-                        {% for item in galleries %}
-                            <option value="{{ item.id }}" {% if item.id == gallery_id %}selected{% endif %}>{{ item.title }}</option>
-                        {% endfor %}
-                    </select>
-                </form>
+
+            <div class="form-row">
+                <label>Path:</label>
+
+                <a href="#" class="split-path" data-bind="click: selectHome">Home</a>
+                <span class="split-path" data-bind="foreach: splitPath">
+                    › <a href="#" data-bind="text: name, click: $parent.select"></a>
+                </span>
             </div>
-        </div>
-        <div class="row-fluid">
-            <div class="span12">
-                <form id="images-form" method="post">{% csrf_token %}
-                    › <a href="{% url profile.images %}?g={{ gallery_id }}" class="label label-inverse">Home</a>
-                    {% for key,value in folder.split_path %}
-                        {% if not forloop.last %}
-                            › <a href="{% url profile.images %}?g={{ gallery_id }}&p={{ value }}" class="label label-inverse">{{ key }}</a>
-                        {% else %}
-                            › <p class="label label-inverse">{{ key }}</p>
-                        {% endif %}
-                    {% endfor %}
 
-                    <ul class="thumbnails">
-                        <li class="storage-thumbnails-dir">
-                            <a href="{% url profile.images %}?g={{ gallery_id }}&p={{ folder.back }}" class="thumbnail thumbnail-admin">
-                                <img src="/static/core/img/gallery.png" alt="">
+            <div class="form-row">
+                <label class="required" style="float: none;">Folder:</label>
+                <ul class="thumbnails">
+                    <li data-bind="click: selectBack">
+                        <a href="#" class="thumbnail">
+                            <img src="{% static "core/img/gallery.png" %}">
 
-                                <p class="caption-abs">back</p>
+                            <p class="caption">back</p>
+                        </a>
+                    </li>
+                    <span data-bind="foreach: dirs">
+                        <li data-bind="click: $parent.select">
+                            <a href="#" class="thumbnail">
+                                <img src="{% static "core/img/gallery.png" %}">
+
+                                <p class="caption" data-bind="text: name"></p>
                             </a>
                         </li>
+                    </span>
+                    <span data-bind="foreach: files">
+                        <li>
+                            <a class="thumbnail image" data-bind="event: { mouseover: focusIn, mouseout: focusOut }">
+                                <input type='checkbox' name="images" class="caption-checkbox" data-bind="checked: checked">
+                                <img src data-bind="attr: { src: url }">
 
-                        {% for item in folder.dirs %}
-                            <li>
-                                <a href="{% url profile.images %}?g={{ gallery_id }}&p={{ item.path }}" class="thumbnail thumbnail-admin">
-                                    <img src="/static/core/img/gallery.png" alt="">
+                                <p class="caption" data-bind="text: name, visible: underFocus"></p>
+                            </a>
+                        </li>
+                    </span>
+                </ul>
+            </div>
 
-                                    <p class="caption-abs">{{ item.name }}</p>
-                                </a>
-                            </li>
-                        {% endfor %}
+            <div class="form-row">
+                <label>Selected:</label>
 
-                        {% for item in folder.files %}
-                            <li>
-                                <a class="thumbnail thumbnail-admin">
-                                    <input type='checkbox' name="images" class="caption-checkbox" value="{{ item.path }}" {% if item.checked %}checked{% endif %}>
-                                    <img src="{% url profile.image %}?p={{ item.path }}" alt="">
-
-                                    <p class="caption-abs">{{ item.name }}</p>
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </form>
+                <div data-bind="text: selectedImages"></div>
             </div>
         </div>
     </div>
+
+    <div class="submit-row">
+        <input type="submit" value="{% trans 'Save and continue editing' %}" class="default" data-bind="click: save"/>
+    </div>
+
+
+    <script type="text/javascript">
+        ko.applyBindings(new ImageModel());
+    </script>
 {% endblock %}
+
+
