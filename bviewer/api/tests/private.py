@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from tastypie.exceptions import Unauthorized
+
 from bviewer.api.tests.base import BaseResourceTestCase
 
 
@@ -9,6 +11,9 @@ class PrivateTestCase(BaseResourceTestCase):
         response = self.client.read('/api/v1/gallery/')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.objects), 6)
+
+        # check detail private gallery
+        self.assertRaises(Unauthorized, self.client.read, '/api/v1/gallery/{0}/'.format(self.data.gallery2.id))
 
         self.login_user(self.data.user_b7w)
         response = self.client.read('/api/v1/gallery/')
@@ -25,6 +30,9 @@ class PrivateTestCase(BaseResourceTestCase):
         response = self.client.read('/api/v1/image/')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.objects), 3)
+
+        # check detail private gallery
+        self.assertRaises(Unauthorized, self.client.read, '/api/v1/image/{0}/'.format(self.data.image3.id))
 
         # plus 2 private
         self.login_user(self.data.user_b7w)
@@ -43,6 +51,9 @@ class PrivateTestCase(BaseResourceTestCase):
         response = self.client.read('/api/v1/video/')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.objects), 3)
+
+        # check detail private gallery
+        self.assertRaises(Unauthorized, self.client.read, '/api/v1/video/{0}/'.format(self.data.image3.id))
 
         self.login_user(self.data.user_b7w)
         response = self.client.read('/api/v1/video/')

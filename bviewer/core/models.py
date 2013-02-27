@@ -36,10 +36,10 @@ class ProxyUser(User):
 
     objects = ProxyManager()
 
-    def save(self, force_insert=False, force_update=False, using=None):
+    def save(self, *args, **kwargs):
         if not self.url:
             self.url = self.username.lower()
-        super(ProxyUser, self).save(force_insert, force_update, using)
+        super(ProxyUser, self).save(*args, **kwargs)
 
     def __eq__(self, other):
         if other and other.is_authenticated():
