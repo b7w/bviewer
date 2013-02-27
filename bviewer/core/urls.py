@@ -3,7 +3,7 @@
 from django.conf.urls import patterns, url
 
 urlpatterns = patterns('',
-    url(r'^$', 'django.views.generic.simple.redirect_to', {'url': '/user/'}),
+    url(r'^$', 'django.shortcuts.redirect', {'to': '/user/'}),
     url(r'^user/(?P<user>\w*)/?about/$', 'bviewer.core.views.ShowAbout', name='core.about'),
     url(r'^user/(?P<user>\w*)/?$', 'bviewer.core.views.ShowHome', name='core.home'),
     url(r'^user/(?P<user>\w*)/?gallery/(?P<id>[\w]+)/$', 'bviewer.core.views.ShowGallery', name='core.gallery'),
