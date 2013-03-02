@@ -5,6 +5,7 @@ from collections import deque
 import urllib2
 
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.query_utils import Q
@@ -38,7 +39,9 @@ class ProxyUser(User):
 
     def save(self, *args, **kwargs):
         if not self.url:
-            self.url = self.username.lower()
+            url = self.username.lower()
+            domain = Site.objects.get_current().domain
+            self.url = '{0}.{1}'.format(url, domain)
         super(ProxyUser, self).save(*args, **kwargs)
 
     def __eq__(self, other):
@@ -82,7 +85,7 @@ class Gallery(models.Model):
     def get_galleries(cls, top_id, private=None):
         """
         :type top_id: int
-        :type private: bool
+        :type private: bool or None
         :rtype: (Gallery, list of Gallery)
         """
         if private is not None:

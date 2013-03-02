@@ -20,11 +20,11 @@ logger = logging.getLogger(__name__)
 
 @cache_page(60 * 60)
 @vary_on_cookie
-def ShowHome(request, user=None):
+def ShowHome(request):
     """
     Show home pages with galleries
     """
-    holder, user_url = get_gallery_user(request, user)
+    holder = get_gallery_user(request)
     if not holder:
         return ShowMessage(request, message='No user defined')
 
@@ -34,21 +34,19 @@ def ShowHome(request, user=None):
         return ShowMessage(request, message='No main gallery')
 
     return render(request, 'core/galleries.html', {
-        'path': request.path,
         'main': main,
         'galleries': galleries,
-        'user_url': user_url,
     })
 
 
 @cache_page(60 * 60)
 @vary_on_cookie
-def ShowGallery(request, id, user=None):
+def ShowGallery(request, id):
     """
     Show sub galleries or images with videos
     """
     id = int(id)
-    holder, user_url = get_gallery_user(request, user)
+    holder = get_gallery_user(request)
     if not holder:
         return ShowMessage(request, message='No user defined')
 
@@ -66,23 +64,21 @@ def ShowGallery(request, id, user=None):
         images = Image.objects.filter(gallery__user__id=holder.id, gallery=id)
 
     return render(request, template, {
-        'path': request.path,
         'main': main,
         'galleries': galleries,
         'videos': videos,
         'images': images,
-        'user_url': user_url,
         'back': True,
     })
 
 
 @cache_page(60 * 60 * 24)
 @vary_on_cookie
-def ShowImage(request, id, user=None):
+def ShowImage(request, id):
     """
     Show image with description
     """
-    holder, user_url = get_gallery_user(request, user)
+    holder = get_gallery_user(request)
     if not holder:
         return ShowMessage(request, message='No user defined')
 
@@ -94,21 +90,19 @@ def ShowImage(request, id, user=None):
         return ShowMessage(request, message='No such image')
 
     return render(request, 'core/image.html', {
-        'path': request.path,
         'gallery': image.gallery,
         'image': image,
-        'user_url': user_url,
         'back': True,
     })
 
 
 @cache_page(60 * 60 * 24)
 @vary_on_cookie
-def ShowVideo(request, id, user=None):
+def ShowVideo(request, id):
     """
     Show video with description
     """
-    holder, user_url = get_gallery_user(request, user)
+    holder = get_gallery_user(request)
     if not holder:
         return ShowMessage(request, message='No user defined')
 
@@ -120,21 +114,19 @@ def ShowVideo(request, id, user=None):
         return ShowMessage(request, message='No such video')
 
     return render(request, 'core/video.html', {
-        'path': request.path,
         'gallery': video.gallery,
         'video': video,
-        'user_url': user_url,
         'back': True,
     })
 
 
 @decor_on(settings.VIEWER_SERVE['CACHE'], cache_page, 60 * 60)
 @vary_on_cookie
-def DownloadVideoThumbnail(request, id, user=None):
+def DownloadVideoThumbnail(request, id):
     """
     Get video thumbnail from video hosting and cache it
     """
-    holder, user_url = get_gallery_user(request, user)
+    holder = get_gallery_user(request)
     if not holder:
         raise Http404('No user defined')
 
@@ -161,11 +153,11 @@ def DownloadVideoThumbnail(request, id, user=None):
 
 @decor_on(settings.VIEWER_SERVE['CACHE'], cache_page, 60 * 60 * 24)
 @vary_on_cookie
-def DownloadImage(request, size, id, user=None):
+def DownloadImage(request, size, id):
     """
     Get image with special size
     """
-    holder, user_url = get_gallery_user(request, user)
+    holder = get_gallery_user(request)
     if not holder:
         raise Http404('No user defined')
 
@@ -200,25 +192,22 @@ def ShowMessage(request, title='Error', info=None, message=None):
     """
     logger.warning('title:%s, info:%s \n %s', title, info, message)
     return render(request, 'core/message.html', {
-        'path': request.path,
         'title': title,
         'info': info,
         'message': message,
     })
 
 
-def ShowAbout(request, user=None):
+def ShowAbout(request):
     """
     Show about page
     """
-    holder, user_url = get_gallery_user(request, user)
+    holder = get_gallery_user(request)
     if not holder:
         return ShowMessage(request, message='No user defined')
 
     return render(request, 'core/about.html', {
-        'path': request.path,
         'avatar': holder.avatar_id,
         'title': holder.about_title,
         'text': holder.about_text,
-        'user_url': user_url,
     })

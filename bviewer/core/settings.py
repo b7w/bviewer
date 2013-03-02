@@ -5,6 +5,10 @@ from django.conf import settings
 # Some setting that needed for tests
 TESTS = False
 
+# If gallery is used for one person or for tests
+# set user id here
+VIEWER_USER_ID = None
+
 # Path where cache will bw stored
 # It is a resize images so it can be huge
 # also it is soft links to full images

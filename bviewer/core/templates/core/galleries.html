@@ -12,10 +12,10 @@
             <ul class="thumbnails">
                 {% for item in galleries %}
                     <li>
-                        <a href="{% url 'core.gallery' user_url item.id %}" class="thumbnail preview">
+                        <a href="{% url 'core.gallery' item.id %}" class="thumbnail preview">
 
                             {% if item.thumbnail_id %}
-                                <img class="hidden" src="#{% url 'core.download' user_url 'small' item.thumbnail_id %}" style="display:none">
+                                <img class="hidden" src="#{% url 'core.download' 'small' item.thumbnail_id %}" style="display:none">
                             {% else %}
                                 <img src="{% static "core/img/gallery.png" %}" alt="" style="opacity: 0.8;">
                             {% endif %}

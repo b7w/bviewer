@@ -20,18 +20,16 @@ logger = logging.getLogger(__name__)
 @login_required
 @perm_any_required('core.user_holder')
 def ShowImagesAdmin(request):
-    user, user_url = get_gallery_user(request)
-    return render(request, 'profile/images.html', {
-        'title': 'Add images',
-        'path': request.path,
-        'user_url': user_url,
-    })
+    user = get_gallery_user(request)
+    if not user:
+        raise Http404()
+    return render(request, 'profile/images.html', {})
 
 
 @login_required
 @perm_any_required('core.user_holder')
 def JsonStorageList(request):
-    user, user_url = get_gallery_user(request)
+    user = get_gallery_user(request)
     if not user:
         raise Http404()
     if user.home is None:
@@ -44,7 +42,7 @@ def JsonStorageList(request):
 @login_required
 @perm_any_required('core.user_holder')
 def JsonImageService(request):
-    user, user_url = get_gallery_user(request)
+    user = get_gallery_user(request)
     if not user:
         raise Http404()
     if user.home is None:
@@ -71,7 +69,7 @@ def JsonImageService(request):
 def DownloadImage(request):
     if request.GET.get('p', None):
         path = request.GET['p']
-        user, user_url = get_gallery_user(request)
+        user = get_gallery_user(request)
         if user.home is None:
             raise Http404('You have no access to storage')
         storage = Storage(user.home)
