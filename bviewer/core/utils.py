@@ -2,8 +2,8 @@
 
 import re
 import time
-from hashlib import sha1
 import logging
+from hashlib import sha1
 
 from django.core.cache import cache
 from django.shortcuts import redirect
@@ -162,39 +162,38 @@ class FileUniqueName:
         return self.hash(full_name)
 
 
-domain_match = re.compile('([w]{3})?\.?(?P<sub>\w+)\.(\w+)\.([a-z]+):?(\d{0,4})')
+domain_match = re.compile(r'([w]{3})?\.?(?P<domain>[\w\.]+):?(\d{0,4})')
 
 
-def get_gallery_user(request, name=None):
+def get_gallery_user(request):
     """
-    Detect gallery user. first try to get from [www.]{username}.domain.com[:port], than /{username}/..., and get auth user.
-    If nothing return ( None, '' ). first is user, second is user url. Cached, 3h.
+    Get domain from request and try to find user with user.url == domain.
+    If not try return authenticated user, else user from settings.VIEWER_USER_ID.
 
     :type request: django.http.HttpRequest
-    :type name: string
-    :rtype: (bviewer.core.models.ProxyUser, string)
+    :rtype: bviewer.core.models.ProxyUser
     """
-    match = domain_match.match(request.get_host())
-    key = 'core.utils.get_gallery_user({0},{1})'.format(request.get_host(), name)
+    key = 'core.utils.get_gallery_user({0})'.format(request.get_host())
     data = cache.get(key)
     if data:
         return data
+    if settings.VIEWER_USER_ID:
+        user = ProxyUser.objects.get(id=settings.VIEWER_USER_ID)
+        cache.set(key, user)
+        return user
+
+    match = domain_match.match(request.get_host())
     if match:
-        name = match.group('sub')
-        user = ProxyUser.objects.safe_get(url=name)
+        url = match.group('domain')
+        user = ProxyUser.objects.safe_get(url=url)
         if user:
-            cache.set(key, (user, ''))
-            return user, ''
-    elif name:
-        user = ProxyUser.objects.safe_get(url=name)
-        if user:
-            cache.set(key, (user, name + '/'), 3 * 60 * 60)
-            return user, name + '/'
-    elif request.user.is_authenticated():
-        user = ProxyUser.objects.get(id=request.user.id)
-        cache.set(key, (user, user.username.lower() + '/'))
-        return user, user.username.lower() + '/'
-    return None, ''
+            cache.set(key, user)
+            return user
+
+    if request.user.is_authenticated():
+        return ProxyUser.objects.get(id=request.user.id)
+
+    return None
 
 
 def perm_any_required(*args, **kwargs):

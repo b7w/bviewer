@@ -1,6 +1,7 @@
+mock
 django
 django-celery
 django-debug-toolbar
-django-tastypie
+django-tastypie==0.9.12
 fabric
 flup

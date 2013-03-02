@@ -16,12 +16,12 @@ from bviewer.core.utils import get_gallery_user
 logger = logging.getLogger(__name__)
 
 
-def Archive(request, id, user=None):
+def Archive(request, id):
     """
     Start to archive images, or if done redirect to download
     js - waite while done, after redirect to download
     """
-    holder, user_url = get_gallery_user(request, user)
+    holder = get_gallery_user(request)
     if not holder:
         raise Http404('No user defined')
 
@@ -33,8 +33,8 @@ def Archive(request, id, user=None):
     z = ZipArchiveTask(images, holder.home, holder.url)
 
     # links for redirect to download, and check status
-    redirect = reverse('archive.download', kwargs=dict(user=user_url, id=id, hash=z.hash))
-    link = reverse('archive.status', kwargs=dict(user=user_url, id=id, hash=z.hash))
+    redirect = reverse('archive.download', kwargs=dict(id=id, hash=z.hash))
+    link = reverse('archive.status', kwargs=dict(id=id, hash=z.hash))
 
     if z.status(holder.url, z.hash) == 'DONE':
         return HttpResponseRedirect(redirect)
@@ -45,15 +45,14 @@ def Archive(request, id, user=None):
         'redirect': redirect,
         'gallery': main,
         'back': True,
-        'user_url': user_url,
     })
 
 
-def ArchiveStatus(request, id, hash, user=None):
+def ArchiveStatus(request, id, hash):
     """
     Check if archive exists and ready for download
     """
-    holder, user_url = get_gallery_user(request, user)
+    holder = get_gallery_user(request)
     if not holder:
         raise Http404('No user defined')
 
@@ -63,11 +62,11 @@ def ArchiveStatus(request, id, hash, user=None):
     return HttpResponse(simplejson.dumps(data))
 
 
-def Download(request, id, hash, user=None):
+def Download(request, id, hash):
     """
     Download archive
     """
-    holder, user_url = get_gallery_user(request, user)
+    holder = get_gallery_user(request)
     if not holder:
         raise Http404('No user defined')
 

@@ -124,11 +124,10 @@ class ImageResource(GalleryItemResource):
         Add links to images. Show path field only for owner.
         """
         obj_id = bundle.obj.id
-        user_url = bundle.obj.gallery.user.url + '/'
-        bundle.data['url'] = reverse('core.image', kwargs=dict(user=user_url, id=obj_id))
+        bundle.data['url'] = reverse('core.image', kwargs=dict(id=obj_id))
         for size in ['small', 'middle', 'big', 'full']:
             key = 'image_{0}'.format(size)
-            bundle.data[key] = reverse('core.download', kwargs=dict(user=user_url, size=size, id=obj_id))
+            bundle.data[key] = reverse('core.download', kwargs=dict(size=size, id=obj_id))
 
         user = bundle.request.user
         if not (user.is_authenticated() and user.id == bundle.obj.gallery.user_id):
@@ -150,9 +149,8 @@ class VideoResource(GalleryItemResource):
         Add links to videos
         """
         obj_id = bundle.obj.id
-        user_url = bundle.obj.gallery.user.url + '/'
-        bundle.data['url'] = reverse('core.video', kwargs=dict(user=user_url, id=obj_id))
-        bundle.data['thumbnail'] = reverse('core.video.thumbnail', kwargs=dict(user=user_url, id=obj_id))
+        bundle.data['url'] = reverse('core.video', kwargs=dict(id=obj_id))
+        bundle.data['thumbnail'] = reverse('core.video.thumbnail', kwargs=dict(id=obj_id))
         return super(VideoResource, self).dehydrate(bundle)
 
     class Meta(GalleryItemResource.Meta):
