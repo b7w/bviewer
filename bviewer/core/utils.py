@@ -2,39 +2,41 @@
 
 import re
 import time
+import logging
 from hashlib import sha1
+
 from django.core.cache import cache
 from django.shortcuts import redirect
 from django.utils.decorators import available_attrs
-
 from django.utils.encoding import smart_str
 from django.utils.functional import wraps
 
 from bviewer.core import settings
 from bviewer.core.models import ProxyUser
 
-import logging
 
-logger = logging.getLogger( __name__ )
+logger = logging.getLogger(__name__)
 
 
 class RaisingRange:
     """
     Iterator range that double sum base value if item/base == 8
 
-    >>> RaisingRange(32, start=0, base=1)
-    [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24, 28]
+        >>> list(RaisingRange(32, start=0, base=1))
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24, 28, 32]
     """
 
-    def __init__(self, max, start=None, base=None):
+    def __init__(self, maximum, start=None, base=None):
         """
-        max -> max value
-        start -> start from or 0
-        base -> base or 1
+        Max value, start from or 0, base or 1
+
+        :type maximum: int
+        :type start: int
+        :type base: int
         """
         self.value = start or 0
         self.base = base or 1
-        self.max = max
+        self.max = maximum
 
     def __iter__(self):
         return self
@@ -50,10 +52,10 @@ class RaisingRange:
             raise StopIteration
 
     def __str__(self):
-        return str( list( self ) )
+        return str(list(self))
 
 
-class ResizeOptionsError( Exception ):
+class ResizeOptionsError(Exception):
     """
     Resize options error.
     """
@@ -80,64 +82,70 @@ class ResizeOptions:
         self.height = 0
         self.size = 0
         self.crop = False
-        self.chooseSetting( size )
+        self.choose_setting(size)
 
-    def chooseSetting(self, size):
-        if size == "small":
-            self.setFromSetting( settings.VIEWER_SMALL_SIZE )
-        elif size == "middle":
-            self.setFromSetting( settings.VIEWER_MIDDLE_SIZE )
-        elif size == "big":
-            self.setFromSetting( settings.VIEWER_BIG_SIZE )
-        elif size == "full":
+    def choose_setting(self, size):
+        """
+        size - [small, middle, big, full]
+
+        :type size: str
+        """
+        if size == 'small':
+            self.from_settings(settings.VIEWER_SMALL_SIZE)
+        elif size == 'middle':
+            self.from_settings(settings.VIEWER_MIDDLE_SIZE)
+        elif size == 'big':
+            self.from_settings(settings.VIEWER_BIG_SIZE)
+        elif size == 'full':
             self.width = self.height = self.size = 10 ** 6
         else:
-            raise ResizeOptionsError( "Undefined size format '{0}'".format( size ) )
+            raise ResizeOptionsError('Undefined size format \'{0}\''.format(size))
 
-    def setFromSetting(self, value):
+    def from_settings(self, value):
         """
         Set values from settings.VIEWER_BIG_IMAGE for example
+        :type value: dict
         """
         self.width = value['WIDTH']
         self.height = value['HEIGHT']
-        self.size = max( self.width, self.height )
-        self.crop = 'CROP' in value and value['CROP'] == True
+        self.size = max(self.width, self.height)
+        self.crop = 'CROP' in value and value['CROP'] is True
 
     def __str__(self):
-        return u"ResizeOptions{{user={us},storage={st},size={sz},crop={cr}}}"\
-        .format( us=self.user, st=self.storage, sz=self.size, cr=self.crop )
+        return u'ResizeOptions{{user={us},storage={st},size={sz},crop={cr}}}' \
+            .format(us=self.user, st=self.storage, sz=self.size, cr=self.crop)
 
 
 class FileUniqueName:
     """
     Create unique hash name for file
 
-        >>> builder = FileUnicName( )
+        >>> builder = FileUniqueName()
         >>> time = builder.time()
         >>> time
         1323242186.620497
-        >>> builder.build( "some/file", time=time )
+        >>> builder.build("some/file", time=time)
         'fb41bb28d2614159246163f8dc77ac14'
-        >>> builder.build( "some/file", time=builder.time() )
+        >>> builder.build("some/file", time=builder.time())
         '6ef61d7c41d391fcd17dd59e1d29dfc2'
-        >>> builder.build( "some/file", time=time, extra='tag1' )
+        >>> builder.build("some/file", time=time, extra='tag1')
         'bb89a8697e7f2acfd5d904bc96ce5b81'
     """
 
-    def __init__(self ):
+    def __init__(self):
         pass
 
     def hash(self, name):
         """
         Return md5 of "files.storage" + name
         """
-        return sha1( "files.storage" + smart_str( name ) ).hexdigest( )
+        return sha1('files.storage' + smart_str(name)).hexdigest()
 
     def time(self):
         """
         Return just time.time( )
         """
-        return time.time( )
+        return time.time()
 
     def build(self, path, time=None, extra=None):
         """
@@ -145,79 +153,81 @@ class FileUniqueName:
         """
         full_name = settings.VIEWER_CACHE_PATH + path
         if time:
-            if time == True:
-                full_name += str( self.time( ) )
+            if time is True:
+                full_name += str(self.time())
             else:
-                full_name += str( time )
+                full_name += str(time)
         if extra:
-            full_name += str( extra )
-        return self.hash( full_name )
+            full_name += str(extra)
+        return self.hash(full_name)
 
 
-domain_match = re.compile( "([w]{3})?\.?(?P<sub>\w+)\.(\w+)\.([a-z]+):?(\d{0,4})" )
+domain_match = re.compile(r'([w]{3})?\.?(?P<domain>[\w\.]+):?(\d{0,4})')
 
-def get_gallery_user(request, name=None):
+
+def get_gallery_user(request):
     """
-    Detect gallery user. first try to get from [www.]{username}.domain.com[:port], than /{username}/..., and get auth user.
-    If nothing return ( None, '' ). first is user, second is user url. Cached, 3h.
+    Get domain from request and try to find user with user.url == domain.
+    If not try return authenticated user, else user from settings.VIEWER_USER_ID.
 
     :type request: django.http.HttpRequest
-    :type name: string
-    :rtype: (bviewer.core.models.ProxyUser, string)
+    :rtype: bviewer.core.models.ProxyUser
     """
-    match = domain_match.match(request.get_host())
-    key = "core.utils.get_gallery_user({0},{1})".format(request.get_host(), name)
+    key = 'core.utils.get_gallery_user({0})'.format(request.get_host())
     data = cache.get(key)
     if data:
         return data
+    if settings.VIEWER_USER_ID:
+        user = ProxyUser.objects.get(id=settings.VIEWER_USER_ID)
+        cache.set(key, user)
+        return user
+
+    match = domain_match.match(request.get_host())
     if match:
-        name = match.group('sub')
-        user = ProxyUser.objects.safe_get(url=name)
+        url = match.group('domain')
+        user = ProxyUser.objects.safe_get(url=url)
         if user:
-            cache.set(key, (user, ''))
-            return user, ''
-    elif name:
-        user = ProxyUser.objects.safe_get(url=name)
-        if user:
-            cache.set(key, (user, name + '/'), 3 * 60 * 60)
-            return user, name + '/'
-    elif request.user.is_authenticated():
-        user = ProxyUser.objects.get(id=request.user.id)
-        cache.set(key, (user, user.username.lower() + '/'))
-        return user, user.username.lower() + '/'
-    return None, ''
+            cache.set(key, user)
+            return user
+
+    if request.user.is_authenticated():
+        return ProxyUser.objects.get(id=request.user.id)
+
+    return None
 
 
-def perm_any_required( *args, **kwargs):
+def perm_any_required(*args, **kwargs):
     """
     Decorator for views that checks if at least one permission return True,
     redirecting to the `url` page on False.
     """
-    url = kwargs.get( "url", '/' )
+    url = kwargs.get('url', '/')
 
-    def test_func( user ):
+    def test_func(user):
         for perm in args:
-            if user.has_perm( perm ):
+            if user.has_perm(perm):
                 return True
 
     def decorator(view_func):
-        @wraps( view_func, assigned=available_attrs( view_func ) )
+        @wraps(view_func, assigned=available_attrs(view_func))
         def _wrapped_view(request, *args, **kwargs):
-            if test_func( request.user ):
-                return view_func( request, *args, **kwargs )
-            return redirect( url )
+            if test_func(request.user):
+                return view_func(request, *args, **kwargs)
+            return redirect(url)
 
         return _wrapped_view
 
     return decorator
 
 
-def decor_on(conditions, decor, *args, **kwargs ):
+def decor_on(conditions, decor, *args, **kwargs):
     """
     Return decorator with args and kwargs if conditions is True. Else function
     """
+
     def decorator(func):
         if conditions:
             return decor(*args, **kwargs)(func)
         return func
+
     return decorator

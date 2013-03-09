@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render
@@ -7,82 +9,80 @@ from django.shortcuts import render
 from bviewer.core.files import Storage
 from bviewer.core.files.serve import DownloadResponse
 from bviewer.core.images import CacheImage
-from bviewer.core.utils import ResizeOptions, get_gallery_user, perm_any_required
-
-import logging
-
-logger = logging.getLogger( __name__ )
+from bviewer.core.utils import get_gallery_user, perm_any_required, ResizeOptions
+from bviewer.profile.controllers import ImageController
+from bviewer.profile.utils import JSONResponse
 
 
-@login_required
-@perm_any_required( "core.user_holder" )
-def ShowHome( request ):
-    user, user_url = get_gallery_user( request )
-    return render( request, "profile/home.html", {
-        'path': request.path,
-        'user_url': user_url,
-        } )
+logger = logging.getLogger(__name__)
 
 
 @login_required
-@perm_any_required( "core.user_holder" )
-def ShowGalleries( request ):
-    user, user_url = get_gallery_user( request )
-    return render( request, "profile/galleries.html", {
-        'path': request.path,
-        'user_url': user_url,
-        } )
+@perm_any_required('core.user_holder')
+def ShowImagesAdmin(request):
+    user = get_gallery_user(request)
+    if not user:
+        raise Http404()
+    return render(request, 'profile/images.html', {})
 
 
 @login_required
-@perm_any_required( "core.user_holder" )
-def ShowImages( request ):
-    user, user_url = get_gallery_user( request )
-    return render( request, "profile/images.html", {
-        'path': request.path,
-        'user_url': user_url,
-        } )
+@perm_any_required('core.user_holder')
+def JsonStorageList(request):
+    user = get_gallery_user(request)
+    if not user:
+        raise Http404()
+    if user.home is None:
+        raise Http404('You have no access to storage')
+    storage = Storage(user.home)
+    folder = storage.list(request.GET.get('p', ''))
+    return JSONResponse(folder)
 
 
 @login_required
-@perm_any_required( "core.user_holder" )
-def ShowVideos( request ):
-    user, user_url = get_gallery_user( request )
-    return render( request, "profile/videos.html", {
-        'path': request.path,
-        'user_url': user_url,
-        } )
+@perm_any_required('core.user_holder')
+def JsonImageService(request):
+    user = get_gallery_user(request)
+    if not user:
+        raise Http404()
+    if user.home is None:
+        raise Http404('You have no access to image service')
 
-
-@login_required
-@perm_any_required( "core.user_holder" )
-def ShowAbout( request ):
-    user, user_url = get_gallery_user( request )
-    return render( request, "profile/about.html", {
-        'path': request.path,
-        'user_url': user_url,
-        } )
-
-
-@login_required
-@perm_any_required( "core.user_holder" )
-def DownloadImage( request ):
-    if request.GET.get( "p", None ):
-        path = request.GET["p"]
-        user, user_url = get_gallery_user( request )
-        if not user.home:
-            return Http404( "You have no access to storage" )
-        storage = Storage( user.home )
+    if request.method == 'POST':
         try:
-            if storage.exists( path ):
-                options = ResizeOptions( "small", user=user.url, storage=user.home )
-                image = CacheImage( path, options )
-                image.process( )
-                name = Storage.name( path )
-                response = DownloadResponse.build( image.url, name )
-                return response
-            raise Http404( "No such file" )
-        except IOError as e:
-            raise Http404( e )
+            path = request.POST.get('path')
+            gallery_id = int(request.POST.get('gallery'))
+            images = request.POST.getlist('images[]')
 
-    raise Http404( "No Image" )
+            controller = ImageController(gallery_id, user)
+            controller.setPath(path)
+            controller.setChecked(images)
+            return JSONResponse(dict(status='ok'))
+        except Exception as e:
+            return JSONResponse(dict(error=str(e)), status=400)
+
+    return JSONResponse(dict(error='Need post request'), status=400)
+
+
+@login_required
+@perm_any_required('core.user_holder')
+def DownloadImage(request):
+    if request.GET.get('p', None):
+        path = request.GET['p']
+        user = get_gallery_user(request)
+        if user.home is None:
+            raise Http404('You have no access to storage')
+        storage = Storage(user.home)
+        try:
+            if storage.exists(path):
+                options = ResizeOptions('small', user=user.url, storage=user.home)
+                image = CacheImage(path, options)
+                image.process()
+                name = Storage.name(path)
+                response = DownloadResponse.build(image.url, name)
+                return response
+            raise Http404('No such file')
+        except IOError as e:
+            raise Http404(e)
+
+    raise Http404('No Image')

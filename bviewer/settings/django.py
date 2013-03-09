@@ -1,14 +1,15 @@
-# Django settings for BelieveViewer project.
-
+# -*- coding: utf-8 -*-
+#
+# Default django settings for this project
+#
 import os
-
-SOURCE_PATH = os.path.realpath( os.path.dirname( __file__ ) )
-PROJECT_PATH = os.path.dirname( SOURCE_PATH )
-
-TMP_PATH = os.path.join( PROJECT_PATH, "tmp" )
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+SOURCE_PATH = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
+PROJECT_PATH = os.path.dirname(SOURCE_PATH)
+TMP_PATH = os.path.join(PROJECT_PATH, "tmp")
 
 ADMINS = (
 # ('Your Name', 'your_email@example.com'),
@@ -16,24 +17,22 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '', # Or path to database file if using sqlite3.
-        'USER': '', # Not used with sqlite3.
-        'PASSWORD': '', # Not used with sqlite3.
-        'HOST': '', # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '', # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.',
+        'NAME': '',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '',
     }
 }
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
-# On Unix systems, a value of None will cause Django to use the same
-# timezone as the operating system.
-# If running in a Windows environment this must be set to the same as your
-# system time zone.
+# In a Windows environment this must be set to your system time zone.
 TIME_ZONE = 'America/Chicago'
 
 # Language code for this installation. All choices can be found here:
@@ -66,7 +65,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.path.join( PROJECT_PATH, 'static' )
+STATIC_ROOT = os.path.join(PROJECT_PATH, 'static')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -77,8 +76,8 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join( SOURCE_PATH, 'static' ),
-    )
+    os.path.join(SOURCE_PATH, 'static'),
+)
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -86,17 +85,17 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
-    )
+)
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '64st_r=!fwh!=!*-xyl*_cxqw&amp;94m=i#ht^llvk3)ius=z1id)'
+SECRET_KEY = '0!1%nhhyk9uj^hzrsp=yp#^$@+^be@ku$r7ob!haivglve%d*2'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
     #     'django.template.loaders.eggs.Loader',
-    )
+)
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -106,7 +105,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    )
+)
 
 ROOT_URLCONF = 'bviewer.urls'
 
@@ -117,8 +116,8 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join( SOURCE_PATH, 'templates' ),
-    )
+    os.path.join(SOURCE_PATH, 'templates'),
+)
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
@@ -128,24 +127,22 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
     'django.contrib.messages.context_processors.messages',
     'django.core.context_processors.request',
-    )
+)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    #'django.contrib.sites',
+    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
     'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'bviewer.core',
     'bviewer.archive',
     'bviewer.api',
     'bviewer.profile',
-    )
+)
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -155,100 +152,29 @@ INSTALLED_APPS = (
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {
-        'simple': {
-            'format': '%(levelname)-6s %(asctime)s - %(name)s - %(funcName)s %(lineno)d, %(message)s',
-            'datefmt': '%Y %b %d, %H:%M:%S',
-            },
-        },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
     'handlers': {
-        'log-file': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.join( TMP_PATH, "app.log" ),
-            'mode': 'a',
-            'formatter': 'simple'
-        },
-        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        }
+    },
     'loggers': {
-        'django': {
-            'handlers': ['log-file'],
+        'django.request': {
+            'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
-            },
-        'bviewer': {
-            'handlers': ['log-file'],
-            'level': 'INFO',
-            'propagate': True,
-            },
-        }
+        },
+    }
 }
-
-FORCE_SCRIPT_NAME = ''
-
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.CachedStaticFilesStorage'
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
 
-#
-# App configs
-#
-
-VIEWER_CACHE_PATH = os.path.join( PROJECT_PATH, 'cache' )
-VIEWER_STORAGE_PATH = PROJECT_PATH
-
-# X-Accel-Redirect for web server to improve file serving, highly recommended!
-# Set cache true to activate redirect response caching, it save 2 queries per image.
-# Be careful, it can't work with `default`! because it return hole file
-VIEWER_SERVE = {
-    'BACKEND': 'bviewer.core.files.serve.nginx',
-    'INTERNAL_URL': '/protected',
-    'CACHE': False,
-    }
-
-# When run clear old cache, for more examples look here
-# http://ask.github.com/celery/userguide/periodic-tasks.html
-VIEWER_CLEAR = {
-    'minute': 0,
-    'hour': 6,
-    }
-
-# It is really recommended to set cache. redis is pretty nice.
-CACHES = {
-    'default': {
-        #'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': 'localhost:6379',
-        'OPTIONS': {'DB': 0},
-        }
-}
-
-#
-# Celery configs
-# it is need to process images
-#
-CELERY_IMPORTS = (
-    'bviewer.core.tasks',
-    'bviewer.archive.tasks',
-    )
-
-# Redis is very simple to install
-# and it can be used with django sessions, django cache and `cacheotps` for cache queries.
-# But also you can add `djcelery` in install apps and use you database
-BROKER_URL = 'redis://localhost:6379/0'
-
-# Store results in redis
-CELERY_RESULT_BACKEND = 'redis'
-CELERY_REDIS_HOST = 'localhost'
-CELERY_REDIS_PORT = 6379
-CELERY_REDIS_DB = 0
-
-#
-# Run service configs
-# if you use fabfile to start django and celery
-#
-USER = 'www-data'
-GROUP = 'www-data'
-DJANGO_ARGS = 'maxspare=4 maxchildren=8'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.CachedStaticFilesStorage'
