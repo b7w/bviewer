@@ -11,16 +11,19 @@
             <p>{{ main.description|linebreaksbr }}</p>
             <ul class="thumbnails">
                 {% for item in galleries %}
-                    <li class="span3">
-                        <a href="{% url core.gallery user_url item.id %}" class="thumbnail preview">
+                    <li>
+                        <a href="{% url 'core.gallery' item.id %}" class="thumbnail preview">
 
                             {% if item.thumbnail_id %}
-                                <img class="hidden" src="#{% url core.download user_url 'small' item.thumbnail_id  %}" style="display:none">
+                                <img class="hidden" src="#{% url 'core.download' 'small' item.thumbnail_id %}" style="display:none">
                             {% else %}
                                 <img src="{% static "core/img/gallery.png" %}" alt="" style="opacity: 0.8;">
                             {% endif %}
 
                             <div class="carousel-caption">
+                                {% if item.private %}
+                                    <i class="icon-white icon-eye-open pull-right" title="Private gallery"></i>
+                                {% endif %}
                                 <h4>{{ item.title }}</h4>
 
                                 <p class="carousel-description">
@@ -40,26 +43,26 @@
     {{ block.super }}
     <script type="text/javascript">
         function load_next() {
-            var image = $( '.thumbnails .hidden:first' );
+            var image = $('.thumbnails .hidden:first');
             if (image.size() != 0) {
-                var link = jQuery( image ).attr( 'src' );
-                jQuery( image ).attr( 'src', link.substring( 1 ) );
+                var link = jQuery(image).attr('src');
+                jQuery(image).attr('src', link.substring(1));
             }
         }
 
-        $( '.thumbnails .hidden' ).bind( 'load', function () {
-            jQuery( this ).removeClass( 'hidden' );
-            jQuery( this ).fadeIn( 'slow' );
+        $('.thumbnails .hidden').bind('load', function () {
+            jQuery(this).removeClass('hidden');
+            jQuery(this).fadeIn('slow');
             load_next();
-        } );
+        });
 
-        $( '.thumbnails .hidden' ).bind( 'error', function () {
-            var it = jQuery( this );
-            if (!( it.attr( 'src' ).indexOf( '#' ) == 0)) {
-                it.attr( 'src', '{% static "core/img/gallery.png" %}' );
-                it.css( 'opacity', '0.8' );
+        $('.thumbnails .hidden').bind('error', function () {
+            var it = jQuery(this);
+            if (!( it.attr('src').indexOf('#') == 0)) {
+                it.attr('src', '{% static "core/img/gallery.png" %}');
+                it.css('opacity', '0.8');
             }
-        } );
+        });
 
         load_next();
     </script>

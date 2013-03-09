@@ -20,9 +20,9 @@
         var st = 2;
         var interval = window.setInterval(function () {
             jQuery.ajax({
-                url:link,
-                dataType:'json',
-                success:function (data) {
+                url: link,
+                dataType: 'json',
+                success: function (data) {
                     if (data.status == "DONE") {
                         jQuery('#status .bar').attr('style', 'width:100%;');
                         window.clearInterval(interval);

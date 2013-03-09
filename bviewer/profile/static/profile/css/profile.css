@@ -1,0 +1,45 @@
+.split-path {
+    font-size: 14px;
+    font-style: italic;
+}
+
+.thumbnails {
+    list-style: none;
+}
+
+.thumbnails li {
+    position: relative;
+    float: left;
+    margin: 4px;
+    list-style: none;
+}
+
+.thumbnails .caption {
+    position: absolute;
+    font-size: 11px;
+    text-align: center;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    color: #666;
+}
+
+.thumbnails .image .caption {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.thumbnails::after {
+    clear: both;
+}
+
+.thumbnail img {
+    width: 150px;
+    height: 150px;
+}
+
+.thumbnail input[type=checkbox] {
+    position: absolute;
+    right: 0;
+    margin: 2px;
+}
