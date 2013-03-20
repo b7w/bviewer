@@ -4,7 +4,7 @@
 #
 import os
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 SOURCE_PATH = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))

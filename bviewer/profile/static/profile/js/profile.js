@@ -93,6 +93,18 @@ var ImageModel = function () {
         }).length;
     });
 
+    self.selectAll = function () {
+        return ko.utils.arrayForEach(self.files(), function (file) {
+            return file.checked(true);
+        });
+    };
+
+    self.deselectAll = function () {
+        return ko.utils.arrayForEach(self.files(), function (file) {
+            return file.checked(false);
+        });
+    };
+
     self.checkExistsFiles = function () {
         if (self.path() != null && self.chosenGallery() != null) {
             jQuery.each(self.files(), function (fid, fvalue) {

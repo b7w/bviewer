@@ -44,6 +44,15 @@
             </div>
 
             <div class="form-row">
+                <label>Selected:</label>
+
+                <span data-bind="text: selectedImages"></span>
+
+                <a href="#" style="margin-left: 20px;" data-bind="click: selectAll">Select all</a>
+                <a href="#" style="margin-left: 20px;" data-bind="click: deselectAll">Deselect all</a>
+            </div>
+
+            <div class="form-row">
                 <label class="required" style="float: none;">Folder:</label>
                 <ul class="thumbnails">
                     <li data-bind="click: selectBack">
@@ -78,7 +87,10 @@
             <div class="form-row">
                 <label>Selected:</label>
 
-                <div data-bind="text: selectedImages"></div>
+                <span data-bind="text: selectedImages"></span>
+
+                <a href="#" style="margin-left: 20px;" data-bind="click: selectAll">Select all</a>
+                <a href="#" style="margin-left: 20px;" data-bind="click: deselectAll">Deselect all</a>
             </div>
         </div>
     </div>
