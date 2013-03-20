@@ -183,7 +183,7 @@ class CacheImage(object):
 
     def checkCacheDir(self):
         if not os.path.exists(self.cache_dir):
-            os.mkdir(self.cache_dir)
+            os.makedirs(self.cache_dir)
 
 
 class CacheImageAsync(object):
