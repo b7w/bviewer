@@ -18,8 +18,8 @@ __all__ = ['help', 'start', 'stop', 'restart', 'syncdb', 'test', 'clear', 'stati
 HOME = settings.SOURCE_PATH
 
 NAME = getattr(settings, 'PROCESS_NAME', 'believe')
-USER = getattr(settings, 'PROCESS_USER', 'www-data')
-GROUP = getattr(settings, 'PROCESS_GROUP', 'www-data')
+USER = getattr(settings, 'PROCESS_USER', 'believe')
+GROUP = getattr(settings, 'PROCESS_GROUP', 'believe')
 
 MANAGE_PY = os.path.join(getattr(settings, 'PROJECT_PATH'), 'manage.py')
 RUN_DIR = os.path.join('/var/run', NAME.lower())

@@ -98,6 +98,8 @@ CELERY_REDIS_HOST = "localhost"
 CELERY_REDIS_PORT = 6379
 CELERY_REDIS_DB = 0
 
+# https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-ALLOWED_HOSTS
+ALLOWED_HOSTS = ('.dev.loc', )
 
 #
 # Run service configs
