@@ -17,7 +17,7 @@
                             {% if item.thumbnail_id %}
                                 <img class="hidden" src="#{% url 'core.download' 'small' item.thumbnail_id %}" style="display:none">
                             {% else %}
-                                <img src="{% static "core/img/gallery.png" %}" alt="" style="opacity: 0.8;">
+                                <img src="{% static 'core/img/gallery.png' %}" alt="" style="opacity: 0.8;">
                             {% endif %}
 
                             <div class="carousel-caption">

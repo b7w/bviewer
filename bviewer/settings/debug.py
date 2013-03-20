@@ -8,6 +8,8 @@ TEMPLATE_DEBUG = DEBUG
 MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 INSTALLED_APPS += ('debug_toolbar',)
 
+ALLOWED_HOSTS = ('*', )
+
 VIEWER_SERVE = {
     'BACKEND': 'bviewer.core.files.serve.default',
     'INTERNAL_URL': '/protected',
