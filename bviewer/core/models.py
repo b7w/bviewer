@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from collections import deque
+import json
 import urllib2
 
 from django.contrib.auth.models import User
@@ -10,8 +11,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
+from django.utils.encoding import smart_text
 from django.utils.html import escape
-from django.utils import simplejson
 
 
 class ProxyManager(models.Manager):
@@ -130,9 +131,9 @@ class Gallery(models.Model):
                 objects.extend(Gallery.objects.filter(parent=ids.popleft()))
         return False
 
-    def __unicode__(self):
+    def __str__(self):
         if self.parent:
-            return self.title + u' -> ' + unicode(self.parent)
+            return smart_text('{0} -> {1}').format(self.title, self.parent)
         return self.title
 
     class Meta:
@@ -176,21 +177,22 @@ class GalleryTree:
         return [GalleryTree(i, objects) for i in objects if i.parent_id is None]
 
     def __str__(self):
-        return 'GalleryTree{{v={0}}}'.format(self.value)
+        return smart_text('GalleryTree{{v={0}}}').format(self.value)
 
 
 class Image(models.Model):
     gallery = models.ForeignKey(Gallery)
     path = models.CharField(max_length=256)
+    time = models.DateTimeField(default=datetime.now)
 
     objects = ProxyManager()
 
-    def __unicode__(self):
-        return unicode(self.gallery.title) + u': ' + self.path
+    def __str__(self):
+        return smart_text('{0}: {1}').format(self.gallery.title, self.path)
 
     class Meta:
         verbose_name = 'Image'
-        ordering = ['path']
+        ordering = ['time']
         unique_together = (('gallery', 'path'),)
 
 
@@ -204,6 +206,7 @@ class Video(models.Model):
     gallery = models.ForeignKey(Gallery)
     title = models.CharField(max_length=256)
     description = models.TextField(max_length=512, null=True, blank=True)
+    time = models.DateTimeField(default=datetime.now)
 
     objects = ProxyManager()
 
@@ -225,8 +228,8 @@ class Video(models.Model):
         """
         if self.type == self.VIMIO:
             url = 'http://vimeo.com/api/v2/video/{0}.json'.format(self.uid)
-            json = urllib2.urlopen(url).read()
-            info = simplejson.loads(json, encoding='UTF-8').pop()
+            raw = urllib2.urlopen(url).read()
+            info = json.loads(raw, encoding='UTF-8').pop()
             return info['thumbnail_large']
         elif self.type == self.YOUTUBE:
             return 'http://img.youtube.com/vi/{0}/hqdefault.jpg'.format(self.uid)
@@ -235,6 +238,10 @@ class Video(models.Model):
     def __unicode__(self):
         return self.title
 
+    def __str__(self):
+        return self.title
+
     class Meta:
         verbose_name = 'Video'
+        ordering = ['time']
         unique_together = (('uid', 'gallery'),)

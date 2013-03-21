@@ -4,6 +4,5 @@ django-celery
 django-debug-toolbar
 django-tastypie==0.9.12
 fabric
-flup
 redis
 #pillow
