@@ -37,9 +37,9 @@ admin.site.register(Gallery, GalleryAdmin)
 class ImageAdmin(ModelAdmin):
     list_select_related = True
 
-    list_display = ('gallery_title', 'gallery_user', 'path', )
-    list_filter = ('gallery__title', 'gallery__user__username', )
-    ordering = ('gallery__user__username', 'path',)
+    list_display = ('gallery_title', 'gallery_user', 'path', 'time',)
+    list_filter = ('gallery__title', 'gallery__user__username', 'time',)
+    ordering = ('gallery__user__username', 'path', 'time',)
 
     def gallery_title(self, obj):
         return obj.gallery.title
@@ -59,9 +59,9 @@ admin.site.register(Image, ImageAdmin)
 class VideoAdmin(ModelAdmin):
     list_select_related = True
 
-    list_display = ('gallery_title', 'gallery_user', 'title', 'uid',)
-    list_filter = ('gallery__title', 'gallery__user__username', )
-    ordering = ('gallery__user__username', 'uid',)
+    list_display = ('gallery_title', 'gallery_user', 'title', 'uid', 'time',)
+    list_filter = ('gallery__title', 'gallery__user__username', 'time',)
+    ordering = ('gallery__user__username', 'time',)
 
     def gallery_title(self, obj):
         return obj.gallery.title

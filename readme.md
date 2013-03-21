@@ -35,10 +35,10 @@ To install Postgres driver and image library via ubuntu apt `sudo apt-get instal
 Or build with pip - recommended, at least pillow.
 
 * Postgres driver
-    * `sudo apt-get install libpq-dev python-dev libjpeg-dev libfreetype6-dev zlib1g-dev;`
+    * `sudo apt-get install python-dev libpq-dev`
     * `sudo pip install psycopg2`
 * Pillow - Imaging Library fork that in active development
-    * `sudo apt-get install python-dev libjpeg-dev libfreetype6-dev zlib1g-dev;`
+    * `sudo apt-get install python-dev libjpeg-dev libfreetype6-dev zlib1g-dev`
     * `sudo pip install pillow`
 
 Other python libraries `sudo pip install -r requirements.txt`.
