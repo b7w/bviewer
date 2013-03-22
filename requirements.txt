@@ -1,8 +1,8 @@
-mock
-django
-django-celery
-django-debug-toolbar
-django-tastypie==0.9.12
-fabric
-redis
 #pillow
+django-debug-toolbar
+django-rq
+django-tastypie==0.9.12
+django==1.5
+fabric
+mock
+redis

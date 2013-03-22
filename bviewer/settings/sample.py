@@ -73,30 +73,14 @@ VIEWER_SERVE = {
     'CACHE': True,
 }
 
-# When run clear old cache, for more examples look here
-# http://ask.github.com/celery/userguide/periodic-tasks.html
-VIEWER_CLEAR = {
-    'minute': 0,
-    'hour': 6,
+# RQ configs
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+    },
 }
-
-
-#
-# Celery configs
-#
-CELERY_IMPORTS = (
-    'bviewer.core.tasks',
-    'bviewer.archive.tasks',
-)
-
-# Use redis as a queue
-BROKER_URL = "redis://localhost:6379/0"
-
-# Store results in redis
-CELERY_RESULT_BACKEND = "redis"
-CELERY_REDIS_HOST = "localhost"
-CELERY_REDIS_PORT = 6379
-CELERY_REDIS_DB = 0
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-ALLOWED_HOSTS
 ALLOWED_HOSTS = ('.dev.loc', )

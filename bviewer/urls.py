@@ -2,11 +2,9 @@
 
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-import djcelery
 
 
 admin.autodiscover()
-djcelery.setup_loader()
 
 urlpatterns = patterns('',
     url(r'^', include('bviewer.core.urls')),

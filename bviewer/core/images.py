@@ -188,7 +188,7 @@ class CacheImage(object):
 
 class CacheImageAsync(object):
     """
-    Proxy for `CacheImage` but it run in celery container.
+    Proxy for `CacheImage` but it run in rq container.
     It send task and wait for result
     In this case we think it is a thread pool that help to minimize system resource.
     """
@@ -203,38 +203,14 @@ class CacheImageAsync(object):
         # hack not to run task in tests
         if not settings.TESTS:
             async = cache_image_process.delay(self.cache)
-            self.image = async.get()
+            while not async.result:
+                pass
+            self.image = async.result
             self.url = self.image.url
 
     def download(self):
         async = cache_image_download.delay(self.cache)
-        self.image = async.get()
+        while not async.result:
+            pass
+        self.image = async.result
         self.url = self.image.url
-
-
-class BulkCache(object):
-    """
-    Cache images in bulk
-    """
-
-    def __init__(self):
-        self.args = []
-
-    def appendTasks(self, path, options):
-        """
-        paths -> list of image paths from user home
-        options -> option, for this images
-        """
-        self.args.append((path, options))
-
-    def send(self):
-        logger.info('start tread %s', hash(self))
-        for item in self.args:
-            paths, options = item
-            for path in paths:
-                try:
-                    image = CacheImage(path, options)
-                    cache_image_process.delay(image)
-                    logger.debug('tread %s, process image \'%s\'', hash(self), path)
-                except Exception as e:
-                    logger.error('tread %s, %s', hash(self), e)
