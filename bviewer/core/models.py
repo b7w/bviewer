@@ -5,7 +5,7 @@ from collections import deque
 import json
 import urllib2
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AbstractUser
 from django.contrib.sites.models import Site
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -31,7 +31,7 @@ class ProxyUser(User):
     url = models.CharField(max_length=16, unique=True)
     home = models.CharField(max_length=256, null=True, blank=True)
     cache_size = models.PositiveIntegerField(default=32, validators=[MinValueValidator(16), MaxValueValidator(256)])
-    top_gallery = models.ForeignKey('Gallery', related_name='top', null=True, blank=True)
+    top_gallery = models.ForeignKey('Gallery', related_name='top', null=True, blank=True, on_delete=models.DO_NOTHING)
     about_title = models.CharField(max_length=256, blank=True)
     about_text = models.TextField(max_length=1024, blank=True)
     avatar = models.ForeignKey('Image', related_name='avatar', null=True, blank=True)
@@ -46,7 +46,12 @@ class ProxyUser(User):
         super(ProxyUser, self).save(*args, **kwargs)
 
     def __eq__(self, other):
-        if other and other.is_authenticated():
+        """
+        if isinstance of ProxyUser, AbstractUser:
+            return self.id == other.id
+        return False
+        """
+        if other and isinstance(other, (ProxyUser, AbstractUser)):
             return self.id == other.id
         return False
 
@@ -72,12 +77,12 @@ post_save.connect(add_top_gallery, sender=ProxyUser)
 
 
 class Gallery(models.Model):
-    parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.SET_NULL)
     title = models.CharField(max_length=256)
     user = models.ForeignKey(ProxyUser)
     private = models.BooleanField(default=False)
     description = models.TextField(max_length=512, null=True, blank=True)
-    thumbnail = models.ForeignKey('Image', null=True, blank=True, related_name='thumbnail')
+    thumbnail = models.ForeignKey('Image', null=True, blank=True, related_name='thumbnail', on_delete=models.DO_NOTHING)
     time = models.DateTimeField(default=datetime.now)
 
     objects = ProxyManager()
