@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.core.urlresolvers import reverse
 
 from bviewer.core.admin import ModelAdmin, ProxyUserForm
-from bviewer.core.models import Gallery, Image
+from bviewer.core.models import Gallery, Image, ProxyUser
 from bviewer.profile.models import ProfileProxyUser, ProfileGallery, ProfileVideo, ProfileImage
 
 
@@ -59,7 +59,7 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
         return super(ProfileGalleryAdmin, self).queryset(request).filter(user=request.user)
 
     def save_model(self, request, obj, form, change):
-        obj.user = request.user
+        obj.user = ProxyUser.objects.get(pk=request.user.pk)
         obj.save()
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
@@ -134,6 +134,9 @@ class ProfileUserAdmin(UserAdmin, ProfileModelAdmin):
     )
     readonly_fields = ('password', 'last_login', 'date_joined', )
     form = ProxyUserForm
+
+    def has_add_permission(self, request):
+        return False
 
     def queryset(self, request):
         return super(ProfileUserAdmin, self).queryset(request).filter(id=request.user.id)
