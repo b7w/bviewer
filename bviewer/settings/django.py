@@ -142,6 +142,7 @@ INSTALLED_APPS = (
     'bviewer.archive',
     'bviewer.api',
     'bviewer.profile',
+    'django_rq',
 )
 
 # A sample logging configuration. The only tangible logging

@@ -30,10 +30,13 @@ def multi_sort(items, columns):
     compares = [((itemgetter(col[1:].strip()), -1) if col.startswith('-') else (itemgetter(col.strip()), 1)) for col in columns]
 
     def compare(left, right):
-        for fn, multi, in compares:
-            result = cmp(fn(left), fn(right))
-            if result:
-                return multi * result
+        for fn, multi in compares:
+            l, r = fn(left), fn(right)
+            if l < r:
+                return multi * -1
+            elif l > r:
+                return multi
+
         else:
             return 0
 

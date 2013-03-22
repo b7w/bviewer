@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from celery.task import task
+from django_rq import job
 
 from bviewer.archive.controls import ZipArchive
 
 
-@task
+@job
 def cache_archive(*args, **kwargs):
     """
     Create :class:`~bviewer.archive.controls.ZipArchive` and run `process`

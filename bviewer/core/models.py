@@ -136,6 +136,8 @@ class Gallery(models.Model):
             return smart_text('{0} -> {1}').format(self.title, self.parent)
         return self.title
 
+    __unicode__ = __str__
+
     class Meta:
         verbose_name = 'Gallery'
         ordering = ['-time']
@@ -190,6 +192,8 @@ class Image(models.Model):
     def __str__(self):
         return smart_text('{0}: {1}').format(self.gallery.title, self.path)
 
+    __unicode__ = __str__
+
     class Meta:
         verbose_name = 'Image'
         ordering = ['time']
@@ -233,13 +237,12 @@ class Video(models.Model):
             return info['thumbnail_large']
         elif self.type == self.YOUTUBE:
             return 'http://img.youtube.com/vi/{0}/hqdefault.jpg'.format(self.uid)
-        raise ValueError('unknown video type: {0}'.format(self.type))
-
-    def __unicode__(self):
-        return self.title
+        raise ValueError('Unknown video type: {0}'.format(self.type))
 
     def __str__(self):
         return self.title
+
+    __unicode__ = __str__
 
     class Meta:
         verbose_name = 'Video'
