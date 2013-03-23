@@ -119,6 +119,16 @@
             }
         });
 
+        jQuery('#sb-body').live('click', function (e) {
+            var width = jQuery(this).width() / 3;
+            var x = e.pageX - jQuery(this).offset().left;
+            if (x < width) {
+                Shadowbox.previous()
+            } else {
+                Shadowbox.next();
+            }
+        });
+
         load_next();
         load_next();
         load_next();
