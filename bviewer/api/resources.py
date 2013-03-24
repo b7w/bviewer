@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from django.core.urlresolvers import reverse
-from django.db.models import Q
 from tastypie import fields
 from tastypie.authentication import Authentication, MultiAuthentication, SessionAuthentication
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
-from tastypie.exceptions import Unauthorized
 from tastypie.resources import ModelResource
+from bviewer.api.authorization import GalleryAuthorization, GalleryItemAuthorization
 
 from bviewer.core.models import Gallery, ProxyUser, Image, Video
 
@@ -44,26 +43,13 @@ class GalleryResource(ModelResource):
             filters[query] = request.user.id
         return super(GalleryResource, self).apply_filters(request, filters)
 
-    def authorized_read_list(self, object_list, bundle):
-        user = bundle.request.user
-        if user.is_authenticated():
-            object_list = object_list.filter(Q(private=False) | Q(user=user, private=True))
-        else:
-            object_list = object_list.filter(private=False)
-        return object_list
-
-    def authorized_read_detail(self, object_list, bundle):
-        # TODO: WTF, https://github.com/toastdriven/django-tastypie/issues/826
-        if len(self.authorized_read_list(object_list, bundle)) > 0:
-            return True
-        raise Unauthorized("You are not allowed to access that resource.")
-
     class Meta:
         queryset = Gallery.objects.all().select_related()
         resource_name = 'gallery'
         allowed_methods = ['get', ]
         excludes = ['private', ]
         authentication = MultiAuthentication(SessionAuthentication(), Authentication())
+        authorization = GalleryAuthorization()
         filtering = {
             'id': EXACT,
             'user': ALL_WITH_RELATIONS,
@@ -95,23 +81,10 @@ class GalleryItemResource(ModelResource):
             filters[query] = request.user.id
         return super(GalleryItemResource, self).apply_filters(request, filters)
 
-    def authorized_read_list(self, object_list, bundle):
-        user = bundle.request.user
-        if user.is_authenticated():
-            object_list = object_list.filter(Q(gallery__private=False) | Q(gallery__user=user, gallery__private=True))
-        else:
-            object_list = object_list.filter(gallery__private=False)
-        return object_list
-
-    def authorized_read_detail(self, object_list, bundle):
-        # TODO: WTF, https://github.com/toastdriven/django-tastypie/issues/826
-        if len(self.authorized_read_list(object_list, bundle)) > 0:
-            return True
-        raise Unauthorized("You are not allowed to access that resource.")
-
     class Meta:
         allowed_methods = ['get', ]
         authentication = MultiAuthentication(SessionAuthentication(), Authentication())
+        authorization = GalleryItemAuthorization()
         filtering = {
             'id': EXACT,
             'gallery': ALL_WITH_RELATIONS,

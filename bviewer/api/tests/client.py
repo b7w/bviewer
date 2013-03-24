@@ -22,6 +22,7 @@ class ResourceClient(Client):
             kwargs['data'] = data
 
         response = self.get(path, **kwargs)
+        assert response.status_code == 200, 'Client.read response.status_code = {0}'.format(response.status_code)
         result = self.serializer.deserialize(response.content, format=self.content_type)
         if 'meta' in result and 'objects' in result:
             response.meta = result['meta']

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from tastypie.exceptions import Unauthorized
-
 from bviewer.api.tests.base import BaseResourceTestCase
 
 
@@ -12,8 +10,9 @@ class PrivateTestCase(BaseResourceTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.objects), 6)
 
-        # check detail private gallery
-        self.assertRaises(Unauthorized, self.client.read, '/api/v1/gallery/{0}/'.format(self.data.gallery2.id))
+        # check detail private gallery Unauthorized
+        response = self.client.get('/api/v1/gallery/{0}/'.format(self.data.gallery2.id))
+        self.assertEqual(response.status_code, 401)
 
         self.login_user(self.data.user_b7w)
         response = self.client.read('/api/v1/gallery/')
@@ -31,8 +30,9 @@ class PrivateTestCase(BaseResourceTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.objects), 3)
 
-        # check detail private gallery
-        self.assertRaises(Unauthorized, self.client.read, '/api/v1/image/{0}/'.format(self.data.image3.id))
+        # check detail private gallery Unauthorized
+        response = self.client.get('/api/v1/image/{0}/'.format(self.data.image3.id))
+        self.assertEqual(response.status_code, 401)
 
         # plus 2 private
         self.login_user(self.data.user_b7w)
@@ -52,8 +52,9 @@ class PrivateTestCase(BaseResourceTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.objects), 3)
 
-        # check detail private gallery
-        self.assertRaises(Unauthorized, self.client.read, '/api/v1/video/{0}/'.format(self.data.video3.id))
+        # check detail private gallery Unauthorized
+        response = self.client.get('/api/v1/video/{0}/'.format(self.data.video3.id))
+        self.assertEqual(response.status_code, 401)
 
         self.login_user(self.data.user_b7w)
         response = self.client.read('/api/v1/video/')
