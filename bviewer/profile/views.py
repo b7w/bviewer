@@ -51,7 +51,7 @@ def JsonImageService(request):
     if request.method == 'POST':
         try:
             path = request.POST.get('path')
-            gallery_id = int(request.POST.get('gallery'))
+            gallery_id = request.POST.get('gallery')
             images = request.POST.getlist('images[]')
 
             controller = ImageController(gallery_id, user)

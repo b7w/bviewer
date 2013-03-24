@@ -53,7 +53,7 @@ class PrivateTestCase(BaseResourceTestCase):
         self.assertEqual(len(response.objects), 3)
 
         # check detail private gallery
-        self.assertRaises(Unauthorized, self.client.read, '/api/v1/video/{0}/'.format(self.data.image3.id))
+        self.assertRaises(Unauthorized, self.client.read, '/api/v1/video/{0}/'.format(self.data.video3.id))
 
         self.login_user(self.data.user_b7w)
         response = self.client.read('/api/v1/video/')
