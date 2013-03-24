@@ -45,7 +45,6 @@ def ShowGallery(request, id):
     """
     Show sub galleries or images with videos
     """
-    id = int(id)
     holder = get_gallery_user(request)
     if not holder:
         return ShowMessage(request, message='No user defined')

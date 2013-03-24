@@ -4,6 +4,7 @@ from datetime import datetime
 from collections import deque
 import json
 import urllib2
+import uuid
 
 from django.contrib.auth.models import User, AbstractUser
 from django.contrib.sites.models import Site
@@ -13,6 +14,18 @@ from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
 from django.utils.encoding import smart_text
 from django.utils.html import escape
+
+
+def uuid_pk(length=10):
+    """
+    Return function that generate uuid1 and cut it to `length`.
+    UUID default size is 32 chars.
+    """
+
+    def _uuid_pk():
+        return uuid.uuid1().hex[:length]
+
+    return _uuid_pk
 
 
 class ProxyManager(models.Manager):
@@ -77,6 +90,7 @@ post_save.connect(add_top_gallery, sender=ProxyUser)
 
 
 class Gallery(models.Model):
+    id = models.CharField(max_length=32, default=uuid_pk(length=8), primary_key=True)
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.SET_NULL)
     title = models.CharField(max_length=256)
     user = models.ForeignKey(ProxyUser)
@@ -188,6 +202,7 @@ class GalleryTree:
 
 
 class Image(models.Model):
+    id = models.CharField(max_length=32, default=uuid_pk(length=12), primary_key=True)
     gallery = models.ForeignKey(Gallery)
     path = models.CharField(max_length=256)
     time = models.DateTimeField(default=datetime.now)
@@ -210,6 +225,7 @@ class Video(models.Model):
     YOUTUBE = 2
     TYPE_CHOICE = ((YOUTUBE, 'YouTube'), (VIMIO, 'Vimio'),)
 
+    id = models.CharField(max_length=32, default=uuid_pk(length=12), primary_key=True)
     uid = models.CharField(max_length=32)
     type = models.SmallIntegerField(max_length=1, choices=TYPE_CHOICE, default=YOUTUBE)
     gallery = models.ForeignKey(Gallery)
