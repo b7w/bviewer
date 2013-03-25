@@ -18,7 +18,7 @@
             <ul class="thumbnails">
                 {% for item in videos %}
                     <li class="control" data-ref-touch="{% url 'core.video' item.id %}">
-                        <a href="{{ item.url }}" class="thumbnail preview" rel="shadowbox[videos];width=720;height=480;title={{ item.title }}">
+                        <a href="{{ item.url }}" class="thumbnail preview" rel="shadowbox[videos];width=960;height=540;title={{ item.title }}">
                             <img class="hidden" src="#{% url 'core.video.thumbnail' item.id %}" style="display:none">
                         </a>
 

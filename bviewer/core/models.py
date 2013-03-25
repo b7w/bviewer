@@ -241,7 +241,7 @@ class Video(models.Model):
         Build escaped url to video
         """
         if self.type == self.VIMIO:
-            return escape('http://player.vimeo.com/video/{0}'.format(self.uid))
+            return escape('http://player.vimeo.com/video/{0}?title=0'.format(self.uid))
         elif self.type == self.YOUTUBE:
             return escape('http://youtube.com/embed/{0}'.format(self.uid))
         raise ValueError('unknown video type: {0}'.format(self.type))
