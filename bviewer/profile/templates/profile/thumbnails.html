@@ -1,0 +1,18 @@
+{% load staticfiles %}
+
+<ul class="thumbnails">
+    <li>
+        <span class="thumbnail">
+            <input type="radio" name="thumbnail_id" value="None" {% if obj.thumbnail_id == item.id %}checked{% endif %}>
+            <img class="thumbnail" src="{% static 'core/img/gallery.png' %}">
+        </span>
+    </li>
+    {% for item in images %}
+        <li>
+            <span class="thumbnail">
+                <input type="radio" name="thumbnail_id" value="{{ item.id }}" {% if obj.thumbnail_id == item.id %}checked{% endif %}>
+                <img class="thumbnail" src="{% url 'core.download' 'small' item.id %}">
+            </span>
+        </li>
+    {% endfor %}
+</ul>
