@@ -38,7 +38,8 @@
     height: 150px;
 }
 
-.thumbnail input[type=checkbox] {
+.thumbnail input[type=checkbox],
+.thumbnail input[type=radio] {
     position: absolute;
     right: 0;
     margin: 2px;

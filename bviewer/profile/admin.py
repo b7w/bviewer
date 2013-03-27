@@ -3,6 +3,7 @@
 from django.contrib.admin import AdminSite
 from django.contrib.auth.admin import UserAdmin
 from django.core.urlresolvers import reverse
+from django.template.loader import render_to_string
 
 from bviewer.core.admin import ModelAdmin, ProxyUserForm
 from bviewer.core.models import Gallery, Image, ProxyUser
@@ -47,25 +48,43 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
     list_filter = ('parent__title', 'time', )
     ordering = ('parent', 'time',)
 
-    readonly_fields = ('images', )
-    fields = ('parent', 'title', 'private', 'images', 'description', 'thumbnail', 'time')
+    readonly_fields = ('images', 'thumbnails',)
+    fields = ('parent', 'title', 'private', 'images', 'description', 'time', 'thumbnails', )
 
     def images(self, obj):
         return '<b><a href="{0}#!g={1}">edit</a></b>'.format(reverse('profile.images'), obj.id)
 
     images.allow_tags = True
 
+    def thumbnails(self, obj):
+        context = dict(images=Image.objects.filter(gallery=obj.id), obj=obj)
+        return render_to_string('profile/thumbnails.html', context).replace('\r\n', '')
+
+    thumbnails.allow_tags = True
+    thumbnails.short_description = 'Gallery thumbnail'
+
     def queryset(self, request):
         return super(ProfileGalleryAdmin, self).queryset(request).filter(user=request.user)
 
     def save_model(self, request, obj, form, change):
         obj.user = ProxyUser.objects.get(pk=request.user.pk)
+        thumbnail_id = form.data['thumbnail_id']
+        print(1, thumbnail_id)
+        if thumbnail_id != 'None':
+            obj.thumbnail_id = thumbnail_id
+        else:
+            obj.thumbnail = None
         obj.save()
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         if db_field.name == 'parent' and self.object:
             kwargs['queryset'] = Gallery.objects.filter(user__id=self.object.user.id)
         return super(ProfileGalleryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    class Media:
+        css = {
+            'all': ('profile/css/profile.css',)
+        }
 
 
 profile.register(ProfileGallery, ProfileGalleryAdmin)
