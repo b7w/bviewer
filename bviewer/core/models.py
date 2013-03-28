@@ -42,7 +42,7 @@ class ProxyManager(models.Manager):
 
 class ProxyUser(User):
     url = models.CharField(max_length=16, unique=True)
-    home = models.CharField(max_length=256, null=True, blank=True)
+    home = models.CharField(max_length=256, blank=True, default='')
     cache_size = models.PositiveIntegerField(default=32, validators=[MinValueValidator(16), MaxValueValidator(256)])
     top_gallery = models.ForeignKey('Gallery', related_name='top', null=True, blank=True, on_delete=models.DO_NOTHING)
     about_title = models.CharField(max_length=256, blank=True)

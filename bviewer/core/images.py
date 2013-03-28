@@ -121,6 +121,7 @@ class CacheImage(object):
         options -> ResizeOptions
         """
         self.path = path
+        self.abs_path = os.path.join(settings.VIEWER_STORAGE_PATH, options.storage, path)
         self.options = options
         # each user will have his own cache dir
         self.cache_dir = os.path.join(settings.VIEWER_CACHE_PATH, options.user)
@@ -131,42 +132,47 @@ class CacheImage(object):
 
     def get_hash_name(self):
         self.hash_builder = FileUniqueName()
+        # if it is a video - there is no file path
         if self.options.name:
             return self.hash_builder.build(self.options.name, extra=self.options.size)
-        return self.hash_builder.build(self.path, extra=self.options.size)
+        try:
+            time = os.path.getmtime(self.abs_path)
+        except OSError as e:
+            # TODO: fix this terrible code
+            raise IOError(e)
+        return self.hash_builder.build(self.path, time=time, extra=self.options.size)
 
     def process(self):
         """
         Get image from storage and save it to cache. If image is to big, resize. If to small, link.
         If cache already exists, do nothing
         """
-        self.checkCacheDir()
-        abs_path = os.path.join(settings.VIEWER_STORAGE_PATH, self.options.storage, self.path)
+        self.check_cache_dir()
         if not os.path.lexists(self.cache):
-            with open(abs_path, mode='rb') as filein:
-                newImage = ResizeImage(filein)
-                bigger = newImage.isBigger(self.options.width, self.options.height)
+            with open(self.abs_path, mode='rb') as filein:
+                new_image = ResizeImage(filein)
+                bigger = new_image.isBigger(self.options.width, self.options.height)
                 if bigger:
                     if self.options.crop:
-                        w, h = newImage.minSize(self.options.size)
-                        newImage.resize(w, h)
-                        newImage.cropCenter(self.options.width, self.options.height)
+                        w, h = new_image.minSize(self.options.size)
+                        new_image.resize(w, h)
+                        new_image.cropCenter(self.options.width, self.options.height)
                     else:
-                        w, h = newImage.maxSize(self.options.size)
-                        newImage.resize(w, h)
+                        w, h = new_image.maxSize(self.options.size)
+                        new_image.resize(w, h)
                     with open(self.cache, mode='wb') as fileout:
-                        newImage.saveTo(fileout)
+                        new_image.saveTo(fileout)
                     logger.info('resize \'%s\' with %s', self.path, self.options)
                 else:
                     logger.info('link \'%s\' with %s', self.path, self.options)
-                    os.symlink(abs_path, self.cache)
+                    os.symlink(self.abs_path, self.cache)
 
     def download(self):
         """
         Download image and put to cache.
         If cache exists, do nothing
         """
-        self.checkCacheDir()
+        self.check_cache_dir()
         if not os.path.exists(self.cache):
             image = cStringIO.StringIO()
             image.write(urllib2.urlopen(self.path).read())
@@ -181,7 +187,7 @@ class CacheImage(object):
                     newImage.saveTo(fileout)
             logger.info('download image \'%s\' %s', self.path, 'and resize' if bigger else '')
 
-    def checkCacheDir(self):
+    def check_cache_dir(self):
         if not os.path.exists(self.cache_dir):
             os.makedirs(self.cache_dir)
 

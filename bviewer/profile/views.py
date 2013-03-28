@@ -32,8 +32,6 @@ def JsonStorageList(request):
     user = get_gallery_user(request)
     if not user:
         raise Http404()
-    if user.home is None:
-        raise Http404('You have no access to storage')
     storage = Storage(user.home)
     folder = storage.list(request.GET.get('p', ''))
     return JSONResponse(folder)
@@ -45,9 +43,6 @@ def JsonImageService(request):
     user = get_gallery_user(request)
     if not user:
         raise Http404()
-    if user.home is None:
-        raise Http404('You have no access to image service')
-
     if request.method == 'POST':
         try:
             path = request.POST.get('path')
@@ -70,8 +65,6 @@ def DownloadImage(request):
     if request.GET.get('p', None):
         path = request.GET['p']
         user = get_gallery_user(request)
-        if user.home is None:
-            raise Http404('You have no access to storage')
         storage = Storage(user.home)
         try:
             if storage.exists(path):
