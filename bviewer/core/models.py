@@ -6,7 +6,7 @@ import json
 import urllib2
 import uuid
 
-from django.contrib.auth.models import User, AbstractUser
+from django.contrib.auth.models import User, AbstractUser, Permission
 from django.contrib.sites.models import Site
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -83,6 +83,20 @@ def add_top_gallery(sender, instance, created, **kwargs):
         gal = Gallery(user=instance, title='Welcome', description='Edit main gallery to change it')
         gal.save()
         instance.top_gallery = gal
+        perms = Permission.objects.filter(
+            Q(codename='change_proxyuser') |
+            Q(codename='user_holder') |
+            Q(codename='add_gallery') |
+            Q(codename='change_gallery') |
+            Q(codename='delete_gallery') |
+            Q(codename='add_image') |
+            Q(codename='change_image') |
+            Q(codename='delete_image') |
+            Q(codename='add_video') |
+            Q(codename='change_video') |
+            Q(codename='delete_video')
+        )
+        instance.user_permissions = list(perms)
         instance.save()
 
 
