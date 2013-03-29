@@ -21,6 +21,22 @@ class ModelTest(TestCase):
         self.assertIsNotNone(ProxyUser.objects.get(username='Test').top_gallery)
         self.assertTrue(Gallery.objects.filter(user__username='Test').exists())
 
+        user = ProxyUser.objects.get(username='Test')
+        need = [
+            'core.change_proxyuser',
+            'core.user_holder',
+            'core.add_gallery',
+            'core.change_gallery',
+            'core.delete_gallery',
+            'core.add_image',
+            'core.change_image',
+            'core.delete_image',
+            'core.add_video',
+            'core.change_video',
+            'core.delete_video',
+        ]
+        self.assertEqual(set(need), user.get_all_permissions())
+
     def assertHttpOk(self, url):
         """
         Open http connection, send HEAD and assert 200 status

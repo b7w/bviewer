@@ -6,8 +6,7 @@ from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
 
 from bviewer.core.admin import ModelAdmin, ProxyUserForm
-from bviewer.core.models import Gallery, Image, ProxyUser
-from bviewer.profile.models import ProfileProxyUser, ProfileGallery, ProfileVideo, ProfileImage
+from bviewer.core.models import Gallery, Image, ProxyUser, Video
 
 
 class ProfileSite(AdminSite):
@@ -87,7 +86,7 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
         }
 
 
-profile.register(ProfileGallery, ProfileGalleryAdmin)
+profile.register(Gallery, ProfileGalleryAdmin)
 
 
 class ProfileImageAdmin(ProfileModelAdmin):
@@ -112,7 +111,7 @@ class ProfileImageAdmin(ProfileModelAdmin):
         return super(ProfileImageAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-profile.register(ProfileImage, ProfileImageAdmin)
+profile.register(Image, ProfileImageAdmin)
 
 
 class ProfileVideoAdmin(ProfileModelAdmin):
@@ -140,7 +139,7 @@ class ProfileVideoAdmin(ProfileModelAdmin):
         return super(ProfileVideoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-profile.register(ProfileVideo, ProfileVideoAdmin)
+profile.register(Video, ProfileVideoAdmin)
 
 
 class ProfileUserAdmin(UserAdmin, ProfileModelAdmin):
@@ -171,4 +170,4 @@ class ProfileUserAdmin(UserAdmin, ProfileModelAdmin):
         return super(ProfileUserAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-profile.register(ProfileProxyUser, ProfileUserAdmin)
+profile.register(ProxyUser, ProfileUserAdmin)
