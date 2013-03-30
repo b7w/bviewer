@@ -9,6 +9,7 @@
     <meta name="robots" content="NONE,NOARCHIVE"/>
 
     <link href="{% static 'core/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'core/css/bootstrap-responsive.min.css' %}" rel="stylesheet">
     <link href="{% static 'core/css/main.css' %}" rel="stylesheet">
     {% block css %}
     {% endblock %}
@@ -22,35 +23,35 @@
 <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
-            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
+            <a class="btn btn-navbar pull-left" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-home"></span>
+                <span class="icon-user"></span>
             </a>
             <a class="brand" href="{% url 'core.home' %}">Believe Viewer</a>
 
-            <div class="nav-collapse">
+            <div class="nav-collapse collapse">
                 <ul class="nav">
                     {% block navigation %}
                         <li><a href="{% url 'core.home' %}">Home</a></li>
                         <li><a href="{% url 'core.about' %}">About</a></li>
                     {% endblock %}
                 </ul>
-            </div>
-            <ul class="nav pull-right">
-                {% if back %}
-                    <li><a href="javascript:history.go(-1)">Back</a></li>
-                    <li class="divider-vertical"></li>
-                {% endif %}
-                {% if request.user.is_authenticated %}
-                    {% if perms.core.user_holder %}
-                        <li><a href="{% url 'profile:index' %}">Profile</a></li>
+                <ul class="nav pull-right">
+                    {% if back %}
+                        <li><a href="javascript:history.go(-1)">Back</a></li>
+                        <li class="divider-vertical"></li>
                     {% endif %}
-                    <li><a href="{% url 'core.logout' %}">Log out</a></li>
-                {% else %}
-                    <li><a href="{% url 'core.login' %}?next={{ request.path }}">Login</a></li>
-                {% endif %}
-            </ul>
+                    {% if request.user.is_authenticated %}
+                        {% if perms.core.user_holder %}
+                            <li><a href="{% url 'profile:index' %}">Profile</a></li>
+                        {% endif %}
+                        <li><a href="{% url 'core.logout' %}">Log out</a></li>
+                    {% else %}
+                        <li><a href="{% url 'core.login' %}?next={{ request.path }}">Login</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
         </div>
     </div>
 </div>
@@ -63,7 +64,7 @@
         </div>
 
         <footer>
-            <p>&copy; {{ request.user.username }} {% now "Y" %}</p>
+            <p>&copy; B7W {% now "Y" %}</p>
         </footer>
     {% endblock %}
 </div>

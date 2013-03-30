@@ -61,7 +61,9 @@ class ImageController(object):
         In bulk_create method `save()` do not call, set time manually
         """
         img = Image(gallery_id=self.gallery, path=path)
-        img.time = img.exif().time
+        tmp = img.exif().time
+        if tmp:
+            img.time = tmp
         return img
 
     def getFolder(self):

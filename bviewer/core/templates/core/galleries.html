@@ -6,19 +6,20 @@
 {% block main %}
     <div class="row-fluid">
         <div class="span12">
-            <h2 class="gallery-title">{{ main.title }}</h2>
+            <h2 class="album-title">{{ main.title }}</h2>
 
             <p>{{ main.description|linebreaksbr }}</p>
-            <ul class="thumbnails">
+            <ul class="album">
                 {% for item in galleries %}
-                    <li>
-                        <a href="{% url 'core.gallery' item.id %}" class="thumbnail preview">
-
-                            {% if item.thumbnail_id %}
-                                <img class="hidden" src="#{% url 'core.download' 'small' item.thumbnail_id %}" style="display:none">
-                            {% else %}
-                                <img src="{% static 'core/img/gallery.png' %}" alt="" style="opacity: 0.8;">
-                            {% endif %}
+                    <li class="preview">
+                        <div class="preview-body">
+                            <a href="{% url 'core.gallery' item.id %}">
+                                {% if item.thumbnail_id %}
+                                    <img src="{% url 'core.download' 'small' item.thumbnail_id %}">
+                                {% else %}
+                                    <img src="{% static 'core/img/gallery.png' %}" alt="" style="opacity: 0.8;">
+                                {% endif %}
+                            </a>
 
                             <div class="carousel-caption">
                                 {% if item.private %}
@@ -31,7 +32,7 @@
                                     <br>{{ item.description|linebreaksbr }}
                                 </p>
                             </div>
-                        </a>
+                        </div>
                     </li>
                 {% endfor %}
             </ul>
