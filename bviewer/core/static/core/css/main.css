@@ -112,8 +112,8 @@ body {
 .control .caption {
     position: absolute;
     opacity: 0;
-    bottom: 6px;
-    right: 4px;
+    bottom: 4px;
+    right: 6px;
     -webkit-transition: all 1s ease;
     -moz-transition: all 1s ease;
     -o-transition: all 1s ease;
@@ -121,4 +121,8 @@ body {
 
 .control:hover .caption {
     opacity: 1;
+}
+
+.gallery-title {
+    color: #DDD;
 }
