@@ -3,17 +3,20 @@
 from datetime import datetime
 from collections import deque
 import json
+import os
 import urllib2
 import uuid
 
 from django.contrib.auth.models import User, AbstractUser, Permission
 from django.contrib.sites.models import Site
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
 from django.utils.encoding import smart_text
 from django.utils.html import escape
+from bviewer.core import settings
 
 
 def uuid_pk(length=10):
@@ -222,6 +225,23 @@ class Image(models.Model):
     time = models.DateTimeField(default=datetime.now)
 
     objects = ProxyManager()
+
+    def exif(self):
+        """
+        Return new Exif instance fot this image
+        """
+        from bviewer.core.utils import Exif
+
+        fname = os.path.join(settings.VIEWER_STORAGE_PATH, self.gallery.user.home, self.path)
+        return Exif(fname)
+
+    def clean(self):
+        """
+        Check path exists
+        """
+        fname = os.path.join(settings.VIEWER_STORAGE_PATH, self.gallery.user.home, self.path)
+        if not os.path.exists(fname):
+            raise ValidationError('No {0} path exists'.format(self.path))
 
     def __str__(self):
         return smart_text('{0}: {1}').format(self.gallery.title, self.path)

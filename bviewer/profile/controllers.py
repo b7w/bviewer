@@ -46,7 +46,7 @@ class ImageController(object):
             diff_add = self.checked - self.images_path
             if diff_add:
                 Image.objects.bulk_create(
-                    map(lambda x: Image(gallery_id=self.gallery, path=x), diff_add)
+                    map(self._bulk_image_create, diff_add)
                 )
             diff_del = self.images_path - self.checked
             if diff_del:
@@ -55,6 +55,14 @@ class ImageController(object):
                     gallery__user=self.user,
                     path__in=diff_del) \
                     .delete()
+
+    def _bulk_image_create(self, path):
+        """
+        In bulk_create method `save()` do not call, set time manually
+        """
+        img = Image(gallery_id=self.gallery, path=path)
+        img.time = img.exif().time
+        return img
 
     def getFolder(self):
         """
