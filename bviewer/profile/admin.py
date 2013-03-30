@@ -47,6 +47,8 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
     list_filter = ('parent__title', 'time', )
     ordering = ('parent', 'time',)
 
+    search_fields = ('title', 'description',)
+
     readonly_fields = ('images', 'thumbnails',)
     fields = ('parent', 'title', 'private', 'images', 'description', 'time', 'thumbnails', )
 
@@ -96,6 +98,8 @@ class ProfileImageAdmin(ProfileModelAdmin):
     list_filter = ('gallery__title', )
     ordering = ('gallery__user__username', 'path',)
 
+    search_fields = ('gallery__title', 'path',)
+
     def gallery_title(self, obj):
         return obj.gallery.title
 
@@ -120,6 +124,8 @@ class ProfileVideoAdmin(ProfileModelAdmin):
     list_display = ('gallery_title', 'title', 'type', 'uid',)
     list_filter = ('gallery__title', 'type', )
     ordering = ('gallery__title',)
+
+    search_fields = ('gallery__title', 'title',)
 
     def gallery_title(self, obj):
         return obj.gallery.title
