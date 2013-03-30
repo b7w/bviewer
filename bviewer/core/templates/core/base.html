@@ -63,7 +63,7 @@
         </div>
 
         <footer>
-            <p>&copy; B7W 2012</p>
+            <p>&copy; {{ request.user.username }} {% now "Y" %}</p>
         </footer>
     {% endblock %}
 </div>
