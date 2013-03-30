@@ -25,6 +25,8 @@ class GalleryAdmin(ModelAdmin):
     list_filter = ('parent__title', 'user__username', 'time', )
     ordering = ('user', 'parent', 'time',)
 
+    search_fields = ('title', 'description',)
+
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         if db_field.name == 'parent' and self.object:
             kwargs['queryset'] = Gallery.objects.filter(user__id=self.object.user.id)
@@ -40,6 +42,8 @@ class ImageAdmin(ModelAdmin):
     list_display = ('gallery_title', 'gallery_user', 'path', 'time',)
     list_filter = ('gallery__title', 'gallery__user__username', 'time',)
     ordering = ('gallery__user__username', 'path', 'time',)
+
+    search_fields = ('gallery__title', 'path',)
 
     def gallery_title(self, obj):
         return obj.gallery.title
@@ -62,6 +66,8 @@ class VideoAdmin(ModelAdmin):
     list_display = ('gallery_title', 'gallery_user', 'title', 'uid', 'time',)
     list_filter = ('gallery__title', 'gallery__user__username', 'time',)
     ordering = ('gallery__user__username', 'time',)
+
+    search_fields = ('gallery__title', 'title',)
 
     def gallery_title(self, obj):
         return obj.gallery.title
