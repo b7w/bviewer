@@ -12,20 +12,11 @@ input {
 }
 
 body {
+    position: relative;
     padding-top: 60px;
     background-color: black;
     color: #999;
     overflow-y: scroll;
-}
-
-#main {
-    background-image: url(../img/bg.jpg);
-}
-
-.border {
-    padding: 16px 16px 64px 20px;
-    border: 1px solid #444;
-    border-top-width: 2px;
 }
 
 .login {
@@ -72,8 +63,18 @@ body {
     top: 10px;
     bottom: 10px;
     /*overflow: hidden;*/
-    border: 1px solid #444;
+    border: 1px solid #222;
     padding: 6px;
+    /*max real image size*/
+    max-width: 320px;
+    max-height: 320px;
+}
+
+.preview-body:hover {
+    border-color: rgba(0, 105, 214, 0.5);
+    -webkit-box-shadow: 0 0 4px 3px rgba(0, 105, 214, 0.25);
+    -moz-box-shadow: 0 0 4px 3px rgba(0, 105, 214, 0.25);
+    box-shadow: 0 0 4px 3px rgba(0, 105, 214, 0.25);
 }
 
 .preview-body img {
