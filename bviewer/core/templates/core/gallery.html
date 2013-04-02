@@ -10,49 +10,49 @@
 {% endblock %}
 
 {% block main %}
-    <div class="row-fluid">
-        <div class="span12">
-            <h2 class="album-title">{{ main.title }}</h2>
+    <div class="album-title">
+        <h2>{{ main.title }}</h2>
 
-            <p>{{ main.description|linebreaksbr }}</p>
-            <ul class="album">
-                {% for item in videos %}
-                    <li class="preview" data-ref-touch="{% url 'core.video' item.id %}">
-                        <div class="preview-body">
-                            <a href="{{ item.url }}" rel="shadowbox[videos];width=960;height=540;title={{ item.title }}">
-                                <img src="{% url 'core.video.thumbnail' item.id %}">
-                            </a>
-
-                            <div class="video-tag">
-                                <img src="{% static 'core/img/video.png' %}" alt="">
-                            </div>
-
-                            <div class="caption">
-                                <a href="{% url 'core.video' item.id %}">
-                                    <i class="icon-white icon-zoom-in"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                {% endfor %}
-                {% for item in images %}
-                    <li class="preview" data-ref-touch="{% url 'core.image' item.id %}">
-                        <div class="preview-body">
-                            <a href="{% url 'core.download' 'big' item.id %}" rel="shadowbox[images]">
-                                <img src="{% url 'core.download' 'small' item.id %}">
-                            </a>
-
-                            <div class="caption">
-                                <a href="{% url 'core.image' item.id %}">
-                                    <i class="icon-white icon-zoom-in"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+        <p>{{ main.description|linebreaksbr }}</p>
     </div>
+
+    <ul class="album">
+        {% for item in videos %}
+            <li class="preview" data-ref-touch="{% url 'core.video' item.id %}">
+                <div class="preview-body">
+                    <a href="{{ item.url }}" rel="shadowbox[videos];width=960;height=540;title={{ item.title }}">
+                        <img src="{% url 'core.video.thumbnail' item.id %}">
+                    </a>
+
+                    <div class="video-tag">
+                        <img src="{% static 'core/img/video.png' %}" alt="">
+                    </div>
+
+                    <div class="caption">
+                        <a href="{% url 'core.video' item.id %}">
+                            <i class="icon-white icon-zoom-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+        {% for item in images %}
+            <li class="preview" data-ref-touch="{% url 'core.image' item.id %}">
+                <div class="preview-body">
+                    <a href="{% url 'core.download' 'big' item.id %}" rel="shadowbox[images]">
+                        <img src="{% url 'core.download' 'small' item.id %}">
+                    </a>
+
+                    <div class="caption">
+                        <a href="{% url 'core.image' item.id %}">
+                            <i class="icon-white icon-zoom-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+
 {% endblock %}
 
 {% block media %}

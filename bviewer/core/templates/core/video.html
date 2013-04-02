@@ -3,28 +3,24 @@
 {% block title %}{{ gallery.title }}{% endblock %}
 
 {% block main %}
-    <div class="row-fluid">
+    <div class="album-title">
+        <h2>{{ gallery.title }}</h2>
 
-        <div class="span12">
-            <h2>{{ gallery.title }}</h2>
-
-            <p>{{ gallery.description|linebreaksbr }}</p>
+        <p>{{ gallery.description|linebreaksbr }}</p>
+    </div>
 
 
-            <div class="video">
-                <h3>{{ video.title }}</h3>
+    <div class="video">
+        <h3>{{ video.title }}</h3>
 
-                <iframe src="{{ video.url }}" width="720" height="480" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+        <iframe src="{{ video.url }}" width="720" height="480" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 
-                {% if video.description %}
-                    <div class="caption">
-                        <h5>Description</h5>
+        {% if video.description %}
+            <div class="caption">
+                <h5>Description</h5>
 
-                        <p>{{ video.description|linebreaksbr }}</p>
-                    </div>
-                {% endif %}
+                <p>{{ video.description|linebreaksbr }}</p>
             </div>
-
-        </div>
+        {% endif %}
     </div>
 {% endblock %}
