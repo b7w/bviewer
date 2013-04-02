@@ -21,8 +21,8 @@ VIEWER_CACHE_PATH = getattr(settings, 'VIEWER_CACHE_PATH', '../cache')
 VIEWER_STORAGE_PATH = getattr(settings, 'VIEWER_STORAGE_PATH')
 
 VIEWER_SMALL_SIZE = getattr(settings, 'VIEWER_SMALL_SIZE', {
-    'WIDTH': 200,
-    'HEIGHT': 200,
+    'WIDTH': 300,
+    'HEIGHT': 300,
     'CROP': True,
 })
 

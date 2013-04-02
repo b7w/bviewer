@@ -4,40 +4,39 @@
 {% block title %}{{ main.title }}{% endblock %}
 
 {% block main %}
-    <div class="row-fluid">
-        <div class="span12">
-            <h2 class="album-title">{{ main.title }}</h2>
+    <div class="album-title">
+        <h2>{{ main.title }}</h2>
 
-            <p>{{ main.description|linebreaksbr }}</p>
-            <ul class="album">
-                {% for item in galleries %}
-                    <li class="preview">
-                        <div class="preview-body">
-                            <a href="{% url 'core.gallery' item.id %}">
-                                {% if item.thumbnail_id %}
-                                    <img src="{% url 'core.download' 'small' item.thumbnail_id %}">
-                                {% else %}
-                                    <img src="{% static 'core/img/gallery.png' %}" alt="" style="opacity: 0.8;">
-                                {% endif %}
-                            </a>
-
-                            <div class="carousel-caption">
-                                {% if item.private %}
-                                    <i class="icon-white icon-eye-open pull-right" title="Private gallery"></i>
-                                {% endif %}
-                                <h4>{{ item.title }}</h4>
-
-                                <p class="carousel-description">
-                                    <span style="color:#08C;">{{ item.time|date:"d M Y" }}</span>
-                                    <br>{{ item.description|linebreaksbr }}
-                                </p>
-                            </div>
-                        </div>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+        <p>{{ main.description|linebreaksbr }}</p>
     </div>
+
+    <ul class="album">
+        {% for item in galleries %}
+            <li class="preview">
+                <div class="preview-body">
+                    <a href="{% url 'core.gallery' item.id %}">
+                        {% if item.thumbnail_id %}
+                            <img src="{% url 'core.download' 'small' item.thumbnail_id %}">
+                        {% else %}
+                            <img src="{% static 'core/img/gallery.png' %}" alt="" style="opacity: 0.8;">
+                        {% endif %}
+                    </a>
+
+                    <div class="carousel-caption">
+                        {% if item.private %}
+                            <i class="icon-white icon-eye-open pull-right" title="Private gallery"></i>
+                        {% endif %}
+                        <h4>{{ item.title }}</h4>
+
+                        <p class="carousel-description">
+                            <span style="color:#08C;">{{ item.time|date:"d M Y" }}</span>
+                            <br>{{ item.description|linebreaksbr }}
+                        </p>
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
 {% endblock %}
 
 {% block media %}
