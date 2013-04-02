@@ -7,7 +7,7 @@ TESTS = False
 
 # If gallery is used for one person or for tests
 # set user id here
-VIEWER_USER_ID = None
+VIEWER_USER_ID = getattr(settings, 'VIEWER_USER_ID', None)
 
 # Path where cache will bw stored
 # It is a resize images so it can be huge
@@ -21,8 +21,8 @@ VIEWER_CACHE_PATH = getattr(settings, 'VIEWER_CACHE_PATH', '../cache')
 VIEWER_STORAGE_PATH = getattr(settings, 'VIEWER_STORAGE_PATH')
 
 VIEWER_SMALL_SIZE = getattr(settings, 'VIEWER_SMALL_SIZE', {
-    'WIDTH': 320,
-    'HEIGHT': 320,
+    'WIDTH': 200,
+    'HEIGHT': 200,
     'CROP': True,
 })
 
