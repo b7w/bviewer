@@ -41,29 +41,8 @@
 
 {% block media %}
     {{ block.super }}
+    <script id="shadowbox.js" src="{% static 'core/js/core.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
-        function load_next() {
-            var image = $('.thumbnails .hidden:first');
-            if (image.size() != 0) {
-                var link = jQuery(image).attr('src');
-                jQuery(image).attr('src', link.substring(1));
-            }
-        }
-
-        $('.thumbnails .hidden').bind('load', function () {
-            jQuery(this).removeClass('hidden');
-            jQuery(this).fadeIn('slow');
-            load_next();
-        });
-
-        $('.thumbnails .hidden').bind('error', function () {
-            var it = jQuery(this);
-            if (!( it.attr('src').indexOf('#') == 0)) {
-                it.attr('src', '{% static "core/img/gallery.png" %}');
-                it.css('opacity', '0.8');
-            }
-        });
-
-        load_next();
+        core.imageLoading();
     </script>
 {% endblock %}

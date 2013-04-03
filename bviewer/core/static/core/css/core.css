@@ -363,6 +363,8 @@ button {
 
 .preview-body img {
     width: 100%;
+    opacity: 0;
+    -webkit-transition: opacity 3s;
 }
 
 .preview-body .video-tag {
