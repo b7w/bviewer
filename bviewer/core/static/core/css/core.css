@@ -15,6 +15,11 @@ a:hover, a:active {
     text-decoration: none;
 }
 
+ul {
+    list-style: none;
+    padding: 0;
+}
+
 body {
     margin: 0;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -79,15 +84,13 @@ h6 {
 
 /* START NAVIGATION BAR */
 nav {
-    background-color: #1b1b1b;
-    background-image: -moz-linear-gradient(top, #222, #111);
-    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#222), to(#111));
-    background-image: -webkit-linear-gradient(top, #222, #111);
-    background-image: -o-linear-gradient(top, #222, #111);
-    background-image: linear-gradient(to bottom, #222, #111);
-    background-repeat: repeat-x;
-    border-color: #252525;
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff222222', endColorstr='#ff111111', GradientType=0) border:1px solid #d4d4d4;
+    background-color: black;
+    box-shadow: 0 0 36px 4px rgba(255, 255, 255, 0.15);
+    opacity: 0.9;
+}
+
+nav:hover {
+    opacity: 1;
 }
 
 .nav {
@@ -148,7 +151,7 @@ footer {
 
 .container {
     width: 80%;
-    max-width: 1280px;
+    /*max-width: 1280px;*/
     margin-right: auto;
     margin-left: auto;
 }
@@ -250,35 +253,58 @@ button {
 
 /* START GALLERY */
 
-.album {
-    list-style: none;
-    /* -10 fix  .preview-body right left 10*/
-    margin: 0 -10px;
-    padding: 0;
+.flow {
+    margin: 0 -16px;
 }
 
-.album:before, .album:after {
+.album {
+    margin: 0 -10px;
+}
+
+.album:before, .flow:after {
     display: table;
     line-height: 0;
     content: ""
 }
 
-.album:after {
-    clear: both
+.album:after, .flow:after {
+    clear: both;
+    display: table;
+    line-height: 0;
+    content: ""
 }
 
 .album-title {
     margin: 10px;
+    text-shadow: 0 0 36px rgba(255, 255, 255, 0.6);
 }
 
 .album-title h2 {
-    color: #DDD;
+    color: #CCC;
     margin: 0;
 }
 
 .album-title p {
     margin: 0 4px;
     font-style: italic;
+}
+
+/* START COLUMN */
+
+.column {
+    width: 33.3%;
+    float: left;
+    display: inline;
+}
+
+.column a {
+    display: block;
+    margin: 16px;
+}
+
+.column img {
+    width: 100%;
+    box-shadow: 0 0 36px 4px rgba(255, 255, 255, 0.15);
 }
 
 /* START PREVIEW */
