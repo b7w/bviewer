@@ -12,7 +12,7 @@ from PIL.ExifTags import TAGS
 from django.core.cache import cache
 from django.shortcuts import redirect
 from django.utils.decorators import available_attrs
-from django.utils.encoding import smart_str
+from django.utils.encoding import smart_text, smart_bytes
 from django.utils.functional import wraps
 
 from bviewer.core import settings
@@ -90,24 +90,19 @@ class ResizeOptions:
 
     def choose_setting(self, size):
         """
-        size - [small, middle, big, full]
+        Select size by name from settings.VIEWER_IMAGE_SIZE.
+        If not found - raise ResizeOptionsError.
 
         :type size: str
         """
-        if size == 'small':
-            self.from_settings(settings.VIEWER_SMALL_SIZE)
-        elif size == 'middle':
-            self.from_settings(settings.VIEWER_MIDDLE_SIZE)
-        elif size == 'big':
-            self.from_settings(settings.VIEWER_BIG_SIZE)
-        elif size == 'full':
-            self.width = self.height = self.size = 10 ** 6
+        if size in settings.VIEWER_IMAGE_SIZE:
+            self.from_settings(settings.VIEWER_IMAGE_SIZE[size])
         else:
             raise ResizeOptionsError('Undefined size format \'{0}\''.format(size))
 
     def from_settings(self, value):
         """
-        Set values from settings.VIEWER_BIG_IMAGE for example
+        Set values from settings.VIEWER_IMAGE_SIZE
         :type value: dict
         """
         self.width = value['WIDTH']
@@ -116,7 +111,7 @@ class ResizeOptions:
         self.crop = 'CROP' in value and value['CROP'] is True
 
     def __str__(self):
-        return u'ResizeOptions{{user={us},storage={st},size={sz},crop={cr}}}' \
+        return smart_text('ResizeOptions{{user={us},storage={st},size={sz},crop={cr}}}') \
             .format(us=self.user, st=self.storage, sz=self.size, cr=self.crop)
 
 
@@ -143,7 +138,7 @@ class FileUniqueName:
         """
         Return md5 of "files.storage" + name
         """
-        return sha1('files.storage' + smart_str(name)).hexdigest()
+        return sha1('files.storage' + smart_bytes(name)).hexdigest()
 
     def time(self):
         """
