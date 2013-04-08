@@ -3,27 +3,18 @@
 {% block title %}{{ gallery.title }}{% endblock %}
 
 {% block main %}
-
     <div class="album-title">
         <h2>{{ gallery.title }}</h2>
 
-        <p>{{ gallery.description|linebreaksbr }}</p>
+        <p class="description pull-left">{{ gallery.description|linebreaksbr }}</p>
+
+        <p class="pull-right">
+            <a href="{% url 'core.download' 'full' image.id %}">Download full image</a>
+        </p>
+        <br class="clear">
     </div>
 
     <div class="image">
-        <img src="{% url 'core.download' 'middle' image.id %}" alt="">
+        <img src="{% url 'core.download' 'big' image.id %}" alt="">
     </div>
-
-    {% if image.description %}
-        <div class="caption">
-            <h5>Description</h5>
-
-            <p>{{ image.description|linebreaksbr }}</p>
-        </div>
-    {% endif %}
-
-    <p>
-        <a style="color: #777;" href="{% url 'core.download' 'full' image.id %}">Download full image link</a>
-    </p>
-
 {% endblock %}

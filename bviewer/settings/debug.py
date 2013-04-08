@@ -5,6 +5,12 @@ from bviewer.settings.local import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+# By default templates in cache and dev server not see changes.
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+)
+
 MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 INSTALLED_APPS += ('debug_toolbar',)
 
