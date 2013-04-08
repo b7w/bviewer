@@ -109,7 +109,7 @@ class UserAdmin(UserAdmin, ModelAdmin):
     list_display = ('username', 'email', 'is_staff', 'home', 'top_gallery', )
     fieldsets = (
         ('Main', {'fields': ('username', 'email', 'password',)}),
-        ('Personal info', {'fields': ('url', 'home', 'cache_size', 'top_gallery', 'about_title', 'about_text', 'avatar',)}),
+        ('Personal info', {'fields': ('url', 'home', 'cache_size', 'top_gallery', 'about_title', 'about_text',)}),
         ('Permissions', {'fields': ('is_active', 'is_staff',)}),
         ('Important dates', {'fields': ('last_login', 'date_joined',)}),
     )
@@ -122,8 +122,6 @@ class UserAdmin(UserAdmin, ModelAdmin):
         """
         if db_field.name == 'top_gallery' and self.object:
             kwargs['queryset'] = Gallery.objects.filter(user__id=self.object.id)
-        if db_field.name == 'avatar' and self.object:
-            kwargs['queryset'] = Image.objects.filter(gallery__user__id=self.object.id)
         return super(UserAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 

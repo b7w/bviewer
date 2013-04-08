@@ -156,8 +156,8 @@ footer {
     margin-left: auto;
 }
 
-.login {
-    width: 250px;
+.message {
+    text-align: center;
     margin: 100px auto;
 }
 

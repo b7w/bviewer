@@ -153,7 +153,7 @@ class ProfileUserAdmin(UserAdmin, ProfileModelAdmin):
     list_display = ('username', 'email', 'top_gallery', 'is_staff', )
     list_filter = ()
     fieldsets = (
-        ('Personal info', {'fields': ('url', 'cache_size', 'top_gallery', 'about_title', 'about_text', 'avatar',)}),
+        ('Personal info', {'fields': ('url', 'cache_size', 'top_gallery', 'about_title', 'about_text',)}),
         ('Important dates', {'fields': ('last_login', 'date_joined',)}),
     )
     readonly_fields = ('password', 'last_login', 'date_joined', )
@@ -171,8 +171,6 @@ class ProfileUserAdmin(UserAdmin, ProfileModelAdmin):
         """
         if db_field.name == 'top_gallery' and self.object:
             kwargs['queryset'] = Gallery.objects.filter(user__id=self.object.id)
-        if db_field.name == 'avatar' and self.object:
-            kwargs['queryset'] = Image.objects.filter(gallery__user__id=self.object.id)
         return super(ProfileUserAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 

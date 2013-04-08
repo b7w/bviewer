@@ -206,7 +206,6 @@ def ShowAbout(request):
         return ShowMessage(request, message='No user defined')
 
     return render(request, 'core/about.html', {
-        'avatar': holder.avatar_id,
         'title': holder.about_title,
         'text': holder.about_text,
     })
