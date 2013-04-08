@@ -50,7 +50,6 @@ class ProxyUser(User):
     top_gallery = models.ForeignKey('Gallery', related_name='top', null=True, blank=True, on_delete=models.DO_NOTHING)
     about_title = models.CharField(max_length=256, blank=True)
     about_text = models.TextField(max_length=1024, blank=True)
-    avatar = models.ForeignKey('Image', related_name='avatar', null=True, blank=True)
 
     objects = ProxyManager()
 

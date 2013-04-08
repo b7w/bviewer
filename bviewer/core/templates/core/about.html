@@ -3,20 +3,8 @@
 {% block title %}About{% endblock %}
 
 {% block main %}
-    <div>
-        <h1>About
-            <span style="font-size: small;">some text about me</span>
-        </h1>
-    </div>
-    <div>
-        {% if avatar %}
-            <div class="">
-                <img src="{% url 'core.download' 'small' avatar %}" alt="">
-            </div>
-        {% endif %}
-    </div>
-    <div>
-        <h2>{{ title }}</h2>
+    <div class="message">
+        <h1>{{ title }}</h1>
 
         <p>{{ text|linebreaksbr }}</p>
     </div>
