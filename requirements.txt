@@ -2,7 +2,7 @@
 django-debug-toolbar
 django-rq
 django-tastypie==0.9.14
-django==1.5
+django>=1.5
 fabric
 mock
 redis
