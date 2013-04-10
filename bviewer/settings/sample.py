@@ -19,6 +19,7 @@ DATABASES = {
     }
 }
 
+# https://docs.djangoproject.com/en/dev/topics/logging/#configuring-logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -64,6 +65,7 @@ CACHES = {
 
 FORCE_SCRIPT_NAME = ''
 
+# app config
 VIEWER_CACHE_PATH = os.path.join(PROJECT_PATH, 'cache')
 VIEWER_STORAGE_PATH = PROJECT_PATH
 
@@ -84,8 +86,3 @@ RQ_QUEUES = {
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-ALLOWED_HOSTS
 ALLOWED_HOSTS = ('.dev.loc', )
-
-#
-# Run service configs
-#
-PROCESS_USER = 'b7w'

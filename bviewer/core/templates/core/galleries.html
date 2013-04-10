@@ -16,7 +16,7 @@
                 <div class="preview-body">
                     <a href="{% url 'core.gallery' item.id %}">
                         {% if item.thumbnail_id %}
-                            <img src="{% url 'core.download' 'small' item.thumbnail_id %}">
+                            <img data-src="{% url 'core.download' 'small' item.thumbnail_id %}">
                         {% else %}
                             <img src="{% static 'core/img/gallery.png' %}" alt="" style="opacity: 0.8;">
                         {% endif %}
