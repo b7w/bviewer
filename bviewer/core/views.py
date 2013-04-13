@@ -2,6 +2,7 @@
 
 import logging
 
+from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.decorators.cache import cache_page
@@ -28,8 +29,14 @@ def ShowHome(request):
     if not holder:
         return ShowMessage(request, message='No user defined')
 
-    private = None if holder == request.user else False
-    main, galleries = Gallery.get_galleries(holder.top_gallery_id, private)
+    id = holder.top_gallery_id
+    if holder == request.user:
+        main = Gallery.objects.safe_get(user_id=holder.id, pk=id)
+        galleries = list(Gallery.objects.filter(parent=id))
+    else:
+        visibility = Q(visibility=Gallery.VISIBLE) | Q(visibility=Gallery.HIDDEN)
+        main = Gallery.objects.safe_get(Q(pk=id), Q(user_id=holder.id), visibility)
+        galleries = list(Gallery.objects.filter(parent=id, visibility=Gallery.VISIBLE))
     if not main:
         return ShowMessage(request, message='No main gallery')
 
@@ -49,18 +56,23 @@ def ShowGallery(request, id):
     if not holder:
         return ShowMessage(request, message='No user defined')
 
-    private = None if holder == request.user else False
-    main, galleries = Gallery.get_galleries(id, private)
+    if holder == request.user:
+        main = Gallery.objects.safe_get(user_id=holder.id, pk=id)
+        galleries = list(Gallery.objects.filter(parent=id))
+    else:
+        visibility = Q(visibility=Gallery.VISIBLE) | Q(visibility=Gallery.HIDDEN)
+        main = Gallery.objects.safe_get(Q(pk=id), Q(user_id=holder.id), visibility)
+        galleries = list(Gallery.objects.filter(parent=id, visibility=Gallery.VISIBLE))
     if not main:
-        return ShowMessage(request, message='No main gallery')
+        return ShowMessage(request, message='No such gallery')
 
     videos = []
     images = []
     template = 'core/galleries.html'
-    if not len(galleries):
+    if not galleries:
         template = 'core/gallery.html'
-        videos = Video.objects.filter(gallery__user__id=holder.id, gallery=id)
-        images = Image.objects.filter(gallery__user__id=holder.id, gallery=id)
+        videos = Video.objects.filter(gallery=id)
+        images = Image.objects.filter(gallery=id)
 
     return render(request, template, {
         'main': main,
@@ -84,7 +96,8 @@ def ShowImage(request, id):
     if holder == request.user:
         image = Image.objects.safe_get(gallery__user__id=holder.id, id=id)
     else:
-        image = Image.objects.safe_get(gallery__user__id=holder.id, id=id, gallery__private=False)
+        visibility = Q(gallery__visibility=Gallery.VISIBLE) | Q(gallery__visibility=Gallery.HIDDEN)
+        image = Image.objects.safe_get(Q(pk=id), Q(gallery__user__id=holder.id), visibility)
     if image is None:
         return ShowMessage(request, message='No such image')
 
@@ -108,7 +121,8 @@ def ShowVideo(request, id):
     if holder == request.user:
         video = Video.objects.safe_get(gallery__user__id=holder.id, id=id)
     else:
-        video = Video.objects.safe_get(gallery__user__id=holder.id, id=id, gallery__private=False)
+        visibility = Q(gallery__visibility=Gallery.VISIBLE) | Q(gallery__visibility=Gallery.HIDDEN)
+        video = Video.objects.safe_get(Q(pk=id), Q(gallery__user__id=holder.id), visibility)
     if video is None:
         return ShowMessage(request, message='No such video')
 
@@ -129,7 +143,11 @@ def DownloadVideoThumbnail(request, id):
     if not holder:
         raise Http404('No user defined')
 
-    video = Video.objects.safe_get(gallery__user__id=holder.id, id=id)
+    if holder == request.user:
+        video = Video.objects.safe_get(gallery__user__id=holder.id, id=id)
+    else:
+        visibility = Q(gallery__visibility=Gallery.VISIBLE) | Q(gallery__visibility=Gallery.HIDDEN)
+        video = Video.objects.safe_get(Q(pk=id), Q(gallery__user__id=holder.id), visibility)
     if video is None:
         raise Http404('No such video')
     name = video.uid + '.jpg'
@@ -163,7 +181,8 @@ def DownloadImage(request, size, id):
     if holder == request.user:
         image = Image.objects.safe_get(gallery__user__id=holder.id, id=id)
     else:
-        image = Image.objects.safe_get(gallery__user__id=holder.id, id=id, gallery__private=False)
+        visibility = Q(gallery__visibility=Gallery.VISIBLE) | Q(gallery__visibility=Gallery.HIDDEN)
+        image = Image.objects.safe_get(Q(pk=id), Q(gallery__user__id=holder.id), visibility)
     if image is None:
         raise Http404('No such image')
 

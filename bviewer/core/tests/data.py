@@ -41,7 +41,7 @@ class TestData:
         self.gallery1.save()
 
         self.gallery2 = Gallery(parent=self.gallery_b7w, user=self.user_b7w, title='Second')
-        self.gallery2.private = True
+        self.gallery2.visibility = Gallery.PRIVATE
         self.gallery2.description = 'Second description'
         self.gallery2.save()
 
