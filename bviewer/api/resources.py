@@ -47,14 +47,14 @@ class GalleryResource(ModelResource):
         queryset = Gallery.objects.all().select_related()
         resource_name = 'gallery'
         allowed_methods = ['get', ]
-        excludes = ['private', ]
+        excludes = ['visibility', ]
         authentication = MultiAuthentication(SessionAuthentication(), Authentication())
         authorization = GalleryAuthorization()
         filtering = {
             'id': EXACT,
             'user': ALL_WITH_RELATIONS,
             'title': ALL,
-            'private': EXACT,
+            'visibility': EXACT,
             'time': ALL,
         }
 

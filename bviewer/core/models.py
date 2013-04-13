@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-from collections import deque
 import json
 import os
 import urllib2
@@ -36,9 +35,9 @@ class ProxyManager(models.Manager):
     Adds safe_get, that return obj or none
     """
 
-    def safe_get(self, **kwargs):
+    def safe_get(self, *args, **kwargs):
         try:
-            return self.get(**kwargs)
+            return self.get(*args, **kwargs)
         except self.model.DoesNotExist:
             return None
 
@@ -106,65 +105,21 @@ post_save.connect(add_top_gallery, sender=ProxyUser)
 
 
 class Gallery(models.Model):
+    VISIBLE = 1
+    HIDDEN = 2
+    PRIVATE = 3
+    VISIBILITY_CHOICE = ((VISIBLE, 'Visible'), (HIDDEN, 'Hidden'), (PRIVATE, 'Private'),)
+
     id = models.CharField(max_length=32, default=uuid_pk(length=8), primary_key=True)
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.SET_NULL)
     title = models.CharField(max_length=256)
     user = models.ForeignKey(ProxyUser)
-    private = models.BooleanField(default=False)
+    visibility = models.SmallIntegerField(max_length=1, choices=VISIBILITY_CHOICE, default=VISIBLE)
     description = models.TextField(max_length=512, null=True, blank=True)
     thumbnail = models.ForeignKey('Image', null=True, blank=True, related_name='thumbnail', on_delete=models.DO_NOTHING)
     time = models.DateTimeField(default=datetime.now)
 
     objects = ProxyManager()
-
-    @classmethod
-    def get_galleries(cls, top_id, private=None):
-        """
-        :type top_id: int
-        :type private: bool or None
-        :rtype: (Gallery, list of Gallery)
-        """
-        if private is not None:
-            query = Gallery.objects.filter(Q(private=private), Q(id=top_id) | Q(parent=top_id))
-        else:
-            query = Gallery.objects.filter(Q(id=top_id) | Q(parent=top_id))
-        if not len(query):
-            return None, []
-        main = None
-        galleries = []
-        for item in query:
-            if item.id == top_id:
-                main = item
-            else:
-                galleries.append(item)
-        return main, galleries
-
-    @classmethod
-    def as_tree(cls, user):
-        """
-        :type user: django.contrib.auth.models.User
-        :rtype: GalleryTree
-        """
-        objects = Gallery.objects.filter(user=user)
-        return GalleryTree.make(objects)
-
-    def is_child_of(self, parent_id):
-        """
-        Check if self is child of parent_id
-
-        :type parent_id: int
-        :rtype: bool
-        """
-        objects = deque(Gallery.objects.filter(parent=parent_id))
-        ids = deque()
-        while len(objects):
-            obj = objects.popleft()
-            if obj.id == self.id:
-                return True
-            ids.append(obj.id)
-            if not len(objects) and len(ids):
-                objects.extend(Gallery.objects.filter(parent=ids.popleft()))
-        return False
 
     def __str__(self):
         if self.parent:
