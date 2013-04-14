@@ -1,19 +1,14 @@
 # -*- coding: utf-8 -*-
-
 import logging
 
-from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 
 from bviewer.core import settings
-from bviewer.core.utils import ResizeOptions, ResizeOptionsError, get_gallery_user, decor_on
-from bviewer.core.files import Storage
-from bviewer.core.files.serve import DownloadResponse
-from bviewer.core.images import CacheImageAsync
-from bviewer.core.models import Gallery, Image, Video
+from bviewer.core.controllers import GalleryController, ImageController, VideoController
+from bviewer.core.utils import ResizeOptionsError, get_gallery_user, decor_on
 
 
 logger = logging.getLogger(__name__)
@@ -29,16 +24,11 @@ def ShowHome(request):
     if not holder:
         return ShowMessage(request, message='No user defined')
 
-    id = holder.top_gallery_id
-    if holder == request.user:
-        main = Gallery.objects.safe_get(user_id=holder.id, pk=id)
-        galleries = list(Gallery.objects.filter(parent=id))
-    else:
-        visibility = Q(visibility=Gallery.VISIBLE) | Q(visibility=Gallery.HIDDEN)
-        main = Gallery.objects.safe_get(Q(pk=id), Q(user_id=holder.id), visibility)
-        galleries = list(Gallery.objects.filter(parent=id, visibility=Gallery.VISIBLE))
+    controller = GalleryController(holder, request.user, holder.top_gallery_id)
+    main = controller.get_object()
     if not main:
         return ShowMessage(request, message='No main gallery')
+    galleries = controller.get_galleries()
 
     return render(request, 'core/galleries.html', {
         'main': main,
@@ -56,23 +46,15 @@ def ShowGallery(request, id):
     if not holder:
         return ShowMessage(request, message='No user defined')
 
-    if holder == request.user:
-        main = Gallery.objects.safe_get(user_id=holder.id, pk=id)
-        galleries = list(Gallery.objects.filter(parent=id))
-    else:
-        visibility = Q(visibility=Gallery.VISIBLE) | Q(visibility=Gallery.HIDDEN)
-        main = Gallery.objects.safe_get(Q(pk=id), Q(user_id=holder.id), visibility)
-        galleries = list(Gallery.objects.filter(parent=id, visibility=Gallery.VISIBLE))
+    controller = GalleryController(holder, request.user, id)
+    main = controller.get_object()
     if not main:
         return ShowMessage(request, message='No such gallery')
+    galleries = controller.get_galleries()
 
-    videos = []
-    images = []
-    template = 'core/galleries.html'
-    if not galleries:
-        template = 'core/gallery.html'
-        videos = Video.objects.filter(gallery=id)
-        images = Image.objects.filter(gallery=id)
+    template = 'core/gallery.html' if controller.is_album() else 'core/galleries.html'
+    videos = controller.get_videos()
+    images = controller.get_images()
 
     return render(request, template, {
         'main': main,
@@ -93,11 +75,8 @@ def ShowImage(request, id):
     if not holder:
         return ShowMessage(request, message='No user defined')
 
-    if holder == request.user:
-        image = Image.objects.safe_get(gallery__user__id=holder.id, id=id)
-    else:
-        visibility = Q(gallery__visibility=Gallery.VISIBLE) | Q(gallery__visibility=Gallery.HIDDEN)
-        image = Image.objects.safe_get(Q(pk=id), Q(gallery__user__id=holder.id), visibility)
+    controller = ImageController(holder, request.user, id)
+    image = controller.get_object()
     if image is None:
         return ShowMessage(request, message='No such image')
 
@@ -118,11 +97,8 @@ def ShowVideo(request, id):
     if not holder:
         return ShowMessage(request, message='No user defined')
 
-    if holder == request.user:
-        video = Video.objects.safe_get(gallery__user__id=holder.id, id=id)
-    else:
-        visibility = Q(gallery__visibility=Gallery.VISIBLE) | Q(gallery__visibility=Gallery.HIDDEN)
-        video = Video.objects.safe_get(Q(pk=id), Q(gallery__user__id=holder.id), visibility)
+    controller = VideoController(holder, request.user, id)
+    video = controller.get_object()
     if video is None:
         return ShowMessage(request, message='No such video')
 
@@ -143,29 +119,19 @@ def DownloadVideoThumbnail(request, id):
     if not holder:
         raise Http404('No user defined')
 
-    if holder == request.user:
-        video = Video.objects.safe_get(gallery__user__id=holder.id, id=id)
-    else:
-        visibility = Q(gallery__visibility=Gallery.VISIBLE) | Q(gallery__visibility=Gallery.HIDDEN)
-        video = Video.objects.safe_get(Q(pk=id), Q(gallery__user__id=holder.id), visibility)
+    controller = VideoController(holder, request.user, id)
+    video = controller.get_object()
     if video is None:
         raise Http404('No such video')
-    name = video.uid + '.jpg'
+
     try:
-        options = ResizeOptions('small', user=holder.url, storage=holder.home, name=str(video.id))
-        image_async = CacheImageAsync(video.thumbnail_url, options)
-        image_async.download()
-
-        response = DownloadResponse.build(image_async.url, name)
-
+        return controller.get_response('small')
     except ResizeOptionsError as e:
         logger.error('id:%s, holder:%s \n %s', id, holder, e)
         return ShowMessage(request, message=e)
     except IOError as e:
         logger.error('id:%s, holder:%s \n %s', id, holder, e)
         raise Http404('Oops no video thumbnail found')
-
-    return response
 
 
 @decor_on(settings.VIEWER_SERVE['CACHE'], cache_page, 60 * 60 * 24)
@@ -178,30 +144,19 @@ def DownloadImage(request, size, id):
     if not holder:
         raise Http404('No user defined')
 
-    if holder == request.user:
-        image = Image.objects.safe_get(gallery__user__id=holder.id, id=id)
-    else:
-        visibility = Q(gallery__visibility=Gallery.VISIBLE) | Q(gallery__visibility=Gallery.HIDDEN)
-        image = Image.objects.safe_get(Q(pk=id), Q(gallery__user__id=holder.id), visibility)
+    controller = ImageController(holder, request.user, id)
+    image = controller.get_object()
     if image is None:
         raise Http404('No such image')
 
-    name = Storage.name(image.path)
     try:
-        options = ResizeOptions(size, user=holder.url, storage=holder.home)
-        image_async = CacheImageAsync(image.path, options)
-        image_async.process()
-
-        response = DownloadResponse.build(image_async.url, name)
-
+        return controller.get_response(size)
     except ResizeOptionsError as e:
         logger.error('id:%s, holder:%s \n %s', id, holder, e)
         return ShowMessage(request, message=e)
     except IOError as e:
         logger.error('id:%s, holder:%s \n %s', id, holder, e)
         return redirect('/static/core/img/gallery.png')
-
-    return response
 
 
 def ShowMessage(request, title='Error', info=None, message=None):

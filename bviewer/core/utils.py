@@ -225,3 +225,22 @@ def decor_on(conditions, decor, *args, **kwargs):
         return func
 
     return decorator
+
+
+def cache_method(func):
+    """
+    Cache object methods, without any args!
+    Set attr `'_' + func name`.
+    """
+
+    @wraps(func)
+    def wrapped(self):
+        name = '_' + func.__name__
+        cached = getattr(self, name, None)
+        if cached:
+            return cached
+        cached = func(self)
+        setattr(self, name, cached)
+        return cached
+
+    return wrapped
