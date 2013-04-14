@@ -47,7 +47,7 @@ class BaseDownloadResponse:
     def __init__(self, settings):
         self.settings = settings
         if 'Content-Type' not in self.settings:
-            self.settings['Content-Type'] = u'image/jpeg'
+            self.settings['Content-Type'] = 'image/jpeg'
 
     def generate(self, path, name):
         """

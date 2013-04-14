@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+import json
 
 import logging
 
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.utils import simplejson
+from django.utils.encoding import smart_text
 
 from bviewer.archive.controls import ZipArchive, ZipArchiveTask
 from bviewer.core.files.serve import DownloadResponse
@@ -59,7 +60,7 @@ def ArchiveStatus(request, id, hash):
     status = ZipArchive.status(holder.url, hash)
     data = dict(status=status, gallery=id, id=hash)
 
-    return HttpResponse(simplejson.dumps(data))
+    return HttpResponse(json.dumps(data))
 
 
 def Download(request, id, hash):
@@ -77,7 +78,7 @@ def Download(request, id, hash):
     if ZipArchive.status(holder.url, hash) == 'NONE':
         raise Http404('No file found')
 
-    logger.info(u'download archive \'%s\'', main.title)
+    logger.info(smart_text('download archive "%s"'), main.title)
     url = ZipArchive.url(holder.url, hash)
-    name = u'{0} - {1}.zip'.format(main.time.strftime('%Y-%m-%d'), main.title)
+    name = smart_text('{0} - {1}.zip').format(main.time.strftime('%Y-%m-%d'), main.title)
     return DownloadResponse.build(url, name)
