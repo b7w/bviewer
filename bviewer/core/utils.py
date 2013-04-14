@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
-from fractions import Fraction
-
 import re
 import time
 import logging
 from hashlib import sha1
-from PIL import Image
-from PIL.ExifTags import TAGS
 
 from django.core.cache import cache
 from django.shortcuts import redirect
@@ -159,62 +154,6 @@ class FileUniqueName:
         if extra:
             full_name += str(extra)
         return self.hash(full_name)
-
-
-class Exif(object):
-    def __init__(self, fname):
-        self.fname = fname
-        image = Image.open(fname)
-        info = image._getexif()
-        if info:
-            self._data = dict((TAGS.get(tag, tag), value) for tag, value in info.items())
-        else:
-            self._data = {}
-
-    @property
-    def fnumber(self):
-        a, b = self._data.get('FNumber', (0, 1))
-        return round(float(a) / b, 1)
-
-    @property
-    def exposure(self):
-        a, b = self._data.get('ExposureTime', (0, 1))
-        return Fraction(a, b)
-
-    @property
-    def iso(self):
-        return self._data.get('ISOSpeedRatings', 0)
-
-    @property
-    def flenght(self):
-        a, b = self._data.get('FocalLength', (0, 0))
-        return a
-
-    @property
-    def model(self):
-        return self._data.get('Model', '')
-
-    @property
-    def time(self):
-        time = self._data.get('DateTime')
-        if time:
-            try:
-                return datetime.strptime(time, '%Y:%m:%d %H:%M:%S')
-            except ValueError:
-                pass
-
-    def items(self):
-        return dict(
-            fnumber=self.fnumber,
-            exposure=self.exposure,
-            iso=self.iso,
-            flenght=self.flenght,
-            model=self.model,
-            time=self.time,
-        )
-
-    def __repr__(self):
-        return '<Exif{0}>'.format(self.items())
 
 
 domain_match = re.compile(r'([w]{3})?\.?(?P<domain>[\w\.]+):?(\d{0,4})')
