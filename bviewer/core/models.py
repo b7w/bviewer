@@ -134,44 +134,6 @@ class Gallery(models.Model):
         unique_together = (('title', 'user'),)
 
 
-class GalleryTree:
-    """
-    Class to represent list of `bviewer.core.models.Gallery` as a tree
-    """
-
-    def __init__(self, value, objects):
-        """
-        :type value: bviewer.core.models.Gallery
-        :type objects: list of bviewer.core.models.Gallery
-        """
-        self.value = value
-        self._gen = (GalleryTree(i, objects) for i in objects if i.parent_id == value.id)
-        self._children = None
-
-    @property
-    def children(self):
-        if not self._children:
-            self._children = list(self._gen)
-        return self._children
-
-    @property
-    def has_children(self):
-        return bool(len(self.children))
-
-    @classmethod
-    def make(cls, objects):
-        """
-        Convert Models list to list of GalleryTree
-
-        :type objects: list of bviewer.core.models.Gallery
-        :rtype: list of GalleryTree
-        """
-        return [GalleryTree(i, objects) for i in objects if i.parent_id is None]
-
-    def __str__(self):
-        return smart_text('GalleryTree{{v={0}}}').format(self.value)
-
-
 class Image(models.Model):
     id = models.CharField(max_length=32, default=uuid_pk(length=12), primary_key=True)
     gallery = models.ForeignKey(Gallery)
@@ -184,7 +146,7 @@ class Image(models.Model):
         """
         Return new Exif instance fot this image
         """
-        from bviewer.core.utils import Exif
+        from bviewer.core.images import Exif
 
         fname = os.path.join(settings.VIEWER_STORAGE_PATH, self.gallery.user.home, self.path)
         return Exif(fname)
