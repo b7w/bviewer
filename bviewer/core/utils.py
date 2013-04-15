@@ -9,6 +9,7 @@ from django.shortcuts import redirect
 from django.utils.decorators import available_attrs
 from django.utils.encoding import smart_text, smart_bytes
 from django.utils.functional import wraps
+from django_rq import get_queue
 
 from bviewer.core import settings
 from bviewer.core.models import ProxyUser
@@ -243,3 +244,11 @@ def cache_method(func):
         return cached
 
     return wrapped
+
+
+def as_job(func, queue='default', timeout=None, *args, **kwargs):
+    rq = get_queue(name=queue)
+    task = rq.enqueue(func, timeout=timeout, args=args, kwargs=kwargs)
+    while not task.is_finished:
+        time.sleep(0.1)
+    return task.result

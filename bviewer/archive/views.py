@@ -8,10 +8,10 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.encoding import smart_text
 
-from bviewer.archive.controls import ZipArchive, ZipArchiveTask
+from bviewer.archive.controllers import ZipArchiveController
 from bviewer.core.files.serve import DownloadResponse
 from bviewer.core.models import Gallery, Image
-from bviewer.core.utils import get_gallery_user
+from bviewer.core.utils import get_gallery_user, as_job
 
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ def Archive(request, id):
         raise Http404('No gallery found')
 
     images = Image.objects.filter(gallery__user__id=holder.id, gallery=id)
-    z = ZipArchiveTask(images, holder.home, holder.url)
+    z = ZipArchiveController(images, holder.home, holder.url)
 
     # links for redirect to download, and check status
     redirect = reverse('archive.download', kwargs=dict(id=id, hash=z.hash))
@@ -39,7 +39,8 @@ def Archive(request, id):
 
     if z.status(holder.url, z.hash) == 'DONE':
         return HttpResponseRedirect(redirect)
-    z.process()
+
+    as_job(z.process)
     return render(request, 'archive/download.html', {
         'path': request.path,
         'link': link,
@@ -57,7 +58,7 @@ def ArchiveStatus(request, id, hash):
     if not holder:
         raise Http404('No user defined')
 
-    status = ZipArchive.status(holder.url, hash)
+    status = ZipArchiveController.status(holder.url, hash)
     data = dict(status=status, gallery=id, id=hash)
 
     return HttpResponse(json.dumps(data))
@@ -75,10 +76,10 @@ def Download(request, id, hash):
     if not main:
         raise Http404('No gallery found')
 
-    if ZipArchive.status(holder.url, hash) == 'NONE':
+    if ZipArchiveController.status(holder.url, hash) == 'NONE':
         raise Http404('No file found')
 
     logger.info(smart_text('download archive "%s"'), main.title)
-    url = ZipArchive.url(holder.url, hash)
+    url = ZipArchiveController.url(holder.url, hash)
     name = smart_text('{0} - {1}.zip').format(main.time.strftime('%Y-%m-%d'), main.title)
     return DownloadResponse.build(url, name)

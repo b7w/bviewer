@@ -11,7 +11,6 @@ from PIL.ExifTags import TAGS
 
 from bviewer.core import settings
 from bviewer.core.utils import FileUniqueName
-from bviewer.core.tasks import cache_image_process, cache_image_download
 
 
 logger = logging.getLogger(__name__)
@@ -194,36 +193,6 @@ class CacheImage(object):
     def check_cache_dir(self):
         if not os.path.exists(self.cache_dir):
             os.makedirs(self.cache_dir)
-
-
-class CacheImageAsync(object):
-    """
-    Proxy for `CacheImage` but it run in rq container.
-    It send task and wait for result
-    In this case we think it is a thread pool that help to minimize system resource.
-    """
-
-    def __init__(self, path, options):
-        self.url = ''
-        self.path = path
-        self.options = options
-        self.cache = CacheImage(path, options)
-
-    def process(self):
-        # hack not to run task in tests
-        if not settings.TESTS:
-            async = cache_image_process.delay(self.cache)
-            while not async.result:
-                pass
-            self.image = async.result
-            self.url = self.image.url
-
-    def download(self):
-        async = cache_image_download.delay(self.cache)
-        while not async.result:
-            pass
-        self.image = async.result
-        self.url = self.image.url
 
 
 class Exif(object):

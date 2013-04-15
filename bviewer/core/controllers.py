@@ -4,10 +4,10 @@ import logging
 from django.db.models import Q
 from bviewer.core.files import Storage
 from bviewer.core.files.serve import DownloadResponse
-from bviewer.core.images import CacheImageAsync
+from bviewer.core.images import CacheImage
 
 from bviewer.core.models import Gallery, Video, Image
-from bviewer.core.utils import cache_method, ResizeOptions
+from bviewer.core.utils import cache_method, ResizeOptions, as_job
 
 logger = logging.getLogger(__name__)
 
@@ -114,8 +114,8 @@ class ImageController(MediaController):
         name = Storage.name(image.path)
 
         options = ResizeOptions(size, user=self.holder.url, storage=self.holder.home)
-        image_async = CacheImageAsync(image.path, options)
-        image_async.process()
+        image_async = CacheImage(image.path, options)
+        as_job(image_async.process)
 
         return DownloadResponse.build(image_async.url, name)
 
@@ -128,7 +128,7 @@ class VideoController(MediaController):
         name = video.uid + '.jpg'
 
         options = ResizeOptions(size, user=self.holder.url, storage=self.holder.home, name=str(video.id))
-        image_async = CacheImageAsync(video.thumbnail_url, options)
-        image_async.download()
+        image_async = CacheImage(video.thumbnail_url, options)
+        as_job(image_async.download)
 
         return DownloadResponse.build(image_async.url, name)
