@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import os
 import zipfile
 import logging
@@ -12,7 +11,7 @@ from bviewer.core.utils import FileUniqueName
 logger = logging.getLogger(__name__)
 
 
-class ZipArchive:
+class ZipArchiveController(object):
     """
     Zip images
 
@@ -99,17 +98,3 @@ class ZipArchive:
 
             os.rename(cache_tmp, cache)
         return True
-
-
-class ZipArchiveTask(ZipArchive):
-    """
-    Make process in background
-    """
-
-    def process(self):
-        """
-        :rtype: bool
-        """
-        from bviewer.archive.tasks import cache_archive
-
-        return cache_archive.delay(self.images, self.storage, self.user)
