@@ -7,8 +7,8 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 
 from bviewer.core import settings
-from bviewer.core.controllers import GalleryController, ImageController, VideoController
-from bviewer.core.utils import ResizeOptionsError, get_gallery_user, decor_on
+from bviewer.core.controllers import GalleryController, ImageController, VideoController, get_gallery_user
+from bviewer.core.utils import ResizeOptionsError, decor_on
 
 
 logger = logging.getLogger(__name__)

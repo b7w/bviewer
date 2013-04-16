@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-
 import logging
 
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render
 
+from bviewer.core.controllers import get_gallery_user
 from bviewer.core.files import Storage
 from bviewer.core.files.serve import DownloadResponse
 from bviewer.core.images import CacheImage
-from bviewer.core.utils import get_gallery_user, perm_any_required, ResizeOptions
+from bviewer.core.utils import perm_any_required, ResizeOptions
 from bviewer.profile.controllers import ImageController
 from bviewer.profile.utils import JSONResponse
 
