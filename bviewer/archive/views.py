@@ -9,9 +9,10 @@ from django.shortcuts import render
 from django.utils.encoding import smart_text
 
 from bviewer.archive.controllers import ZipArchiveController
+from bviewer.core.controllers import get_gallery_user
 from bviewer.core.files.serve import DownloadResponse
 from bviewer.core.models import Gallery, Image
-from bviewer.core.utils import get_gallery_user, as_job
+from bviewer.core.utils import as_job
 
 
 logger = logging.getLogger(__name__)

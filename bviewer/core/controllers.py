@@ -1,15 +1,49 @@
 # -*- coding: utf-8 -*-
 import logging
 
+from django.core.cache import cache
 from django.db.models import Q
+
+from bviewer.core import settings
 from bviewer.core.files import Storage
 from bviewer.core.files.serve import DownloadResponse
 from bviewer.core.images import CacheImage
+from bviewer.core.models import Gallery, Video, Image, ProxyUser
+from bviewer.core.utils import cache_method, ResizeOptions, as_job, domain_match
 
-from bviewer.core.models import Gallery, Video, Image
-from bviewer.core.utils import cache_method, ResizeOptions, as_job
 
 logger = logging.getLogger(__name__)
+
+
+def get_gallery_user(request):
+    """
+    Get domain from request and try to find user with user.url == domain.
+    If not try return authenticated user, else user from settings.VIEWER_USER_ID.
+
+    :type request: django.http.HttpRequest
+    :rtype: bviewer.core.models.ProxyUser
+    """
+    key = 'core.utils.get_gallery_user({0})'.format(request.get_host())
+    data = cache.get(key)
+    if data:
+        return data
+    if settings.VIEWER_USER_ID:
+        user = ProxyUser.objects.get(id=settings.VIEWER_USER_ID)
+        cache.set(key, user)
+        return user
+
+    match = domain_match.match(request.get_host())
+    if match:
+        url = match.group('domain')
+        user = ProxyUser.objects.safe_get(url=url)
+        if user:
+            cache.set(key, user)
+            return user
+
+    if request.user.is_authenticated():
+        return ProxyUser.objects.get(id=request.user.id)
+
+    return None
 
 
 class BaseController:
@@ -93,7 +127,7 @@ class MediaController(BaseController):
     @cache_method
     def get_object(self):
         """
-        :rtype: bviewer.core.models.Image or None
+        Get self.MODEL instance or None
         """
         if self.is_owner():
             return self.MODEL.objects.safe_get(pk=self.uid, gallery__user__id=self.holder.id)
@@ -110,6 +144,7 @@ class ImageController(MediaController):
     MODEL = Image
 
     def get_response(self, size):
+        #: :type: bviewer.core.models.Image
         image = self.get_object()
         name = Storage.name(image.path)
 
@@ -124,6 +159,7 @@ class VideoController(MediaController):
     MODEL = Video
 
     def get_response(self, size):
+        #: :type: bviewer.core.models.Video
         video = self.get_object()
         name = video.uid + '.jpg'
 

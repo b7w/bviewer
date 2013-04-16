@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from datetime import datetime
 import json
 import os
@@ -15,7 +14,9 @@ from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
 from django.utils.encoding import smart_text
 from django.utils.html import escape
+
 from bviewer.core import settings
+from bviewer.core.utils import cache_method
 
 
 def uuid_pk(length=10):
@@ -142,9 +143,11 @@ class Image(models.Model):
 
     objects = ProxyManager()
 
+    @property
+    @cache_method
     def exif(self):
         """
-        Return new Exif instance fot this image
+        Return Exif instance fot this image
         """
         from bviewer.core.images import Exif
 

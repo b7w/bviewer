@@ -4,7 +4,6 @@ import time
 import logging
 from hashlib import sha1
 
-from django.core.cache import cache
 from django.shortcuts import redirect
 from django.utils.decorators import available_attrs
 from django.utils.encoding import smart_text, smart_bytes
@@ -12,7 +11,6 @@ from django.utils.functional import wraps
 from django_rq import get_queue
 
 from bviewer.core import settings
-from bviewer.core.models import ProxyUser
 
 
 logger = logging.getLogger(__name__)
@@ -170,37 +168,6 @@ class FileUniqueName:
 
 
 domain_match = re.compile(r'([w]{3})?\.?(?P<domain>[\w\.]+):?(\d{0,4})')
-
-
-def get_gallery_user(request):
-    """
-    Get domain from request and try to find user with user.url == domain.
-    If not try return authenticated user, else user from settings.VIEWER_USER_ID.
-
-    :type request: django.http.HttpRequest
-    :rtype: bviewer.core.models.ProxyUser
-    """
-    key = 'core.utils.get_gallery_user({0})'.format(request.get_host())
-    data = cache.get(key)
-    if data:
-        return data
-    if settings.VIEWER_USER_ID:
-        user = ProxyUser.objects.get(id=settings.VIEWER_USER_ID)
-        cache.set(key, user)
-        return user
-
-    match = domain_match.match(request.get_host())
-    if match:
-        url = match.group('domain')
-        user = ProxyUser.objects.safe_get(url=url)
-        if user:
-            cache.set(key, user)
-            return user
-
-    if request.user.is_authenticated():
-        return ProxyUser.objects.get(id=request.user.id)
-
-    return None
 
 
 def perm_any_required(*args, **kwargs):
