@@ -72,8 +72,14 @@ class ResizeOptions:
     def __init__(self, size, user=None, storage=None, name=None):
         """
         Get sting with size "small" or "middle" or "big"
+        user -> path to the user cache,
         storage -> path to the user storage,
-        name -> file name,
+        name -> file name.
+
+        :type size: str
+        :type user: str
+        :type storage: str
+        :type name: str
         """
         self.user = user
         self.storage = storage
@@ -82,6 +88,7 @@ class ResizeOptions:
         self.height = 0
         self.size = 0
         self.crop = False
+        self.quality = 95
         self.choose_setting(size)
 
     def choose_setting(self, size):
@@ -99,16 +106,21 @@ class ResizeOptions:
     def from_settings(self, value):
         """
         Set values from settings.VIEWER_IMAGE_SIZE
+
         :type value: dict
         """
         self.width = value['WIDTH']
         self.height = value['HEIGHT']
         self.size = max(self.width, self.height)
         self.crop = 'CROP' in value and value['CROP'] is True
+        if 'QUALITY' in value:
+            self.quality = value['QUALITY']
+            if not (80 <= self.quality <= 100):
+                raise ResizeOptionsError('Image QUALITY settings have to be between 80 and 100')
 
-    def __str__(self):
-        return smart_text('ResizeOptions{{user={us},storage={st},size={sz},crop={cr}}}') \
-            .format(us=self.user, st=self.storage, sz=self.size, cr=self.crop)
+    def __repr__(self):
+        return smart_text('ResizeOptions({sz},user={us},storage={st},name={nm})') \
+            .format(sz=self.size, us=self.user, st=self.storage, nm=self.name)
 
 
 class FileUniqueName:
@@ -144,7 +156,7 @@ class FileUniqueName:
 
     def build(self, path, time=None, extra=None):
         """
-        return unic name of path + [extra]
+        return unique name of path + [extra]
         """
         full_name = settings.VIEWER_CACHE_PATH + path
         if time:
