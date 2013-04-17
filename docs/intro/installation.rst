@@ -58,6 +58,20 @@ From source
     sudo pip install -r requirements.txt
 
 
+Redis DB
+========
+
+| For task queue bviewer use redis database. In default repositories version is too old.
+  So it is needed to use ppa, *rwky/redis* for example.
+
+.. code-block:: bash
+
+    sudo apt-get install python-software-properties
+    sudo add-apt-repository ppa:rwky/redis
+    sudo apt-get update
+    sudo apt-get install redis
+
+
 Setup application
 =================
 
@@ -113,6 +127,11 @@ WSGI server
 .. code-block:: bash
 
     sudo service uwsgi restart
+
+.. note::
+
+    For background tasks, such as image processing by default starts 2 workers.
+    With default and low queue.
 
 
 Web server

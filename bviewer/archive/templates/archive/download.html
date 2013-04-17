@@ -1,35 +1,32 @@
 {% extends 'core/base.html' %}
 
 {% block main %}
-    <div class="page-header">
-        <h1>Archive
-            <span style="font-size: small;">download all images in zip archive</span>
-        </h1>
+    <div class="message">
+        <h1>Archive</h1>
+
+        <p>Waite a little while images are packing</p>
+
+        <div id="status" style="color: seagreen;">0%</div>
     </div>
-    <div class="row-fluid">
-        <div class="span12">
-            <div id="status" class="progress progress-info progress-striped active">
-                <div class="bar" style="width: 2%;"></div>
-            </div>
-            Waite a little while images are packing
-        </div>
-    </div>
+{% endblock %}
+
+
+{% block media %}
+    {{ block.super }}
     <script type="text/javascript">
         var link = "{{ link }}";
         var redirect = "{{ redirect }}";
-        var st = 2;
         var interval = window.setInterval(function () {
             jQuery.ajax({
                 url: link,
                 dataType: 'json',
                 success: function (data) {
                     if (data.status == "DONE") {
-                        jQuery('#status .bar').attr('style', 'width:100%;');
+                        jQuery('#status').text('100%');
                         window.clearInterval(interval);
                         window.location = redirect;
                     } else {
-                        st = st + 2;
-                        jQuery('#status .bar').attr('style', 'width:' + st + '%;');
+                        jQuery('#status').text('' + data.progress + '%');
                     }
                 }
             });

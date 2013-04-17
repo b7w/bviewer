@@ -82,6 +82,11 @@ RQ_QUEUES = {
         'PORT': 6379,
         'DB': 0,
     },
+    'low': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+    },
 }
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-ALLOWED_HOSTS
