@@ -161,6 +161,11 @@ footer {
     margin: 100px auto;
 }
 
+.message h1 {
+    color: #CCC;
+    text-shadow: 0 0 36px rgba(255, 255, 255, 0.6);
+}
+
 .video {
     width: 720px;
     margin-top: 32px;
