@@ -148,7 +148,7 @@ class ImageController(MediaController):
         image = self.get_object()
         name = Storage.name(image.path)
 
-        options = ResizeOptions(size, user=self.holder.url, storage=self.holder.home)
+        options = ResizeOptions(size, user=self.holder)
         image_async = CacheImage(image.path, options)
         as_job(image_async.process)
 
@@ -163,7 +163,7 @@ class VideoController(MediaController):
         video = self.get_object()
         name = video.uid + '.jpg'
 
-        options = ResizeOptions(size, user=self.holder.url, storage=self.holder.home, name=str(video.id))
+        options = ResizeOptions(size, user=self.holder, name=str(video.id))
         image_async = CacheImage(video.thumbnail_url, options)
         as_job(image_async.download)
 

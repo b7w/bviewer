@@ -9,7 +9,6 @@ import logging
 from PIL import Image
 from PIL.ExifTags import TAGS
 
-from bviewer.core import settings
 from bviewer.core.utils import FileUniqueName, abs_image_path
 
 
@@ -126,14 +125,12 @@ class CacheImage(object):
         :type options: bviewer.core.utils.ResizeOptions
         """
         self.path = path
-        self.abs_path = abs_image_path(options.storage, path)
+        self.abs_path = abs_image_path(options.home, path)
         self.options = options
-        # each user will have his own cache dir
-        self.cache_dir = os.path.join(settings.VIEWER_CACHE_PATH, options.user)
 
         self.hash = self.get_hash_name()
-        self.url = os.path.join(options.user, self.hash + '.jpg')
-        self.cache = os.path.join(self.cache_dir, self.hash + '.jpg')
+        self.url = os.path.join(options.cache, self.hash + '.jpg')
+        self.cache = os.path.join(options.cache_abs, self.hash + '.jpg')
 
     def get_hash_name(self):
         self.hash_builder = FileUniqueName()
@@ -194,8 +191,8 @@ class CacheImage(object):
             logger.info('download image \'%s\' %s', self.path, 'and resize' if bigger else '')
 
     def check_cache_dir(self):
-        if not os.path.exists(self.cache_dir):
-            os.makedirs(self.cache_dir)
+        if not os.path.exists(self.options.cache_abs):
+            os.makedirs(self.options.cache_abs)
 
 
 class Exif(object):
