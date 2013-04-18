@@ -99,7 +99,7 @@ class ZipArchiveController(object):
             with open(cache_tmp, mode='wb') as f:
                 with zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED) as z:
                     for image in self.images:
-                        abs_path = abs_image_path(self.holder.home, image)
+                        abs_path = abs_image_path(self.holder.home, image.path)
                         z.write(abs_path, Storage.name(image.path))
 
             os.rename(cache_tmp, cache)

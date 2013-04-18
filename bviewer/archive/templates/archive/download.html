@@ -6,7 +6,7 @@
 
         <p>Waite a little while images are packing</p>
 
-        <div id="status" style="color: seagreen;">0%</div>
+        <div id="status" style="color: seagreen;">Waiting..</div>
     </div>
 {% endblock %}
 
@@ -21,15 +21,17 @@
                 url: link,
                 dataType: 'json',
                 success: function (data) {
-                    if (data.status == "DONE") {
+                    if (data.status == 'DONE') {
                         jQuery('#status').text('100%');
                         window.clearInterval(interval);
                         window.location = redirect;
-                    } else {
+                    } else if (data.status == 'PROCESSING') {
                         jQuery('#status').text('' + data.progress + '%');
+                    } else if (data.status == 'NONE') {
+                        jQuery('#status').text('Waiting..');
                     }
                 }
             });
-        }, 2000);
+        }, 1000);
     </script>
 {% endblock %}
