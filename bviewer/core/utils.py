@@ -68,20 +68,17 @@ class ResizeOptions:
     crop - need or not.
     """
 
-    def __init__(self, size, user=None, storage=None, name=None):
+    def __init__(self, size, user=None, name=None):
         """
-        Get sting with size "small" or "middle" or "big"
-        user -> path to the user cache,
-        storage -> path to the user storage,
-        name -> file name.
+        `size` item name of settings.VIEWER_IMAGE_SIZE.
 
         :type size: str
-        :type user: str
-        :type storage: str
+        :type user: bviewer.core.models.ProxyUser
         :type name: str
         """
-        self.user = user
-        self.storage = storage
+        self.cache = user.url
+        self.cache_abs = os.path.join(settings.VIEWER_CACHE_PATH, user.url)
+        self.home = user.home
         self.name = name
         self.width = 0
         self.height = 0
@@ -118,8 +115,8 @@ class ResizeOptions:
                 raise ResizeOptionsError('Image QUALITY settings have to be between 80 and 100')
 
     def __repr__(self):
-        return smart_text('ResizeOptions({sz},user={us},storage={st},name={nm})') \
-            .format(sz=self.size, us=self.user, st=self.storage, nm=self.name)
+        return smart_text('ResizeOptions({sz},cache={us},storage={st},name={nm})') \
+            .format(sz=self.size, us=self.cache, st=self.home, nm=self.name)
 
 
 class FileUniqueName:

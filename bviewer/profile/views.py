@@ -68,7 +68,7 @@ def DownloadImage(request):
         storage = Storage(user.home)
         try:
             if storage.exists(path):
-                options = ResizeOptions('small', user=user.url, storage=user.home)
+                options = ResizeOptions('small', user=user)
                 image = CacheImage(path, options)
                 image.process()
                 name = Storage.name(path)
