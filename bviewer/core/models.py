@@ -15,8 +15,7 @@ from django.db.models.signals import post_save
 from django.utils.encoding import smart_text
 from django.utils.html import escape
 
-from bviewer.core import settings
-from bviewer.core.utils import cache_method
+from bviewer.core.utils import cache_method, abs_image_path
 
 
 def uuid_pk(length=10):
@@ -151,14 +150,14 @@ class Image(models.Model):
         """
         from bviewer.core.images import Exif
 
-        fname = os.path.join(settings.VIEWER_STORAGE_PATH, self.gallery.user.home, self.path)
+        fname = abs_image_path(self.gallery.user.home, self.path)
         return Exif(fname)
 
     def clean(self):
         """
         Check path exists
         """
-        fname = os.path.join(settings.VIEWER_STORAGE_PATH, self.gallery.user.home, self.path)
+        fname = abs_image_path(self.gallery.user.home, self.path)
         if not os.path.exists(fname):
             raise ValidationError('No {0} path exists'.format(self.path))
 

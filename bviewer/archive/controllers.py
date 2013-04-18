@@ -7,7 +7,7 @@ from django_rq import get_queue
 
 from bviewer.core import settings
 from bviewer.core.files import Storage
-from bviewer.core.utils import FileUniqueName, cache_method
+from bviewer.core.utils import FileUniqueName, cache_method, abs_image_path
 
 
 logger = logging.getLogger(__name__)
@@ -38,15 +38,6 @@ class ZipArchiveController(object):
             return os.path.join(path, '{0}.zip.part'.format(self.uid))
         return os.path.join(path, '{0}.zip'.format(self.uid))
 
-    def _image_path(self, image):
-        """
-        Abs path to image
-
-        :type image: bviewer.core.models.Image
-        :rtype: str
-        """
-        return os.path.join(settings.VIEWER_STORAGE_PATH, self.holder.home, image.path)
-
     @property
     @cache_method
     def uid(self):
@@ -56,7 +47,7 @@ class ZipArchiveController(object):
         if self.default_uid:
             return self.default_uid
         builder = FileUniqueName()
-        name = ';'.join(self._image_path(i) for i in self.images)
+        name = ';'.join(abs_image_path(self.holder.home, i.path) for i in self.images)
         return builder.build(name)
 
     @property
@@ -91,7 +82,9 @@ class ZipArchiveController(object):
         if self.status == 'PROCESSING':
             fname = self._archive_path(part=True)
             done = os.path.getsize(fname)
-            real = sum(os.path.getsize(self._image_path(i)) for i in self.images)
+
+            f = lambda path: os.path.getsize(abs_image_path(self.holder.home, path))
+            real = sum(f(i.path) for i in self.images)
             return int(float(done) / real * 100)
         if self.status == 'NONE':
             return 0
@@ -106,7 +99,8 @@ class ZipArchiveController(object):
             with open(cache_tmp, mode='wb') as f:
                 with zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED) as z:
                     for image in self.images:
-                        z.write(self._image_path(image), Storage.name(image.path))
+                        abs_path = abs_image_path(self.holder.home, image)
+                        z.write(abs_path, Storage.name(image.path))
 
             os.rename(cache_tmp, cache)
         return True
