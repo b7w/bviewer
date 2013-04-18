@@ -10,7 +10,7 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 
 from bviewer.core import settings
-from bviewer.core.utils import FileUniqueName
+from bviewer.core.utils import FileUniqueName, abs_image_path
 
 
 logger = logging.getLogger(__name__)
@@ -126,7 +126,7 @@ class CacheImage(object):
         :type options: bviewer.core.utils.ResizeOptions
         """
         self.path = path
-        self.abs_path = os.path.join(settings.VIEWER_STORAGE_PATH, options.storage, path)
+        self.abs_path = abs_image_path(options.storage, path)
         self.options = options
         # each user will have his own cache dir
         self.cache_dir = os.path.join(settings.VIEWER_CACHE_PATH, options.user)

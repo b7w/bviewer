@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from django.core import urlresolvers
 from django.test import TestCase
 
@@ -21,7 +20,6 @@ class PrivateGalleriesTest(TestCase):
     """
 
     def setUp(self):
-        settings.TESTS = True
         self.data = TestData()
         self.data.load_all()
         settings.VIEWER_USER_ID = self.data.user_b7w.id

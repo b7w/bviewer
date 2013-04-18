@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import re
 import time
 import logging
@@ -226,8 +227,15 @@ def cache_method(func):
 
 
 def as_job(func, queue='default', timeout=None, *args, **kwargs):
+    """
+    Add `func(*args, **kwargs)` to RQ and waite for result
+    """
     rq = get_queue(name=queue)
     task = rq.enqueue(func, timeout=timeout, args=args, kwargs=kwargs)
     while not task.is_finished:
         time.sleep(0.1)
     return task.result
+
+
+def abs_image_path(user_home, image_path):
+    return os.path.join(settings.VIEWER_STORAGE_PATH, user_home, image_path)

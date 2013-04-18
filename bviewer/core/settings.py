@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-
 from django.conf import settings
-
-# Some setting that needed for tests
-TESTS = False
 
 
 # If gallery is used for one person or for tests
@@ -16,7 +12,7 @@ VIEWER_USER_ID = getattr(settings, 'VIEWER_USER_ID', None)
 # also it is soft links to full images
 # check that this folder can be seen from nginx
 # each user have his own sub folder
-VIEWER_CACHE_PATH = getattr(settings, 'VIEWER_CACHE_PATH', '../cache')
+VIEWER_CACHE_PATH = getattr(settings, 'VIEWER_CACHE_PATH')
 
 
 # Start path where full images are located
