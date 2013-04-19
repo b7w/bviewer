@@ -17,7 +17,7 @@ var core = {
             });
         }
 
-        jQuery('#sb-body').live('click', function (e) {
+        jQuery('#sb-body').on('click', function (e) {
             var width = jQuery(this).width() / 3;
             var x = e.pageX - jQuery(this).offset().left;
             if (x < width) {
