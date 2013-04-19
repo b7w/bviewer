@@ -11,13 +11,13 @@ from django.utils.encoding import smart_text
 from bviewer.archive.controllers import ZipArchiveController
 from bviewer.core.controllers import get_gallery_user, GalleryController
 from bviewer.core.files.serve import DownloadResponse
-from bviewer.core.views import ShowMessage
+from bviewer.core.views import message_view
 
 
 logger = logging.getLogger(__name__)
 
 
-def Archive(request, id):
+def index_view(request, id):
     """
     Start to archive images, or if done redirect to download
     js - waite while done, after redirect to download
@@ -32,7 +32,7 @@ def Archive(request, id):
         raise Http404('No gallery found')
 
     if not controller.is_album():
-        return ShowMessage(request, message='It is not album with images')
+        return message_view(request, message='It is not album with images')
 
     images = controller.get_images()
     z = ZipArchiveController(images, holder)
@@ -54,7 +54,7 @@ def Archive(request, id):
     })
 
 
-def ArchiveStatus(request, id, hash):
+def status_view(request, id, hash):
     """
     Check if archive exists and ready for download
     """
@@ -76,7 +76,7 @@ def ArchiveStatus(request, id, hash):
     return HttpResponse(json.dumps(data))
 
 
-def Download(request, id, hash):
+def download_view(request, id, hash):
     """
     Download archive
     """
@@ -90,7 +90,7 @@ def Download(request, id, hash):
         raise Http404('No gallery found')
 
     if not controller.is_album():
-        return ShowMessage(request, message='It is not album with images')
+        return message_view(request, message='It is not album with images')
 
     images = controller.get_images()
     z = ZipArchiveController(images, holder, hash)

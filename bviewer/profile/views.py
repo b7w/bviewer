@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 @login_required
 @perm_any_required('core.user_holder')
-def ShowImagesAdmin(request):
+def images_view(request):
     user = get_gallery_user(request)
     if not user:
         raise Http404()
@@ -28,7 +28,7 @@ def ShowImagesAdmin(request):
 
 @login_required
 @perm_any_required('core.user_holder')
-def JsonStorageList(request):
+def json_storage_view(request):
     user = get_gallery_user(request)
     if not user:
         raise Http404()
@@ -39,7 +39,7 @@ def JsonStorageList(request):
 
 @login_required
 @perm_any_required('core.user_holder')
-def JsonImageService(request):
+def json_image_view(request):
     user = get_gallery_user(request)
     if not user:
         raise Http404()
@@ -61,7 +61,7 @@ def JsonImageService(request):
 
 @login_required
 @perm_any_required('core.user_holder')
-def DownloadImage(request):
+def download_image(request):
     if request.GET.get('p', None):
         path = request.GET['p']
         user = get_gallery_user(request)
