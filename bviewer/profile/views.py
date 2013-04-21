@@ -7,7 +7,7 @@ from django.shortcuts import render
 
 from bviewer.core.controllers import get_gallery_user
 from bviewer.core.files import Storage
-from bviewer.core.files.serve import DownloadResponse
+from bviewer.core.files.response import download_response
 from bviewer.core.images import CacheImage
 from bviewer.core.utils import perm_any_required, ResizeOptions
 from bviewer.profile.controllers import ImageController
@@ -72,8 +72,7 @@ def download_image(request):
                 image = CacheImage(path, options)
                 image.process()
                 name = Storage.name(path)
-                response = DownloadResponse.build(image.url, name)
-                return response
+                return download_response(image.url, name)
             raise Http404('No such file')
         except IOError as e:
             raise Http404(e)

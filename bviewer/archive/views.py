@@ -10,7 +10,7 @@ from django.utils.encoding import smart_text
 
 from bviewer.archive.controllers import ZipArchiveController
 from bviewer.core.controllers import get_gallery_user, GalleryController
-from bviewer.core.files.serve import DownloadResponse
+from bviewer.core.files.response import download_response
 from bviewer.core.views import message_view
 
 
@@ -100,4 +100,4 @@ def download_view(request, id, hash):
 
     logger.info(smart_text('download archive "%s"'), main.title)
     name = smart_text('{0} - {1}.zip').format(main.time.strftime('%Y-%m-%d'), main.title)
-    return DownloadResponse.build(z.url, name)
+    return download_response(z.url, name)

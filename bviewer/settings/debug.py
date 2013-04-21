@@ -16,8 +16,8 @@ INSTALLED_APPS += ('debug_toolbar',)
 
 ALLOWED_HOSTS = ('*', )
 
-VIEWER_SERVE = {
-    'BACKEND': 'bviewer.core.files.serve.default',
+VIEWER_DOWNLOAD_RESPONSE = {
+    'BACKEND': 'bviewer.core.files.response.django',
     'INTERNAL_URL': '/protected',
     'CACHE': False,
 }
