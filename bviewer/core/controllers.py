@@ -6,7 +6,7 @@ from django.db.models import Q
 
 from bviewer.core import settings
 from bviewer.core.files import Storage
-from bviewer.core.files.serve import DownloadResponse
+from bviewer.core.files.response import download_response
 from bviewer.core.images import CacheImage
 from bviewer.core.models import Gallery, Video, Image, ProxyUser
 from bviewer.core.utils import cache_method, ResizeOptions, as_job, domain_match
@@ -152,7 +152,7 @@ class ImageController(MediaController):
         image_async = CacheImage(image.path, options)
         as_job(image_async.process)
 
-        return DownloadResponse.build(image_async.url, name)
+        return download_response(image_async.url, name)
 
 
 class VideoController(MediaController):
@@ -167,4 +167,4 @@ class VideoController(MediaController):
         image_async = CacheImage(video.thumbnail_url, options)
         as_job(image_async.download)
 
-        return DownloadResponse.build(image_async.url, name)
+        return download_response(image_async.url, name)

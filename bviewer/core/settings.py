@@ -48,8 +48,8 @@ VIEWER_IMAGE_SIZE = getattr(settings, 'VIEWER_IMAGE_SIZE', {
 # X-Accel-Redirect for web server to improve file serving, highly recommended!
 # Set cache true to activate redirect response caching, it save 2 queries per image.
 # Be careful, it can't work with `default`! because it return hole file
-VIEWER_SERVE = getattr(settings, 'VIEWER_SERVE', {
-    'BACKEND': 'bviewer.core.files.serve.default',
+VIEWER_DOWNLOAD_RESPONSE = getattr(settings, 'VIEWER_DOWNLOAD_RESPONSE', {
+    'BACKEND': 'bviewer.core.files.response.django',
     'INTERNAL_URL': '/protected',
     'CACHE': False,
 })

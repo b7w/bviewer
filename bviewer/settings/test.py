@@ -15,8 +15,8 @@ DATABASES = {
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
-VIEWER_SERVE = {
-    'BACKEND': 'bviewer.core.files.serve.default',
+VIEWER_DOWNLOAD_RESPONSE = {
+    'BACKEND': 'bviewer.core.files.response.django',
     'INTERNAL_URL': '/protected',
     'CACHE': False,
 }
