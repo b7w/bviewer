@@ -25,6 +25,12 @@ VIEWER_STORAGE_PATH = getattr(settings, 'VIEWER_STORAGE_PATH')
 # By default crop is False, on True edges cut off.
 # if image smaller than size it will be linked.
 VIEWER_IMAGE_SIZE = getattr(settings, 'VIEWER_IMAGE_SIZE', {
+    'tiny': {
+        'WIDTH': 150,
+        'HEIGHT': 150,
+        'CROP': True,
+        'QUALITY': 85,
+    },
     'small': {
         'WIDTH': 300,
         'HEIGHT': 300,

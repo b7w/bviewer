@@ -9,7 +9,7 @@ from bviewer.core.controllers import get_gallery_user
 from bviewer.core.files import Storage
 from bviewer.core.files.response import download_response
 from bviewer.core.images import CacheImage
-from bviewer.core.utils import perm_any_required, ResizeOptions
+from bviewer.core.utils import perm_any_required, ResizeOptions, as_job
 from bviewer.profile.controllers import ImageController
 from bviewer.profile.utils import JSONResponse
 
@@ -68,9 +68,10 @@ def download_image(request):
         storage = Storage(user.home)
         try:
             if storage.exists(path):
-                options = ResizeOptions('small', user=user)
+                options = ResizeOptions('tiny', user=user)
                 image = CacheImage(path, options)
-                image.process()
+                if not image.is_exists():
+                    as_job(image.process)
                 name = Storage.name(path)
                 return download_response(image.url, name)
             raise Http404('No such file')
