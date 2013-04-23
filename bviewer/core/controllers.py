@@ -150,7 +150,8 @@ class ImageController(MediaController):
 
         options = ResizeOptions(size, user=self.holder)
         image_async = CacheImage(image.path, options)
-        as_job(image_async.process)
+        if not image_async.is_exists():
+            as_job(image_async.process)
 
         return download_response(image_async.url, name)
 
@@ -165,6 +166,7 @@ class VideoController(MediaController):
 
         options = ResizeOptions(size, user=self.holder, name=str(video.id))
         image_async = CacheImage(video.thumbnail_url, options)
-        as_job(image_async.download)
+        if not image_async.is_exists():
+            as_job(image_async.download)
 
         return download_response(image_async.url, name)

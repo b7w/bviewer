@@ -145,12 +145,16 @@ class CacheImage(object):
             raise IOError(e)
         return self.hash_builder.build(self.path, time=time, extra=options)
 
+    def is_exists(self):
+        return os.path.lexists(self.cache)
+
     def process(self):
         """
         Get image from storage and save it to cache. If image is to big, resize. If to small, link.
         If cache already exists, do nothing
         """
         self.check_cache_dir()
+        tmp = self.cache + '.tmp'
         if not os.path.lexists(self.cache):
             with open(self.abs_path, mode='rb') as filein:
                 new_image = ResizeImage(filein)
@@ -163,8 +167,11 @@ class CacheImage(object):
                     else:
                         w, h = new_image.max_size(self.options.size)
                         new_image.resize(w, h)
-                    with open(self.cache, mode='wb') as fout:
+                    with open(tmp, mode='wb') as fout:
                         new_image.save_to(fout, self.options.quality)
+
+                    # make file creation atomic
+                    os.rename(tmp, self.cache)
                     logger.info('resize \'%s\' with %s', self.path, self.options)
                 else:
                     logger.info('link \'%s\' with %s', self.path, self.options)
@@ -176,6 +183,7 @@ class CacheImage(object):
         If cache exists, do nothing
         """
         self.check_cache_dir()
+        tmp = self.cache + '.tmp'
         if not os.path.exists(self.cache):
             image = cStringIO.StringIO()
             image.write(urllib2.urlopen(self.path).read())
@@ -186,8 +194,11 @@ class CacheImage(object):
                 w, h = newImage.min_size(self.options.size)
                 newImage.resize(w, h)
                 newImage.crop_center(self.options.width, self.options.height)
-                with open(self.cache, mode='wb') as fileout:
+                with open(tmp, mode='wb') as fileout:
                     newImage.save_to(fileout, self.options.quality)
+
+                # make file creation atomic
+                os.rename(tmp, self.cache)
             logger.info('download image \'%s\' %s', self.path, 'and resize' if bigger else '')
 
     def check_cache_dir(self):
