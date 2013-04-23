@@ -37,5 +37,4 @@ def download_response(path, name):
     module_path, class_name = import_path.rsplit('.', 1)
     module = import_module(module_path)
     clazz = getattr(module, class_name)
-    print(clazz)
     return clazz(path, name)

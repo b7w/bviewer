@@ -134,7 +134,7 @@ def download_video_thumbnail_view(request, id):
         raise Http404('Oops no video thumbnail found')
 
 
-@decor_on(settings.VIEWER_DOWNLOAD_RESPONSE['CACHE'], cache_page, 60 * 60 * 24)
+@decor_on(settings.VIEWER_DOWNLOAD_RESPONSE['CACHE'], cache_page, 60 * 60)
 @vary_on_cookie
 def download_image_view(request, size, id):
     """
