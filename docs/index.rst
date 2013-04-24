@@ -13,44 +13,23 @@ BelieveViewer documentation
 First steps
 -----------
 
-* | **From scratch:**
-    :doc:`Overview <intro/overview>` |
-    :doc:`Installation <intro/installation>`
-
-* | **Getting help:**
-    :doc:`Feedback <intro/feedback>`
-
-
-Development process
--------------------
-
-* | **Model:**
-    :doc:`Architecture <ref/architecture>`
-
-* | **Testing:**
-    :doc:`Overview <topics/testing>`
-
+* :doc:`Overview <intro/overview>`
+* :doc:`Installation <intro/installation>`
+* :doc:`Management <intro/management>`
 
 
 API Reference
 ------------------------------------
 
-* | **Settings:**
-    :doc:`Full list of settings <ref/settings>`
-
-* | **Image serving:**
-    :doc:`Serving backends <ref/serving>`
-
-* | **Management:**
-    :doc:`Fabric commands <ref/fabric>`
+* :doc:`Architecture <ref/architecture>`
+* :doc:`Settings <ref/settings>`
 
 
-Releases notes
+Versions
 ------------------------------------
 
-* | **Versions:**
-    :doc:`Release notes <releases/notes>` |
-    :doc:`TODO <releases/todo>`
+* :doc:`Release notes <releases/notes>`
+* :doc:`ToDo <releases/todo>`
 
 
 Indices and tables
