@@ -17,7 +17,7 @@ from bviewer.core.views import message_view
 logger = logging.getLogger(__name__)
 
 
-def index_view(request, id):
+def index_view(request, gid):
     """
     Start to archive images, or if done redirect to download
     js - waite while done, after redirect to download
@@ -26,7 +26,7 @@ def index_view(request, id):
     if not holder:
         raise Http404('No user defined')
 
-    controller = GalleryController(holder, request.user, id)
+    controller = GalleryController(holder, request.user, gid)
     main = controller.get_object()
     if not main:
         raise Http404('No gallery found')
@@ -38,8 +38,8 @@ def index_view(request, id):
     z = ZipArchiveController(images, holder)
 
     # links for redirect to download, and check status
-    redirect = reverse('archive.download', kwargs=dict(id=id, hash=z.uid))
-    link = reverse('archive.status', kwargs=dict(id=id, hash=z.uid))
+    redirect = reverse('archive.download', kwargs=dict(gid=gid, hash=z.uid))
+    link = reverse('archive.status', kwargs=dict(gid=gid, hash=z.uid))
 
     if z.status == 'DONE':
         return HttpResponseRedirect(redirect)
@@ -54,7 +54,7 @@ def index_view(request, id):
     })
 
 
-def status_view(request, id, hash):
+def status_view(request, gid, uid):
     """
     Check if archive exists and ready for download
     """
@@ -62,7 +62,7 @@ def status_view(request, id, hash):
     if not holder:
         raise Http404('No user defined')
 
-    controller = GalleryController(holder, request.user, id)
+    controller = GalleryController(holder, request.user, gid)
     main = controller.get_object()
     if not main:
         return HttpResponse(json.dumps(dict(error='No gallery found')))
@@ -70,13 +70,13 @@ def status_view(request, id, hash):
     if not controller.is_album():
         return HttpResponse(json.dumps(dict(error='It is not album with images')))
 
-    z = ZipArchiveController(controller.get_images(), holder, uid=hash)
-    data = dict(status=z.status, gallery=id, id=hash, progress=z.progress)
+    z = ZipArchiveController(controller.get_images(), holder, uid=uid)
+    data = dict(status=z.status, gallery=gid, uid=uid, progress=z.progress)
 
     return HttpResponse(json.dumps(data))
 
 
-def download_view(request, id, hash):
+def download_view(request, gid, uid):
     """
     Download archive
     """
@@ -84,7 +84,7 @@ def download_view(request, id, hash):
     if not holder:
         raise Http404('No user defined')
 
-    controller = GalleryController(holder, request.user, id)
+    controller = GalleryController(holder, request.user, gid)
     main = controller.get_object()
     if not main:
         raise Http404('No gallery found')
@@ -93,7 +93,7 @@ def download_view(request, id, hash):
         return message_view(request, message='It is not album with images')
 
     images = controller.get_images()
-    z = ZipArchiveController(images, holder, hash)
+    z = ZipArchiveController(images, holder, uid)
 
     if z == 'NONE':
         raise Http404('No file found')
