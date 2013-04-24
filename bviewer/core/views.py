@@ -38,7 +38,7 @@ def index_view(request):
 
 @cache_page(60 * 60)
 @vary_on_cookie
-def gallery_view(request, id):
+def gallery_view(request, uid):
     """
     Show sub galleries or images with videos
     """
@@ -46,7 +46,7 @@ def gallery_view(request, id):
     if not holder:
         return message_view(request, message='No user defined')
 
-    controller = GalleryController(holder, request.user, id)
+    controller = GalleryController(holder, request.user, uid)
     main = controller.get_object()
     if not main:
         return message_view(request, message='No such gallery')
@@ -67,7 +67,7 @@ def gallery_view(request, id):
 
 @cache_page(60 * 60 * 24)
 @vary_on_cookie
-def image_view(request, id):
+def image_view(request, uid):
     """
     Show image with description
     """
@@ -75,7 +75,7 @@ def image_view(request, id):
     if not holder:
         return message_view(request, message='No user defined')
 
-    controller = ImageController(holder, request.user, id)
+    controller = ImageController(holder, request.user, uid)
     image = controller.get_object()
     if image is None:
         return message_view(request, message='No such image')
@@ -89,7 +89,7 @@ def image_view(request, id):
 
 @cache_page(60 * 60 * 24)
 @vary_on_cookie
-def video_view(request, id):
+def video_view(request, uid):
     """
     Show video with description
     """
@@ -97,7 +97,7 @@ def video_view(request, id):
     if not holder:
         return message_view(request, message='No user defined')
 
-    controller = VideoController(holder, request.user, id)
+    controller = VideoController(holder, request.user, uid)
     video = controller.get_object()
     if video is None:
         return message_view(request, message='No such video')
@@ -111,7 +111,7 @@ def video_view(request, id):
 
 @decor_on(settings.VIEWER_DOWNLOAD_RESPONSE['CACHE'], cache_page, 60 * 60)
 @vary_on_cookie
-def download_video_thumbnail_view(request, id):
+def download_video_thumbnail_view(request, uid):
     """
     Get video thumbnail from video hosting and cache it
     """
@@ -119,7 +119,7 @@ def download_video_thumbnail_view(request, id):
     if not holder:
         raise Http404('No user defined')
 
-    controller = VideoController(holder, request.user, id)
+    controller = VideoController(holder, request.user, uid)
     video = controller.get_object()
     if video is None:
         raise Http404('No such video')
@@ -127,16 +127,16 @@ def download_video_thumbnail_view(request, id):
     try:
         return controller.get_response('small')
     except ResizeOptionsError as e:
-        logger.error('id:%s, holder:%s \n %s', id, holder, e)
+        logger.error('id:%s, holder:%s \n %s', uid, holder, e)
         return message_view(request, message=e)
     except IOError as e:
-        logger.error('id:%s, holder:%s \n %s', id, holder, e)
+        logger.error('id:%s, holder:%s \n %s', uid, holder, e)
         raise Http404('Oops no video thumbnail found')
 
 
 @decor_on(settings.VIEWER_DOWNLOAD_RESPONSE['CACHE'], cache_page, 60 * 60)
 @vary_on_cookie
-def download_image_view(request, size, id):
+def download_image_view(request, size, uid):
     """
     Get image with special size
     """
@@ -144,7 +144,7 @@ def download_image_view(request, size, id):
     if not holder:
         raise Http404('No user defined')
 
-    controller = ImageController(holder, request.user, id)
+    controller = ImageController(holder, request.user, uid)
     image = controller.get_object()
     if image is None:
         raise Http404('No such image')
@@ -152,10 +152,10 @@ def download_image_view(request, size, id):
     try:
         return controller.get_response(size)
     except ResizeOptionsError as e:
-        logger.error('id:%s, holder:%s \n %s', id, holder, e)
+        logger.error('id:%s, holder:%s \n %s', uid, holder, e)
         return message_view(request, message=e)
     except IOError as e:
-        logger.error('id:%s, holder:%s \n %s', id, holder, e)
+        logger.error('id:%s, holder:%s \n %s', uid, holder, e)
         return redirect('/static/core/img/gallery.png')
 
 
