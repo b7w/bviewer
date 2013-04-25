@@ -14,23 +14,23 @@ BelieveViewer documentation
 First steps
 -----------
 
-* :doc:`Overview <intro/overview>`
-* :doc:`Installation <intro/installation>`
-* :doc:`Management <intro/management>`
+* :doc:`Overview </intro/overview>`
+* :doc:`Installation </intro/installation>`
+* :doc:`Management </intro/management>`
 
 
 API Reference
 -------------
 
-* :doc:`Architecture <ref/architecture>`
-* :doc:`Settings <ref/settings>`
+* :doc:`Architecture </ref/architecture>`
+* :doc:`Settings </ref/settings>`
 
 
-Versions
+Releases
 --------
 
-* :doc:`Release notes <releases/notes>`
-* :doc:`ToDo <releases/todo>`
+* :doc:`Release notes </releases/notes>`
+* :doc:`ToDo </releases/todo>`
 
 
 Indices and tables
