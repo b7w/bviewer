@@ -66,10 +66,6 @@ Default:
             'HEIGHT': 300,
             'CROP': True,
         },
-        'middle': {
-            'WIDTH': 870,
-            'HEIGHT': 600,
-        },
         'big': {
             'WIDTH': 1280,
             'HEIGHT': 720,
@@ -85,6 +81,8 @@ Default:
   By default crop is False, on True edges cut off, quality equal 95%.
   If image smaller than size it will be linked.
 
+| Tiny size used in admin to minimize cache size. Small size used in image thumbnails.
+  Big size used for js gallery. Full size used to download real image.
 
 
 VIEWER_DOWNLOAD_RESPONSE

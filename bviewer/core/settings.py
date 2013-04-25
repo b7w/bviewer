@@ -36,10 +36,6 @@ VIEWER_IMAGE_SIZE = getattr(settings, 'VIEWER_IMAGE_SIZE', {
         'HEIGHT': 300,
         'CROP': True,
     },
-    'middle': {
-        'WIDTH': 870,
-        'HEIGHT': 600,
-    },
     'big': {
         'WIDTH': 1280,
         'HEIGHT': 720,

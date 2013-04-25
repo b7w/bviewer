@@ -3,19 +3,19 @@ Believe documentation content
 =============================
 
 .. toctree::
-:hidden:
+    :hidden:
 
-        index
+    index
 
 
 .. toctree::
-:maxdepth: 2
+    :maxdepth: 2
 
-        intro/overview
+    intro/overview
 
-        intro/installation
+    intro/installation
 
-        ref/settings
+    ref/settings
 
 
 Indices and tables

@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-
 from django.core.urlresolvers import reverse
+
 from tastypie import fields
 from tastypie.authentication import Authentication, MultiAuthentication, SessionAuthentication
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource
-from bviewer.api.authorization import GalleryAuthorization, GalleryItemAuthorization
 
+from bviewer.api.authorization import GalleryAuthorization, GalleryItemAuthorization
+from bviewer.core import settings
 from bviewer.core.models import Gallery, ProxyUser, Image, Video
 
 EXACT = ['exact', ]
@@ -26,7 +27,6 @@ class UserResource(ModelResource):
 
 class GalleryResource(ModelResource):
     user = fields.ForeignKey(UserResource, 'user')
-    #parent = fields.ForeignKey('self', 'parent', null=True) # Generate parent select per each item
 
     def dehydrate(self, bundle):
         bundle.data['id'] = bundle.obj.id  # make ID integer
@@ -98,9 +98,10 @@ class ImageResource(GalleryItemResource):
         """
         obj_id = bundle.obj.id
         bundle.data['url'] = reverse('core.image', kwargs=dict(uid=obj_id))
-        for size in ['small', 'middle', 'big', 'full']:
-            key = 'image_{0}'.format(size)
-            bundle.data[key] = reverse('core.download', kwargs=dict(size=size, uid=obj_id))
+        links = {}
+        for size in settings.VIEWER_IMAGE_SIZE:
+            links[size] = reverse('core.download', kwargs=dict(size=size, uid=obj_id))
+        bundle.data['image'] = links
 
         user = bundle.request.user
         if not (user.is_authenticated() and user.id == bundle.obj.gallery.user_id):

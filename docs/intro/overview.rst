@@ -69,16 +69,16 @@ Screen shots
 **Home page, list of galleries.**
 
 .. image:: screen1.jpg
-:width: 100%
+    :width: 100%
 
 
 **Gallery with images**
 
 .. image:: screen2.jpg
-:width: 100%
+    :width: 100%
 
 
 **JS gallery with full screen image**
 
 .. image:: screen3.jpg
-:width: 100%
+    :width: 100%
