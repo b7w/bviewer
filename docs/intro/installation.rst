@@ -1,6 +1,6 @@
-*******************
+===================
 Quick install guide
-*******************
+===================
 
 .. index:: Installation
 
@@ -170,4 +170,4 @@ Web server
 What to read next
 =================
 
-| Read :doc:`full list of settings <ref/settings>`.
+| Read :doc:`Settings <ref/settings>`.
