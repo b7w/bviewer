@@ -170,4 +170,4 @@ Web server
 What to read next
 =================
 
-| Read :doc:`Settings <ref/settings>`.
+| Read :doc:`Settings </ref/settings>`.
