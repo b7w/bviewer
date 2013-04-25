@@ -16,12 +16,12 @@ VIEWER_CACHE_PATH = getattr(settings, 'VIEWER_CACHE_PATH')
 
 
 # Start path where full images are located
-# each user will have his own home, in profile.storage
+# each user can have his own home, in profile.storage
 VIEWER_STORAGE_PATH = getattr(settings, 'VIEWER_STORAGE_PATH')
 
 
 # Sizes to resize images.
-# Is it a map of maps. example - `'small': {'WIDTH': 300, 'HEIGHT': 300, 'CROP': True}`
+# Is it a map of maps. example - ``'small': {'WIDTH': 300, 'HEIGHT': 300, 'CROP': True}``
 # By default crop is False, on True edges cut off.
 # if image smaller than size it will be linked.
 VIEWER_IMAGE_SIZE = getattr(settings, 'VIEWER_IMAGE_SIZE', {
@@ -53,7 +53,7 @@ VIEWER_IMAGE_SIZE = getattr(settings, 'VIEWER_IMAGE_SIZE', {
 
 # X-Accel-Redirect for web server to improve file serving, highly recommended!
 # Set cache true to activate redirect response caching, it save 2 queries per image.
-# Be careful, it can't work with `default`! because it return hole file
+# Be careful, cache can't work with `default`! because it return hole file
 VIEWER_DOWNLOAD_RESPONSE = getattr(settings, 'VIEWER_DOWNLOAD_RESPONSE', {
     'BACKEND': 'bviewer.core.files.response.django',
     'INTERNAL_URL': '/protected',
