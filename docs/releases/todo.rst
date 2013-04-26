@@ -2,7 +2,8 @@
 ToDo plan
 =========
 
-.. index:: ToDo plan
+.. index:: ToDo, plan
+
 
 * | **Any ideas?**
   | You can write me email to isudoblog@gmail.com or use issue tracker

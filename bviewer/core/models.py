@@ -130,6 +130,7 @@ class Gallery(models.Model):
 
     class Meta:
         verbose_name = 'Gallery'
+        verbose_name_plural = 'Galleries'
         ordering = ['-time']
         unique_together = (('title', 'user'),)
 
