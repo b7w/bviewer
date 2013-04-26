@@ -12,7 +12,7 @@ BelieveViewer documentation
 
 
 First steps
------------
+===========
 
 * :doc:`Overview </intro/overview>`
 * :doc:`Installation </intro/installation>`
@@ -20,14 +20,14 @@ First steps
 
 
 API Reference
--------------
+=============
 
 * :doc:`Architecture </ref/architecture>`
 * :doc:`Settings </ref/settings>`
 
 
 Releases
---------
+========
 
 * :doc:`Release notes </releases/notes>`
 * :doc:`ToDo </releases/todo>`

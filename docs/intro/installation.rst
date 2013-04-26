@@ -28,11 +28,10 @@ Requirements
     App tested only with ubuntu 12.04, python 2.7, postgres 9.1 and nginx 1.2.
 
 
-DB driver and image library
+Database driver and image library
 ===========================
 
-.. index:: DB driver and image library
-.. index:: Image library
+.. index:: Database driver, Image library
 
 There is two ways. First install them from ubuntu package library.
 Or install from source. The second is more preferred.
@@ -58,8 +57,10 @@ From source
     sudo pip install -r requirements.txt
 
 
-Redis DB
+Redis database
 ========
+
+.. index:: Redis database
 
 | For task queue bviewer use redis database. In default repositories version is too old.
   So it is needed to use ppa, *rwky/redis* for example.
@@ -99,8 +100,7 @@ Setup application
 WSGI server
 ===========
 
-.. index:: WSGI server
-.. index:: uwsgi
+.. index:: WSGI server, uwsgi
 
 | To run application as daemon we install *uwsgi*.
 
@@ -137,8 +137,7 @@ WSGI server
 Web server
 ===========
 
-.. index:: Web server
-.. index:: nginx
+.. index:: Web server, nginx
 
 | To run web server we need install *nginx*.
 
@@ -170,4 +169,4 @@ Web server
 What to read next
 =================
 
-| Read :doc:`Settings </ref/settings>`.
+| Read :doc:`Settings </ref/settings>`, :doc:`Management </intro/management>`.

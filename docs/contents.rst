@@ -15,6 +15,8 @@ Believe documentation content
 
     intro/installation
 
+    intro/management
+
     ref/settings
 
     releases/todo
