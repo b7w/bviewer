@@ -9,6 +9,7 @@ Application cache
 =================
 
 .. index:: Application cache
+.. _application-cache:
 
 | To clear image and zip archive cache run first command.
   Files will be deleted if their size will be bigger than user available.
