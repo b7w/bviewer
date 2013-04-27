@@ -134,7 +134,7 @@ class CacheImage(object):
 
     def get_hash_name(self):
         self.hash_builder = FileUniqueName()
-        options = (self.options.size, self.options.quality)
+        options = (self.options.height, self.options.width, self.options.quality, self.options.crop)
         # if it is a video - there is no file path
         if self.options.name:
             return self.hash_builder.build(self.options.name, extra=options)

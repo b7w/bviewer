@@ -19,6 +19,8 @@ Believe documentation content
 
     ref/settings
 
+    ref/architecture
+
     releases/todo
 
 

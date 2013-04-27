@@ -29,7 +29,7 @@ Requirements
 
 
 Database driver and image library
-===========================
+=================================
 
 .. index:: Database driver, Image library
 
@@ -58,7 +58,7 @@ From source
 
 
 Redis database
-========
+==============
 
 .. index:: Redis database
 
@@ -80,7 +80,7 @@ Setup application
 
 
 | Copy sample setting file, and edit it.
-  At least it is need to set :ref:`database <CONF_VIEWER_STORAGE_PATH>`, :ref:`storage path <CONF_VIEWER_STORAGE_PATH>`
+  At least it is need to set :ref:`cache <CONF_VIEWER_CACHE_PATH>`, :ref:`storage path <CONF_VIEWER_STORAGE_PATH>`
   and :ref:`allowed hosts <CONF_ALLOWED_HOSTS>`.
 
 .. code-block:: bash
@@ -135,7 +135,7 @@ WSGI server
 
 
 Web server
-===========
+==========
 
 .. index:: Web server, nginx
 
