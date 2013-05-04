@@ -19,6 +19,38 @@ Framework
   API - with `tastypie library <http://tastypieapi.org/>`__.
 
 
+Project structure
+=================
+
+.. index:: Project structure
+
+| Here brief lists of projects tree structure.
+  Expected that you are familiar with django app structure.
+  All small helper functions stored in *utils*.
+  All functions and classes processing database models stored in *controls*.
+
+* **api** - Simple REST tastypie api for basic models.
+* **archive** - Some views and functions to create zip archive of one album.
+* **core** - Main app, all base logic stored here.
+    * **files** - Some logic to process files like storage access and serving.
+    * **images** - Resizing and Caching of images, Exif data.
+    * **settings** - main app setting, based on getattr from django settings.
+* **profile** - Provide subclass of *AdminSite* for gallery owner with limited access.
+* **settings** - Django settings but split and pack into python package.
+* **static** - Favicons and robots.txt.
+* **templates** - Static templates for 404 and 500 error pages.
+
+
+Profile
+=======
+
+.. index:: Profile
+
+| Profile was made for gallery owners, where he can edit only his galleries and images.
+  Technically it is sub class of django *AdminSite*.
+  Plus some separate views to provide ajax image managing.
+
+
 Image storage
 =============
 
