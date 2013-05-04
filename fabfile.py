@@ -51,6 +51,8 @@ def test():
     os.system('python {0} test core --settings=bviewer.settings.test'.format(MANAGE_PY))
     print('[ INFO ] Run api module tests ')
     os.system('python {0} test api --settings=bviewer.settings.test'.format(MANAGE_PY))
+    print('[ INFO ] Run archive module tests ')
+    os.system('python {0} test archive --settings=bviewer.settings.test'.format(MANAGE_PY))
 
 
 def clear():

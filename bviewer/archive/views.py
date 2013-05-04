@@ -24,12 +24,12 @@ def index_view(request, gid):
     """
     holder = get_gallery_user(request)
     if not holder:
-        raise Http404('No user defined')
+        return message_view(request, message='No user defined')
 
     controller = GalleryController(holder, request.user, gid)
     main = controller.get_object()
     if not main:
-        raise Http404('No gallery found')
+        return message_view(request, message='No gallery found')
 
     if not controller.is_album():
         return message_view(request, message='It is not album with images')
