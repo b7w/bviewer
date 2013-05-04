@@ -75,7 +75,7 @@ class ZipArchiveController(object):
         """
         Progress in range of 0..100
 
-        :return: int
+        :rtype: int
         """
         if self.status == 'DONE':
             return 100
