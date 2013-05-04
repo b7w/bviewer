@@ -26,20 +26,20 @@ class PrivateGalleriesTest(TestCase):
 
     def login(self):
         name = self.data.user_b7w.username
-        assert self.client.login(username=name, password=self.data.PASSWORD)
+        self.assertTrue(self.client.login(username=name, password=self.data.PASSWORD))
 
     def assertContent(self, url, content):
         resp = self.client.get(url)
-        assert resp.status_code == 200
-        assert content in resp.content
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(content, resp.content)
 
     def test_home(self):
         url = reverse('core.home')
         resp = self.client.get(url)
-        assert resp.status_code == 200
-        assert 'First' in resp.content
-        assert 'Second' not in resp.content
-        assert 'Third' in resp.content
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('First', resp.content)
+        self.assertNotIn('Second', resp.content)
+        self.assertIn('Third', resp.content)
 
         self.login()
         self.assertContent(url, 'First')

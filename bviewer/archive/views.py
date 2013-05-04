@@ -38,8 +38,8 @@ def index_view(request, gid):
     z = ZipArchiveController(images, holder)
 
     # links for redirect to download, and check status
-    redirect = reverse('archive.download', kwargs=dict(gid=gid, hash=z.uid))
-    link = reverse('archive.status', kwargs=dict(gid=gid, hash=z.uid))
+    redirect = reverse('archive.download', kwargs=dict(gid=gid, uid=z.uid))
+    link = reverse('archive.status', kwargs=dict(gid=gid, uid=z.uid))
 
     if z.status == 'DONE':
         return HttpResponseRedirect(redirect)
