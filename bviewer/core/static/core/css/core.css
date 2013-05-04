@@ -75,11 +75,6 @@ h6 {
 }
 
 .view-full {
-    display: inline-block;
-}
-
-.view-mobile {
-    display: none;
 }
 
 /* START NAVIGATION BAR */
@@ -443,15 +438,16 @@ button {
 @media only screen and (max-width : 480px) {
     /* Smartphone view: 1 tile */
     body {
-        padding-top: 0;
+        padding-top: 30px;
+    }
+
+    nav {
+        height: 40px;
+        margin: -8px 0;
     }
 
     .view-full {
-        display: none;
-    }
-
-    .view-mobile {
-        display: inline-block;
+        display: none !important;
     }
 
     .container {
@@ -467,11 +463,7 @@ button {
 @media only screen and (max-width : 650px) and (min-width : 481px) {
     /* Tablet view: 2 tiles */
     .view-full {
-        display: none;
-    }
-
-    .view-mobile {
-        display: inline-block;
+        display: none !important;
     }
 
     .container {
