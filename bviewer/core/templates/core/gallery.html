@@ -4,7 +4,9 @@
 {% block title %}{{ main.title }}{% endblock %}
 
 {% block navigation %}
-    <li><a href="{% url 'archive.archive' main.id %}" title="Download all images in archive">Download</a></li>
+    <li class="view-full">
+        <a href="{% url 'archive.archive' main.id %}" title="Download all images in archive">Download</a>
+    </li>
 {% endblock %}
 
 {% block main %}
