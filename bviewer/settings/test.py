@@ -38,3 +38,5 @@ LOGGING = {
         },
     }
 }
+
+VIEWER_STORAGE_PATH = os.path.join(PROJECT_PATH, VIEWER_CACHE_PATH, 'storage')

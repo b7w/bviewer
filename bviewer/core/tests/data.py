@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
+import os
 
 from django.contrib.auth.models import User, Permission
 
+from bviewer.core import settings
+from bviewer.core.images import RandomImage
 from bviewer.core.models import ProxyUser, Gallery, Image, Video
+from bviewer.core.utils import abs_image_path
 
 
 class TestData:
@@ -58,14 +62,31 @@ class TestData:
         self.gallery5.save()
         return self
 
+    def _generate_image(self, home, name):
+        """
+        Create random image in settings.VIEWER_STORAGE_PATH if not exists
+        """
+        if not os.path.exists(settings.VIEWER_STORAGE_PATH):
+            os.makedirs(settings.VIEWER_STORAGE_PATH)
+        path = abs_image_path(home, name)
+        if not os.path.exists(path):
+            image = RandomImage(2048)
+            image.draw(name)
+            image.save(path)
+
     def load_images(self):
         self.image1 = Image.objects.create(gallery=self.gallery1, path='image1.jpg')
         self.image2 = Image.objects.create(gallery=self.gallery1, path='image2.jpg')
+        self._generate_image(self.gallery1.user.home, self.image1.path)
+        self._generate_image(self.gallery1.user.home, self.image2.path)
 
         self.image3 = Image.objects.create(gallery=self.gallery2, path='image3.jpg')
         self.image4 = Image.objects.create(gallery=self.gallery2, path='image4.jpg')
+        self._generate_image(self.gallery2.user.home, self.image3.path)
+        self._generate_image(self.gallery2.user.home, self.image4.path)
 
-        self.image5 = Image.objects.create(gallery=self.gallery5, path='image6.jpg')
+        self.image5 = Image.objects.create(gallery=self.gallery5, path='image5.jpg')
+        self._generate_image(self.gallery5.user.home, self.image5.path)
         return self
 
     def load_videos(self):
