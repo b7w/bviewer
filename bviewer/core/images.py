@@ -3,13 +3,17 @@ from datetime import datetime
 from fractions import Fraction
 import os
 import random
-import urllib2
-import cStringIO
 import logging
+
+try:
+    from urllib2 import urlopen
+except ImportError:
+    from urllib.request import urlopen
 
 from PIL import Image, ImageDraw, ImageFont
 from PIL.ExifTags import TAGS
 from django.conf import settings
+from django.utils.six import BytesIO
 
 from bviewer.core.utils import FileUniqueName, abs_image_path
 
@@ -116,6 +120,37 @@ class ResizeImage(object):
         self.file.save(fout, self.type, quality=quality)
 
 
+class BaseImageReader(object):
+    """
+    Simple file/urlopen interface for image reading in `with` statement.
+    """
+
+    def __init__(self, name):
+        self.name = name
+
+    def __enter__(self):
+        raise NotImplementedError()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
+
+class FileImageReader(file, BaseImageReader):
+    def __init__(self, name):
+        super(file, self).__init__(name, mode='rb')
+
+    def __enter__(self):
+        return ResizeImage(super(file, self).__enter__())
+
+
+class HttpImageReader(BaseImageReader):
+    def __enter__(self):
+        image = BytesIO()
+        image.write(urlopen(self.name).read())
+        image.seek(0)
+        return ResizeImage(image)
+
+
 class CacheImage(object):
     """
     It is a facade for Resize image that resize images and cache it in `settings.VIEWER_CACHE_PATH`
@@ -150,7 +185,7 @@ class CacheImage(object):
     def is_exists(self):
         return os.path.lexists(self.cache)
 
-    def process(self):
+    def process(self, reader=FileImageReader):
         """
         Get image from storage and save it to cache. If image is to big, resize. If to small, link.
         If cache already exists, do nothing
@@ -158,19 +193,18 @@ class CacheImage(object):
         self.check_cache_dir()
         tmp = self.cache + '.tmp'
         if not os.path.lexists(self.cache):
-            with open(self.abs_path, mode='rb') as filein:
-                new_image = ResizeImage(filein)
-                bigger = new_image.is_bigger(self.options.width, self.options.height)
+            with reader(self.abs_path) as image:
+                bigger = image.is_bigger(self.options.width, self.options.height)
                 if bigger:
                     if self.options.crop:
-                        w, h = new_image.min_size(self.options.size)
-                        new_image.resize(w, h)
-                        new_image.crop_center(self.options.width, self.options.height)
+                        w, h = image.min_size(self.options.size)
+                        image.resize(w, h)
+                        image.crop_center(self.options.width, self.options.height)
                     else:
-                        w, h = new_image.max_size(self.options.size)
-                        new_image.resize(w, h)
+                        w, h = image.max_size(self.options.size)
+                        image.resize(w, h)
                     with open(tmp, mode='wb') as fout:
-                        new_image.save_to(fout, self.options.quality)
+                        image.save_to(fout, self.options.quality)
 
                     # make file creation atomic
                     os.rename(tmp, self.cache)
@@ -179,7 +213,7 @@ class CacheImage(object):
                     logger.info('link \'%s\' with %s', self.path, self.options)
                     os.symlink(self.abs_path, self.cache)
 
-    def download(self):
+    def download(self, reader=HttpImageReader):
         """
         Download image and put to cache.
         If cache exists, do nothing
@@ -187,21 +221,18 @@ class CacheImage(object):
         self.check_cache_dir()
         tmp = self.cache + '.tmp'
         if not os.path.exists(self.cache):
-            image = cStringIO.StringIO()
-            image.write(urllib2.urlopen(self.path).read())
-            image.seek(0)
-            newImage = ResizeImage(image)
-            bigger = newImage.is_bigger(self.options.width, self.options.height)
-            if bigger:
-                w, h = newImage.min_size(self.options.size)
-                newImage.resize(w, h)
-                newImage.crop_center(self.options.width, self.options.height)
-                with open(tmp, mode='wb') as fileout:
-                    newImage.save_to(fileout, self.options.quality)
+            with reader(self.path) as image:
+                bigger = image.is_bigger(self.options.width, self.options.height)
+                if bigger:
+                    w, h = image.min_size(self.options.size)
+                    image.resize(w, h)
+                    image.crop_center(self.options.width, self.options.height)
+                    with open(tmp, mode='wb') as fileout:
+                        image.save_to(fileout, self.options.quality)
 
-                # make file creation atomic
-                os.rename(tmp, self.cache)
-            logger.info('download image \'%s\' %s', self.path, 'and resize' if bigger else '')
+                    # make file creation atomic
+                    os.rename(tmp, self.cache)
+                logger.info('download image \'%s\' %s', self.path, 'and resize' if bigger else '')
 
     def check_cache_dir(self):
         if not os.path.exists(self.options.cache_abs):
@@ -299,4 +330,5 @@ class RandomImage:
         self.draw_text(text)
 
     def save(self, path):
+        logger.info('Save random image "%s"', path)
         self.image.save(path, 'JPEG')
