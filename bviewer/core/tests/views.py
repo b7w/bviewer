@@ -42,10 +42,9 @@ class PrivateGalleriesTest(BaseViewTest):
         self.assertContent(url_second, 'Second')
 
     def test_download(self):
-        # there is no real images - it will redirect to static one
         url_first = self.reverse('core.download', 'full', self.data.image1.id)
         resp = self.client.get(url_first)
-        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp.status_code, 200)
         url_second = self.reverse('core.download', 'full', self.data.image3.id)
         resp = self.client.get(url_second)
         self.assertEqual(resp.status_code, 404)
@@ -53,10 +52,10 @@ class PrivateGalleriesTest(BaseViewTest):
         self.login()
         url_first = self.reverse('core.download', 'full', self.data.image1.id)
         resp = self.client.get(url_first)
-        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp.status_code, 200)
         url_second = self.reverse('core.download', 'full', self.data.image3.id)
         resp = self.client.get(url_second)
-        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp.status_code, 200)
 
     def test_videos(self):
         url_first = self.reverse('core.video', self.data.video1.id)

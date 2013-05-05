@@ -2,12 +2,14 @@
 from datetime import datetime
 from fractions import Fraction
 import os
+import random
 import urllib2
 import cStringIO
 import logging
 
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from PIL.ExifTags import TAGS
+from django.conf import settings
 
 from bviewer.core.utils import FileUniqueName, abs_image_path
 
@@ -260,3 +262,41 @@ class Exif(object):
 
     def __repr__(self):
         return '<Exif{0}>'.format(self.items())
+
+
+class RandomImage:
+    """
+    Create simple square image with color tile background and text on center
+    """
+    TEXT_FILL = (0, 0, 0)
+    FONT_PART = 1.0 / 8
+
+    def __init__(self, size):
+        self.size = size
+        self.image = Image.new('RGB', (self.size, self.size))
+        self._draw = ImageDraw.Draw(self.image)
+
+    def random_color(self):
+        return random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
+
+    def draw_background(self, tiles):
+        self._draw.rectangle((0, 0, self.size, self.size), fill=self.random_color())
+        step = self.size / tiles
+        for y in range(0, self.size, step):
+            for x in range(0, self.size, step):
+                self._draw.rectangle((x, y, x + step, y + step), fill=self.random_color())
+
+    def draw_text(self, text):
+        font_path = os.path.join(settings.SOURCE_PATH, 'static', 'Ubuntu-RI.ttf')
+        font = ImageFont.truetype(font_path, int(self.size * self.FONT_PART))
+        text_w, text_h = font.getsize(text)
+        x = self.size / 2 - text_w / 2
+        y = self.size / 2 - text_h / 2
+        self._draw.text((x, y), text, font=font, fill=self.TEXT_FILL)
+
+    def draw(self, text, tiles=16):
+        self.draw_background(tiles)
+        self.draw_text(text)
+
+    def save(self, path):
+        self.image.save(path, 'JPEG')
