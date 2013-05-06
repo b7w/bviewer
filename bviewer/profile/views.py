@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-
 import logging
 
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render
 
+from bviewer.core.controllers import get_gallery_user
 from bviewer.core.files import Storage
-from bviewer.core.files.serve import DownloadResponse
+from bviewer.core.files.response import download_response
 from bviewer.core.images import CacheImage
-from bviewer.core.utils import get_gallery_user, perm_any_required, ResizeOptions
+from bviewer.core.utils import perm_any_required, ResizeOptions, as_job
 from bviewer.profile.controllers import ImageController
 from bviewer.profile.utils import JSONResponse
 
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 @login_required
 @perm_any_required('core.user_holder')
-def ShowImagesAdmin(request):
+def images_view(request):
     user = get_gallery_user(request)
     if not user:
         raise Http404()
@@ -28,7 +28,7 @@ def ShowImagesAdmin(request):
 
 @login_required
 @perm_any_required('core.user_holder')
-def JsonStorageList(request):
+def json_storage_view(request):
     user = get_gallery_user(request)
     if not user:
         raise Http404()
@@ -39,7 +39,7 @@ def JsonStorageList(request):
 
 @login_required
 @perm_any_required('core.user_holder')
-def JsonImageService(request):
+def json_image_view(request):
     user = get_gallery_user(request)
     if not user:
         raise Http404()
@@ -61,19 +61,19 @@ def JsonImageService(request):
 
 @login_required
 @perm_any_required('core.user_holder')
-def DownloadImage(request):
+def download_image(request):
     if request.GET.get('p', None):
         path = request.GET['p']
         user = get_gallery_user(request)
         storage = Storage(user.home)
         try:
             if storage.exists(path):
-                options = ResizeOptions('small', user=user.url, storage=user.home)
+                options = ResizeOptions.from_settings(user, 'tiny')
                 image = CacheImage(path, options)
-                image.process()
+                if not image.is_exists():
+                    as_job(image.process)
                 name = Storage.name(path)
-                response = DownloadResponse.build(image.url, name)
-                return response
+                return download_response(image.url, name)
             raise Http404('No such file')
         except IOError as e:
             raise Http404(e)

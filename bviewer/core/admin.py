@@ -21,7 +21,7 @@ class ModelAdmin(admin.ModelAdmin):
 class GalleryAdmin(ModelAdmin):
     list_select_related = True
 
-    list_display = ('title', 'parent', 'user', 'private', 'time',)
+    list_display = ('title', 'parent', 'user', 'visibility', 'time',)
     list_filter = ('parent__title', 'user__username', 'time', )
     ordering = ('user', 'parent', 'time',)
 

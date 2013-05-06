@@ -43,14 +43,14 @@ class ProfileModelAdmin(ModelAdmin):
 class ProfileGalleryAdmin(ProfileModelAdmin):
     list_select_related = True
 
-    list_display = ('title', 'parent', 'private', 'images', 'time',)
+    list_display = ('title', 'parent', 'visibility', 'images', 'time',)
     list_filter = ('parent__title', 'time', )
     ordering = ('parent', 'time',)
 
     search_fields = ('title', 'description',)
 
     readonly_fields = ('images', 'thumbnails',)
-    fields = ('parent', 'title', 'private', 'images', 'description', 'time', 'thumbnails', )
+    fields = ('parent', 'title', 'visibility', 'images', 'description', 'time', 'thumbnails', )
 
     def images(self, obj):
         return '<b><a href="{0}#!g={1}">edit</a></b>'.format(reverse('profile.images'), obj.id)

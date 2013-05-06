@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from bviewer.core.files import Storage
 from bviewer.core.models import Image, Video
 from bviewer.profile.forms import VideoForm
@@ -61,7 +60,7 @@ class ImageController(object):
         In bulk_create method `save()` do not call, set time manually
         """
         img = Image(gallery_id=self.gallery, path=path)
-        tmp = img.exif().time
+        tmp = img.exif.time
         if tmp:
             img.time = tmp
         return img

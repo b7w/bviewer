@@ -1,19 +1,12 @@
 # -*- coding: utf-8 -*-
+import json
 
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, HttpResponse
-from django.utils import simplejson
+from django.http import HttpResponse
 
 from bviewer.core.files.storage import Folder, File
 
 
-def redirect(url_name, *args, **kwargs):
-    url = reverse(url_name, args=args)
-    params = '&'.join('{0}={1}'.format(k, v) for k, v in kwargs.items() if v is not None)
-    return HttpResponseRedirect(url + '?' + params)
-
-
-class JSONEncoder(simplejson.JSONEncoder):
+class JSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Folder):
             value = obj.__dict__
@@ -22,7 +15,7 @@ class JSONEncoder(simplejson.JSONEncoder):
         elif isinstance(obj, File):
             return obj.__dict__
         else:
-            return simplejson.JSONEncoder.default(self, obj)
+            return json.JSONEncoder.default(self, obj)
 
 
 class JSONResponse(HttpResponse):
@@ -38,4 +31,4 @@ class JSONResponse(HttpResponse):
         """
         Dumps to json with cls=JSONEncoder and indent=2
         """
-        return simplejson.dumps(content, cls=JSONEncoder, indent=2)
+        return json.dumps(content, cls=JSONEncoder, indent=2)

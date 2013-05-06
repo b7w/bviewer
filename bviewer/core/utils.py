@@ -1,22 +1,17 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
-from fractions import Fraction
-
+import os
 import re
 import time
 import logging
 from hashlib import sha1
-from PIL import Image
-from PIL.ExifTags import TAGS
 
-from django.core.cache import cache
 from django.shortcuts import redirect
 from django.utils.decorators import available_attrs
 from django.utils.encoding import smart_text, smart_bytes
 from django.utils.functional import wraps
+from django_rq import get_queue
 
 from bviewer.core import settings
-from bviewer.core.models import ProxyUser
 
 
 logger = logging.getLogger(__name__)
@@ -73,46 +68,50 @@ class ResizeOptions:
     crop - need or not.
     """
 
-    def __init__(self, size, user=None, storage=None, name=None):
+    def __init__(self, user, width, height, crop=False, quality=95, name=None):
         """
-        Get sting with size "small" or "middle" or "big"
-        storage -> path to the user storage,
-        name -> file name,
-        """
-        self.user = user
-        self.storage = storage
-        self.name = name
-        self.width = 0
-        self.height = 0
-        self.size = 0
-        self.crop = False
-        self.choose_setting(size)
+        `size` item name of settings.VIEWER_IMAGE_SIZE.
 
-    def choose_setting(self, size):
+        :type user: bviewer.core.models.ProxyUser
+        :type name: str
+        """
+        self.cache = user.url
+        self.cache_abs = os.path.join(settings.VIEWER_CACHE_PATH, user.url)
+        self.home = user.home
+        self.name = name
+        self.width = width
+        self.height = height
+        self.size = max(self.width, self.height)
+        self.crop = crop
+        self.quality = quality
+        if not (80 <= quality <= 100):
+            raise ResizeOptionsError('Image QUALITY settings have to be between 80 and 100')
+
+    @classmethod
+    def from_settings(cls, user, size_name, name=None):
         """
         Select size by name from settings.VIEWER_IMAGE_SIZE.
         If not found - raise ResizeOptionsError.
 
-        :type size: str
+        :type size_name: str
+        :rtype: ResizeOptions
         """
-        if size in settings.VIEWER_IMAGE_SIZE:
-            self.from_settings(settings.VIEWER_IMAGE_SIZE[size])
+        if size_name in settings.VIEWER_IMAGE_SIZE:
+            value = settings.VIEWER_IMAGE_SIZE[size_name]
+            return ResizeOptions(
+                user,
+                width=value['WIDTH'],
+                height=value['HEIGHT'],
+                crop='CROP' in value and value['CROP'] is True,
+                quality=value.get('QUALITY', 95),
+                name=name,
+            )
         else:
-            raise ResizeOptionsError('Undefined size format \'{0}\''.format(size))
+            raise ResizeOptionsError('Undefined size format \'{0}\''.format(size_name))
 
-    def from_settings(self, value):
-        """
-        Set values from settings.VIEWER_IMAGE_SIZE
-        :type value: dict
-        """
-        self.width = value['WIDTH']
-        self.height = value['HEIGHT']
-        self.size = max(self.width, self.height)
-        self.crop = 'CROP' in value and value['CROP'] is True
-
-    def __str__(self):
-        return smart_text('ResizeOptions{{user={us},storage={st},size={sz},crop={cr}}}') \
-            .format(us=self.user, st=self.storage, sz=self.size, cr=self.crop)
+    def __repr__(self):
+        return smart_text('ResizeOptions({sz},cache={us},storage={st},name={nm})') \
+            .format(sz=self.size, us=self.cache, st=self.home, nm=self.name)
 
 
 class FileUniqueName:
@@ -148,7 +147,7 @@ class FileUniqueName:
 
     def build(self, path, time=None, extra=None):
         """
-        return unic name of path + [extra]
+        return unique name of path + [extra]
         """
         full_name = settings.VIEWER_CACHE_PATH + path
         if time:
@@ -161,94 +160,7 @@ class FileUniqueName:
         return self.hash(full_name)
 
 
-class Exif(object):
-    def __init__(self, fname):
-        self.fname = fname
-        image = Image.open(fname)
-        info = image._getexif()
-        if info:
-            self._data = dict((TAGS.get(tag, tag), value) for tag, value in info.items())
-        else:
-            self._data = {}
-
-    @property
-    def fnumber(self):
-        a, b = self._data.get('FNumber', (0, 1))
-        return round(float(a) / b, 1)
-
-    @property
-    def exposure(self):
-        a, b = self._data.get('ExposureTime', (0, 1))
-        return Fraction(a, b)
-
-    @property
-    def iso(self):
-        return self._data.get('ISOSpeedRatings', 0)
-
-    @property
-    def flenght(self):
-        a, b = self._data.get('FocalLength', (0, 0))
-        return a
-
-    @property
-    def model(self):
-        return self._data.get('Model', '')
-
-    @property
-    def time(self):
-        time = self._data.get('DateTime')
-        if time:
-            try:
-                return datetime.strptime(time, '%Y:%m:%d %H:%M:%S')
-            except ValueError:
-                pass
-
-    def items(self):
-        return dict(
-            fnumber=self.fnumber,
-            exposure=self.exposure,
-            iso=self.iso,
-            flenght=self.flenght,
-            model=self.model,
-            time=self.time,
-        )
-
-    def __repr__(self):
-        return '<Exif{0}>'.format(self.items())
-
-
 domain_match = re.compile(r'([w]{3})?\.?(?P<domain>[\w\.]+):?(\d{0,4})')
-
-
-def get_gallery_user(request):
-    """
-    Get domain from request and try to find user with user.url == domain.
-    If not try return authenticated user, else user from settings.VIEWER_USER_ID.
-
-    :type request: django.http.HttpRequest
-    :rtype: bviewer.core.models.ProxyUser
-    """
-    key = 'core.utils.get_gallery_user({0})'.format(request.get_host())
-    data = cache.get(key)
-    if data:
-        return data
-    if settings.VIEWER_USER_ID:
-        user = ProxyUser.objects.get(id=settings.VIEWER_USER_ID)
-        cache.set(key, user)
-        return user
-
-    match = domain_match.match(request.get_host())
-    if match:
-        url = match.group('domain')
-        user = ProxyUser.objects.safe_get(url=url)
-        if user:
-            cache.set(key, user)
-            return user
-
-    if request.user.is_authenticated():
-        return ProxyUser.objects.get(id=request.user.id)
-
-    return None
 
 
 def perm_any_required(*args, **kwargs):
@@ -286,3 +198,36 @@ def decor_on(conditions, decor, *args, **kwargs):
         return func
 
     return decorator
+
+
+def cache_method(func):
+    """
+    Cache object methods, without any args!
+    Set attr `'_' + func name`.
+    """
+
+    @wraps(func)
+    def wrapped(self):
+        name = '_' + func.__name__
+        if hasattr(self, name):
+            return getattr(self, name, None)
+        cached = func(self)
+        setattr(self, name, cached)
+        return cached
+
+    return wrapped
+
+
+def as_job(func, queue='default', timeout=None, *args, **kwargs):
+    """
+    Add `func(*args, **kwargs)` to RQ and waite for result
+    """
+    rq = get_queue(name=queue)
+    task = rq.enqueue(func, timeout=timeout, args=args, kwargs=kwargs)
+    while not task.is_finished:
+        time.sleep(0.1)
+    return task.result
+
+
+def abs_image_path(user_home, image_path):
+    return os.path.join(settings.VIEWER_STORAGE_PATH, user_home, image_path)

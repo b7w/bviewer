@@ -19,6 +19,7 @@ DATABASES = {
     }
 }
 
+# https://docs.djangoproject.com/en/dev/topics/logging/#configuring-logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -64,11 +65,12 @@ CACHES = {
 
 FORCE_SCRIPT_NAME = ''
 
+# app config
 VIEWER_CACHE_PATH = os.path.join(PROJECT_PATH, 'cache')
 VIEWER_STORAGE_PATH = PROJECT_PATH
 
-VIEWER_SERVE = {
-    'BACKEND': 'bviewer.core.files.serve.nginx',
+VIEWER_DOWNLOAD_RESPONSE = {
+    'BACKEND': 'bviewer.core.files.response.nginx',
     'INTERNAL_URL': '/protected',
     'CACHE': True,
 }
@@ -80,12 +82,12 @@ RQ_QUEUES = {
         'PORT': 6379,
         'DB': 0,
     },
+    'low': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+    },
 }
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-ALLOWED_HOSTS
 ALLOWED_HOSTS = ('.dev.loc', )
-
-#
-# Run service configs
-#
-PROCESS_USER = 'b7w'
