@@ -137,10 +137,10 @@ class BaseImageReader(object):
 
 class FileImageReader(file, BaseImageReader):
     def __init__(self, name):
-        super(file, self).__init__(name, mode='rb')
+        super(FileImageReader, self).__init__(name, mode='rb')
 
     def __enter__(self):
-        return ResizeImage(super(file, self).__enter__())
+        return ResizeImage(super(FileImageReader, self).__enter__())
 
 
 class HttpImageReader(BaseImageReader):
@@ -184,6 +184,10 @@ class CacheImage(object):
 
     def is_exists(self):
         return os.path.lexists(self.cache)
+
+    def clear_cache(self):
+        if os.path.lexists(self.cache):
+            os.remove(self.cache)
 
     def process(self, reader=FileImageReader):
         """
