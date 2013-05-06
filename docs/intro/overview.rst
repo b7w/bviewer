@@ -54,11 +54,15 @@ Functional features
 
 .. index:: Functional features
 
-| Here some specific programming functions:
+| Here some specific programming items. Detail library dependencies can be viewed in *requirements.txt*.
+
+* | Writen in python with Django framework.
+
+* | All long operation run in separate RQ processes.
+
+* | Need Redis DB for queue and cache.
 
 * | Viewer serve images with help of nginx X-Accel-Redirect.
-
-* | All long operation run in separate processes.
 
 
 Screen shots
