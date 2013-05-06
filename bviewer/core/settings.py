@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-
 from django.conf import settings
-
-# Some setting that needed for tests
-TESTS = False
 
 
 # If gallery is used for one person or for tests
@@ -16,27 +12,29 @@ VIEWER_USER_ID = getattr(settings, 'VIEWER_USER_ID', None)
 # also it is soft links to full images
 # check that this folder can be seen from nginx
 # each user have his own sub folder
-VIEWER_CACHE_PATH = getattr(settings, 'VIEWER_CACHE_PATH', '../cache')
+VIEWER_CACHE_PATH = getattr(settings, 'VIEWER_CACHE_PATH')
 
 
 # Start path where full images are located
-# each user will have his own home, in profile.storage
+# each user can have his own home, in profile.storage
 VIEWER_STORAGE_PATH = getattr(settings, 'VIEWER_STORAGE_PATH')
 
 
 # Sizes to resize images.
-# Is it a map of maps. example - `'small': {'WIDTH': 300, 'HEIGHT': 300, 'CROP': True}`
+# Is it a map of maps. example - ``'small': {'WIDTH': 300, 'HEIGHT': 300, 'CROP': True}``
 # By default crop is False, on True edges cut off.
 # if image smaller than size it will be linked.
 VIEWER_IMAGE_SIZE = getattr(settings, 'VIEWER_IMAGE_SIZE', {
+    'tiny': {
+        'WIDTH': 150,
+        'HEIGHT': 150,
+        'CROP': True,
+        'QUALITY': 85,
+    },
     'small': {
         'WIDTH': 300,
         'HEIGHT': 300,
         'CROP': True,
-    },
-    'middle': {
-        'WIDTH': 870,
-        'HEIGHT': 600,
     },
     'big': {
         'WIDTH': 1280,
@@ -51,9 +49,9 @@ VIEWER_IMAGE_SIZE = getattr(settings, 'VIEWER_IMAGE_SIZE', {
 
 # X-Accel-Redirect for web server to improve file serving, highly recommended!
 # Set cache true to activate redirect response caching, it save 2 queries per image.
-# Be careful, it can't work with `default`! because it return hole file
-VIEWER_SERVE = getattr(settings, 'VIEWER_SERVE', {
-    'BACKEND': 'bviewer.core.files.serve.default',
+# Be careful, cache can't work with `default`! because it return hole file
+VIEWER_DOWNLOAD_RESPONSE = getattr(settings, 'VIEWER_DOWNLOAD_RESPONSE', {
+    'BACKEND': 'bviewer.core.files.response.django',
     'INTERNAL_URL': '/protected',
     'CACHE': False,
 })

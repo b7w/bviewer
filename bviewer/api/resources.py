@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-
 from django.core.urlresolvers import reverse
+
 from tastypie import fields
 from tastypie.authentication import Authentication, MultiAuthentication, SessionAuthentication
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource
-from bviewer.api.authorization import GalleryAuthorization, GalleryItemAuthorization
 
+from bviewer.api.authorization import GalleryAuthorization, GalleryItemAuthorization
+from bviewer.core import settings
 from bviewer.core.models import Gallery, ProxyUser, Image, Video
 
 EXACT = ['exact', ]
@@ -26,7 +27,6 @@ class UserResource(ModelResource):
 
 class GalleryResource(ModelResource):
     user = fields.ForeignKey(UserResource, 'user')
-    #parent = fields.ForeignKey('self', 'parent', null=True) # Generate parent select per each item
 
     def dehydrate(self, bundle):
         bundle.data['id'] = bundle.obj.id  # make ID integer
@@ -47,14 +47,14 @@ class GalleryResource(ModelResource):
         queryset = Gallery.objects.all().select_related()
         resource_name = 'gallery'
         allowed_methods = ['get', ]
-        excludes = ['private', ]
+        excludes = ['visibility', ]
         authentication = MultiAuthentication(SessionAuthentication(), Authentication())
         authorization = GalleryAuthorization()
         filtering = {
             'id': EXACT,
             'user': ALL_WITH_RELATIONS,
             'title': ALL,
-            'private': EXACT,
+            'visibility': EXACT,
             'time': ALL,
         }
 
@@ -97,10 +97,11 @@ class ImageResource(GalleryItemResource):
         Add links to images. Show path field only for owner.
         """
         obj_id = bundle.obj.id
-        bundle.data['url'] = reverse('core.image', kwargs=dict(id=obj_id))
-        for size in ['small', 'middle', 'big', 'full']:
-            key = 'image_{0}'.format(size)
-            bundle.data[key] = reverse('core.download', kwargs=dict(size=size, id=obj_id))
+        bundle.data['url'] = reverse('core.image', kwargs=dict(uid=obj_id))
+        links = {}
+        for size in settings.VIEWER_IMAGE_SIZE:
+            links[size] = reverse('core.download', kwargs=dict(size=size, uid=obj_id))
+        bundle.data['image'] = links
 
         user = bundle.request.user
         if not (user.is_authenticated() and user.id == bundle.obj.gallery.user_id):
@@ -122,8 +123,8 @@ class VideoResource(GalleryItemResource):
         Add links to videos
         """
         obj_id = bundle.obj.id
-        bundle.data['url'] = reverse('core.video', kwargs=dict(id=obj_id))
-        bundle.data['thumbnail'] = reverse('core.video.thumbnail', kwargs=dict(id=obj_id))
+        bundle.data['url'] = reverse('core.video', kwargs=dict(uid=obj_id))
+        bundle.data['thumbnail'] = reverse('core.video.thumbnail', kwargs=dict(uid=obj_id))
         return super(VideoResource, self).dehydrate(bundle)
 
     class Meta(GalleryItemResource.Meta):

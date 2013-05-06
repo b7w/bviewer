@@ -12,3 +12,4 @@ cache/
 logs/
 tmp/
 resources/
+docs/build/

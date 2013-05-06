@@ -11,7 +11,7 @@
         <li>
             <span class="thumbnail">
                 <input type="radio" name="thumbnail_id" value="{{ item.id }}" {% if obj.thumbnail_id == item.id %}checked{% endif %}>
-                <img class="thumbnail" src="{% url 'core.download' 'small' item.id %}">
+                <img class="thumbnail" src="{% url 'core.download' 'tiny' item.id %}">
             </span>
         </li>
     {% endfor %}

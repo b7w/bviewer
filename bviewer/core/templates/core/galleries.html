@@ -16,15 +16,15 @@
                 <div class="preview-body">
                     <a href="{% url 'core.gallery' item.id %}">
                         {% if item.thumbnail_id %}
-                            <img src="{% url 'core.download' 'small' item.thumbnail_id %}">
+                            <img data-src="{% url 'core.download' 'small' item.thumbnail_id %}">
                         {% else %}
                             <img src="{% static 'core/img/gallery.png' %}" alt="" style="opacity: 0.8;">
                         {% endif %}
                     </a>
 
                     <div class="carousel-caption">
-                        {% if item.private %}
-                            <i class="icon-white icon-eye-open pull-right" title="Private gallery"></i>
+                        {% if item.visibility == item.PRIVATE or item.visibility == item.HIDDEN %}
+                            <i class="icon-white icon-eye-open pull-right" title="{{ item.get_visibility_display }} gallery"></i>
                         {% endif %}
                         <h4>{{ item.title }}</h4>
 

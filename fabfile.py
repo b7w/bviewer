@@ -2,57 +2,16 @@
 #
 # Simple fab file to help start, run and test application
 #
-
 import os
 import sys
 import shutil
 
-from fabric.context_managers import cd
-
-from pwd import getpwnam
 from bviewer import settings
 
 
-__all__ = ['help', 'start', 'stop', 'restart', 'syncdb', 'test', 'clear', 'static']
-
-HOME = settings.SOURCE_PATH
-
-NAME = getattr(settings, 'PROCESS_NAME', 'believe')
-USER = getattr(settings, 'PROCESS_USER', 'believe')
-GROUP = getattr(settings, 'PROCESS_GROUP', 'believe')
+__all__ = ['syncdb', 'test', 'clear', 'static']
 
 MANAGE_PY = os.path.join(getattr(settings, 'PROJECT_PATH'), 'manage.py')
-RUN_DIR = os.path.join('/var/run', NAME.lower())
-os.chmod(MANAGE_PY, int('0755', 8))
-
-CELERY_ARGS = getattr(settings, 'CELERY_ARGS', '-B')
-CELERY_NICE = getattr(settings, 'CELERY_NICE', 0)
-DJANGO_ARGS = getattr(settings, 'DJANGO_ARGS', 'maxspare=4 maxchildren=8')
-
-CELERY_START = """start-stop-daemon --start --quiet --oknodo --background --make-pidfile \
- --chdir {home} --name {name} --pidfile {pid} --nicelevel {nice} --chuid {user} \
- --exec {daemon} -- {options}"""
-
-DJANGO_START = """su {user} -c 'python {manage} runfcgi socket={sock} pidfile={pid} {args}' """
-
-
-def get_pid(name):
-    """
-    Get pid path /var/run + NAME.lower() + name
-    """
-    if not os.path.exists(RUN_DIR):
-        os.mkdir(RUN_DIR)
-    return os.path.join(RUN_DIR, name)
-
-
-def chmod():
-    """
-    Chown run directory
-    """
-    for fname in os.listdir(RUN_DIR):
-        path = os.path.join(RUN_DIR, fname)
-        os.chown(path, getpwnam(USER).pw_uid, getpwnam(GROUP).pw_gid)
-        os.chmod(path, int('775', 8))
 
 
 def list_files(path, ends=None):
@@ -76,64 +35,6 @@ def list_files(path, ends=None):
     return _list_files(path, [])
 
 
-def start():
-    """
-    Start celery and django daemon from manage.py with default django settings file.
-    djcelery should be installed, but can not be in install apps.
-    settings: CELERY_NICE=0, USER=www-data, GROUP=www-data, CELERY_ARGS=-B
-    """
-    if os.getuid():
-        print('Only root can run program from another user')
-    else:
-        celery_args = {
-            'home': HOME,
-            'name': NAME,
-            'nice': CELERY_NICE,
-            'pid': get_pid('celery.pid'),
-            'user': USER,
-            'daemon': MANAGE_PY,
-            'options': 'celeryd ' + CELERY_ARGS,
-        }
-        django_args = {
-            'manage': MANAGE_PY,
-            'user': USER,
-            'pid': get_pid('django.pid'),
-            'sock': get_pid('django.sock'),
-            'args': DJANGO_ARGS,
-        }
-        os.chown(RUN_DIR, getpwnam(USER).pw_uid, getpwnam(GROUP).pw_gid)
-        with cd(HOME):
-            print('[ INFO ] Start celery')
-            os.system(CELERY_START.format(**celery_args))
-            print('[ INFO ] Start django')
-            os.system(DJANGO_START.format(**django_args))
-        chmod()
-
-
-def stop():
-    """
-    Stop celery and django daemon
-    """
-    if os.getuid():
-        print('Only root can stop program of another user')
-    else:
-        print('[ INFO ] Stop celery')
-        os.system('kill `cat {pid}`'.format(pid=get_pid('celery.pid')))
-        print('[ INFO ] Stop django')
-        os.system('kill `cat {pid}`'.format(pid=get_pid('django.pid')))
-
-
-def restart():
-    """
-    Restart celery and django
-    """
-    if os.getuid():
-        print('Only root can restart program of another user')
-    else:
-        stop()
-        start()
-
-
 def syncdb():
     """
     Sync database, just a proxy command
@@ -150,6 +51,8 @@ def test():
     os.system('python {0} test core --settings=bviewer.settings.test'.format(MANAGE_PY))
     print('[ INFO ] Run api module tests ')
     os.system('python {0} test api --settings=bviewer.settings.test'.format(MANAGE_PY))
+    print('[ INFO ] Run archive module tests ')
+    os.system('python {0} test archive --settings=bviewer.settings.test'.format(MANAGE_PY))
 
 
 def clear():
@@ -179,7 +82,6 @@ def help():
     """
     Print help for commands
     """
-    print('It is a small helper to install and run LimitedFM')
     print('Usage: fab command[:arg,arg2] command ..')
     print('')
     module = sys.modules[__name__]
