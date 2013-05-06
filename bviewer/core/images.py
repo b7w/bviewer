@@ -165,11 +165,11 @@ class CacheImage(object):
         self.abs_path = abs_image_path(options.home, path)
         self.options = options
 
-        self.hash = self.get_hash_name()
+        self.hash = self._gen_hash()
         self.url = os.path.join(options.cache, self.hash + '.jpg')
         self.cache = os.path.join(options.cache_abs, self.hash + '.jpg')
 
-    def get_hash_name(self):
+    def _gen_hash(self):
         self.hash_builder = FileUniqueName()
         options = (self.options.height, self.options.width, self.options.quality, self.options.crop)
         # if it is a video - there is no file path

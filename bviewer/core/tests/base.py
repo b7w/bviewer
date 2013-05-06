@@ -3,7 +3,7 @@ from django.core import urlresolvers
 from django.test import TestCase
 
 from bviewer.core import settings
-from bviewer.core.tests import TestData
+from bviewer.core.tests.data import TestData
 
 
 class BaseViewTest(TestCase):
