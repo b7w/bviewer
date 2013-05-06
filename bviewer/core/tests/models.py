@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from httplib import HTTPConnection
 from urlparse import urlsplit
 

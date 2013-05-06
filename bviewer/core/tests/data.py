@@ -62,14 +62,15 @@ class TestData:
         self.gallery5.save()
         return self
 
-    def _generate_image(self, home, name):
+    def _generate_image(self, home, name, force=False):
         """
-        Create random image in settings.VIEWER_STORAGE_PATH if not exists
+        Create random image in settings.VIEWER_STORAGE_PATH if not exists.
+        Or user `force=True` to override.
         """
         if not os.path.exists(settings.VIEWER_STORAGE_PATH):
             os.makedirs(settings.VIEWER_STORAGE_PATH)
         path = abs_image_path(home, name)
-        if not os.path.exists(path):
+        if not os.path.exists(path) or force:
             image = RandomImage(2048)
             image.draw(name)
             image.save(path)
