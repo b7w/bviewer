@@ -68,11 +68,10 @@ class ResizeOptions:
     crop - need or not.
     """
 
-    def __init__(self, size, user=None, name=None):
+    def __init__(self, user, width, height, crop=False, quality=95, name=None):
         """
         `size` item name of settings.VIEWER_IMAGE_SIZE.
 
-        :type size: str
         :type user: bviewer.core.models.ProxyUser
         :type name: str
         """
@@ -80,39 +79,35 @@ class ResizeOptions:
         self.cache_abs = os.path.join(settings.VIEWER_CACHE_PATH, user.url)
         self.home = user.home
         self.name = name
-        self.width = 0
-        self.height = 0
-        self.size = 0
-        self.crop = False
-        self.quality = 95
-        self.choose_setting(size)
+        self.width = width
+        self.height = height
+        self.size = max(self.width, self.height)
+        self.crop = crop
+        self.quality = quality
+        if not (80 <= quality <= 100):
+            raise ResizeOptionsError('Image QUALITY settings have to be between 80 and 100')
 
-    def choose_setting(self, size):
+    @classmethod
+    def from_settings(cls, user, size_name, name=None):
         """
         Select size by name from settings.VIEWER_IMAGE_SIZE.
         If not found - raise ResizeOptionsError.
 
-        :type size: str
+        :type size_name: str
+        :rtype: ResizeOptions
         """
-        if size in settings.VIEWER_IMAGE_SIZE:
-            self.from_settings(settings.VIEWER_IMAGE_SIZE[size])
+        if size_name in settings.VIEWER_IMAGE_SIZE:
+            value = settings.VIEWER_IMAGE_SIZE[size_name]
+            return ResizeOptions(
+                user,
+                width=value['WIDTH'],
+                height=value['HEIGHT'],
+                crop='CROP' in value and value['CROP'] is True,
+                quality=value.get('QUALITY', 95),
+                name=name,
+            )
         else:
-            raise ResizeOptionsError('Undefined size format \'{0}\''.format(size))
-
-    def from_settings(self, value):
-        """
-        Set values from settings.VIEWER_IMAGE_SIZE
-
-        :type value: dict
-        """
-        self.width = value['WIDTH']
-        self.height = value['HEIGHT']
-        self.size = max(self.width, self.height)
-        self.crop = 'CROP' in value and value['CROP'] is True
-        if 'QUALITY' in value:
-            self.quality = value['QUALITY']
-            if not (80 <= self.quality <= 100):
-                raise ResizeOptionsError('Image QUALITY settings have to be between 80 and 100')
+            raise ResizeOptionsError('Undefined size format \'{0}\''.format(size_name))
 
     def __repr__(self):
         return smart_text('ResizeOptions({sz},cache={us},storage={st},name={nm})') \

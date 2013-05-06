@@ -68,7 +68,7 @@ def download_image(request):
         storage = Storage(user.home)
         try:
             if storage.exists(path):
-                options = ResizeOptions('tiny', user=user)
+                options = ResizeOptions.from_settings(user, 'tiny')
                 image = CacheImage(path, options)
                 if not image.is_exists():
                     as_job(image.process)
