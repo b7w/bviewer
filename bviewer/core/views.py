@@ -8,7 +8,7 @@ from django.views.decorators.vary import vary_on_cookie
 
 from bviewer.core import settings
 from bviewer.core.controllers import GalleryController, ImageController, VideoController, get_gallery_user
-from bviewer.core.exceptions import ResizeOptionsError
+from bviewer.core.exceptions import ResizeOptionsError, FileError
 from bviewer.core.utils import decor_on
 
 
@@ -130,7 +130,7 @@ def download_video_thumbnail_view(request, uid):
     except ResizeOptionsError as e:
         logger.error('id:%s, holder:%s \n %s', uid, holder, e)
         return message_view(request, message=e)
-    except IOError as e:
+    except FileError as e:
         logger.error('id:%s, holder:%s \n %s', uid, holder, e)
         raise Http404('Oops no video thumbnail found')
 
@@ -155,7 +155,7 @@ def download_image_view(request, size, uid):
     except ResizeOptionsError as e:
         logger.error('id:%s, holder:%s \n %s', uid, holder, e)
         return message_view(request, message=e)
-    except IOError as e:
+    except FileError as e:
         logger.error('id:%s, holder:%s \n %s', uid, holder, e)
         return redirect('/static/core/img/gallery.png')
 

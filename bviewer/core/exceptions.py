@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
 
 
-class ResizeOptionsError(Exception):
+class ViewerError(Exception):
+    pass
+
+
+class ResizeOptionsError(ViewerError):
+    pass
+
+
+class FileError(ViewerError):
     pass

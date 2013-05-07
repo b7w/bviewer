@@ -2,6 +2,7 @@
 import os
 
 from bviewer.core import settings
+from bviewer.core.exceptions import FileError
 
 
 class File(object):
@@ -75,7 +76,7 @@ class Storage(object):
         if self.is_valid_path(path):
             self.root = os.path.join(self.root, path)
         else:
-            raise IOError('Wrong path\'{0}\''.format(path))
+            raise FileError('Wrong path\'{0}\''.format(path))
 
     def list(self, path):
         """
@@ -84,7 +85,7 @@ class Storage(object):
         """
         root = self.join(path)
         if not os.path.exists(root):
-            raise IOError('No such directory')
+            raise FileError('No such directory')
         items = os.listdir(root)
         dirs = []
         files = []
@@ -103,7 +104,7 @@ class Storage(object):
     def join(self, path):
         if path != '':
             if not self.is_valid_path(path):
-                raise IOError('Bad directory name')
+                raise FileError('Bad directory name')
             return os.path.join(self.root, path)
         return self.root
 

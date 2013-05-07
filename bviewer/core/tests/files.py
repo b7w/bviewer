@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.conf import settings
 
 from bviewer.core import settings as settings_local
+from bviewer.core.exceptions import FileError
 from bviewer.core.files import Storage
 from bviewer.core.files.storage import File, Folder
 
@@ -79,18 +80,18 @@ class StorageTest(TestCase):
         self.assertEqual(out.files, [])
 
     def test_exists(self):
-        self.assertRaises(IOError, self.storage.list, 'root')
+        self.assertRaises(FileError, self.storage.list, 'root')
 
     def test_path(self):
         """
         Test path path inject to look throw higher directories
         """
-        self.assertRaises(IOError, self.storage.list, '../')
-        self.assertRaises(IOError, self.storage.list, '/')
-        self.assertRaises(IOError, self.storage.list, './')
-        self.assertRaises(IOError, self.storage.list, '.test')
-        self.assertRaises(IOError, self.storage.list, 'test/.')
-        self.assertRaises(IOError, self.storage.list, 'test/../../')
+        self.assertRaises(FileError, self.storage.list, '../')
+        self.assertRaises(FileError, self.storage.list, '/')
+        self.assertRaises(FileError, self.storage.list, './')
+        self.assertRaises(FileError, self.storage.list, '.test')
+        self.assertRaises(FileError, self.storage.list, 'test/.')
+        self.assertRaises(FileError, self.storage.list, 'test/../../')
 
     def test_name(self):
         self.assertEqual(Storage.name('tmp/some name.jpg'), 'some name.jpg')

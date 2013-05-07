@@ -6,6 +6,7 @@ from django.http import Http404
 from django.shortcuts import render
 
 from bviewer.core.controllers import get_gallery_user
+from bviewer.core.exceptions import FileError
 from bviewer.core.files import Storage
 from bviewer.core.files.response import download_response
 from bviewer.core.images import CacheImage
@@ -75,7 +76,7 @@ def download_image(request):
                 name = Storage.name(path)
                 return download_response(image.url, name)
             raise Http404('No such file')
-        except IOError as e:
+        except FileError as e:
             raise Http404(e)
 
     raise Http404('No Image')

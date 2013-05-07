@@ -4,6 +4,7 @@ from fractions import Fraction
 import os
 import random
 import logging
+from bviewer.core.exceptions import FileError
 
 try:
     from urllib2 import urlopen
@@ -178,8 +179,8 @@ class CacheImage(object):
         try:
             time = os.path.getmtime(self.abs_path)
         except OSError as e:
-            # TODO: fix this terrible code
-            raise IOError(e)
+            logger.exception('Error on getting mtime on file "%s"', self.abs_path)
+            raise FileError(e)
         return self.hash_builder.build(self.path, time=time, extra=options)
 
     def is_exists(self):
