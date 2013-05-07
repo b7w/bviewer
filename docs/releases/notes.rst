@@ -8,4 +8,4 @@ Release notes
 * | **v1.0.0**
   | First stable release. There can be some bugs and features.
     But all main ideas implemented and documentation ready.
-    look, feel, be happy :-)
+    Look, feel, be happy :-)
