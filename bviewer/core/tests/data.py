@@ -62,7 +62,7 @@ class TestData:
         self.gallery5.save()
         return self
 
-    def _generate_image(self, home, name, force=False):
+    def generate_image(self, home, name, force=False):
         """
         Create random image in settings.VIEWER_STORAGE_PATH if not exists.
         Or user `force=True` to override.
@@ -78,16 +78,16 @@ class TestData:
     def load_images(self):
         self.image1 = Image.objects.create(gallery=self.gallery1, path='image1.jpg')
         self.image2 = Image.objects.create(gallery=self.gallery1, path='image2.jpg')
-        self._generate_image(self.gallery1.user.home, self.image1.path)
-        self._generate_image(self.gallery1.user.home, self.image2.path)
+        self.generate_image(self.gallery1.user.home, self.image1.path)
+        self.generate_image(self.gallery1.user.home, self.image2.path)
 
         self.image3 = Image.objects.create(gallery=self.gallery2, path='image3.jpg')
         self.image4 = Image.objects.create(gallery=self.gallery2, path='image4.jpg')
-        self._generate_image(self.gallery2.user.home, self.image3.path)
-        self._generate_image(self.gallery2.user.home, self.image4.path)
+        self.generate_image(self.gallery2.user.home, self.image3.path)
+        self.generate_image(self.gallery2.user.home, self.image4.path)
 
         self.image5 = Image.objects.create(gallery=self.gallery5, path='image5.jpg')
-        self._generate_image(self.gallery5.user.home, self.image5.path)
+        self.generate_image(self.gallery5.user.home, self.image5.path)
         return self
 
     def load_videos(self):
