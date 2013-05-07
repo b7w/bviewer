@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+import re
 
 from django.core.cache import cache
 from django.db.models import Q
@@ -9,10 +10,12 @@ from bviewer.core.files import Storage
 from bviewer.core.files.response import download_response
 from bviewer.core.images import CacheImage
 from bviewer.core.models import Gallery, Video, Image, ProxyUser
-from bviewer.core.utils import cache_method, ResizeOptions, as_job, domain_match
+from bviewer.core.utils import cache_method, ResizeOptions, as_job
 
 
 logger = logging.getLogger(__name__)
+
+domain_match = re.compile(r'([w]{3})?\.?(?P<domain>[\w\.]+):?(\d{0,4})')
 
 
 def get_gallery_user(request):

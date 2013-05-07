@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
-import re
 import time
 import logging
 from hashlib import sha1
 
-from django.shortcuts import redirect
-from django.utils.decorators import available_attrs
 from django.utils.encoding import smart_text, smart_bytes
 from django.utils.functional import wraps
 from django_rq import get_queue
@@ -75,6 +72,7 @@ class ResizeOptions:
         :type user: bviewer.core.models.ProxyUser
         :type name: str
         """
+        self.user = user
         self.cache = user.url
         self.cache_abs = os.path.join(settings.VIEWER_CACHE_PATH, user.url)
         self.home = user.home
@@ -110,8 +108,8 @@ class ResizeOptions:
             raise ResizeOptionsError('Undefined size format \'{0}\''.format(size_name))
 
     def __repr__(self):
-        return smart_text('ResizeOptions({sz},cache={us},storage={st},name={nm})') \
-            .format(sz=self.size, us=self.cache, st=self.home, nm=self.name)
+        return smart_text('ResizeOptions({user}, {width}, {height})') \
+            .format(user=self.user, width=self.width, height=self.height)
 
 
 class FileUniqueName:
@@ -158,33 +156,6 @@ class FileUniqueName:
         if extra:
             full_name += str(extra)
         return self.hash(full_name)
-
-
-domain_match = re.compile(r'([w]{3})?\.?(?P<domain>[\w\.]+):?(\d{0,4})')
-
-
-def perm_any_required(*args, **kwargs):
-    """
-    Decorator for views that checks if at least one permission return True,
-    redirecting to the `url` page on False.
-    """
-    url = kwargs.get('url', '/')
-
-    def test_func(user):
-        for perm in args:
-            if user.has_perm(perm):
-                return True
-
-    def decorator(view_func):
-        @wraps(view_func, assigned=available_attrs(view_func))
-        def _wrapped_view(request, *args, **kwargs):
-            if test_func(request.user):
-                return view_func(request, *args, **kwargs)
-            return redirect(url)
-
-        return _wrapped_view
-
-    return decorator
 
 
 def decor_on(conditions, decor, *args, **kwargs):

@@ -4,9 +4,8 @@ from mock import Mock
 from django.test import TestCase
 
 from bviewer.core import settings
-from bviewer.core.controllers import get_gallery_user
+from bviewer.core.controllers import domain_match, get_gallery_user
 from bviewer.core.models import ProxyUser
-from bviewer.core.utils import domain_match
 
 
 def request_mock(host, user=None):
