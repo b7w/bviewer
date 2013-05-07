@@ -33,6 +33,7 @@ Project structure
 * **archive** - Some views and functions to create zip archive of one album.
 * **core** - Main app, all base logic stored here.
     * **files** - Some logic to process files like storage access and serving.
+    * **exceptions** - All main exception classes.
     * **images** - Resizing and Caching of images, Exif data.
     * **settings** - main app setting, based on getattr from django settings.
 * **profile** - Provide subclass of *AdminSite* for gallery owner with limited access.

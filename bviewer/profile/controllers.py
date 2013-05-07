@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from bviewer.core.exceptions import FileError
 from bviewer.core.files import Storage
 from bviewer.core.models import Image, Video
 from bviewer.profile.forms import VideoForm
@@ -40,7 +41,7 @@ class ImageController(object):
         if checked:
             self.checked = set(checked)
             if not (self.checked <= set(i.path for i in self.folder.files)):
-                raise IOError('Some files not found in path')
+                raise FileError('Some files not found in path')
 
             diff_add = self.checked - self.images_path
             if diff_add:
