@@ -9,6 +9,7 @@ from django.utils.functional import wraps
 from django_rq import get_queue
 
 from bviewer.core import settings
+from bviewer.core.exceptions import ResizeOptionsError
 
 
 logger = logging.getLogger(__name__)
@@ -49,13 +50,6 @@ class RaisingRange:
 
     def __str__(self):
         return str(list(self))
-
-
-class ResizeOptionsError(Exception):
-    """
-    Resize options error.
-    """
-    pass
 
 
 class ResizeOptions:
