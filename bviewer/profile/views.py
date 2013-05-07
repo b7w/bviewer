@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.http import Http404
 from django.shortcuts import render
 
@@ -9,7 +9,7 @@ from bviewer.core.controllers import get_gallery_user
 from bviewer.core.files import Storage
 from bviewer.core.files.response import download_response
 from bviewer.core.images import CacheImage
-from bviewer.core.utils import perm_any_required, ResizeOptions, as_job
+from bviewer.core.utils import ResizeOptions, as_job
 from bviewer.profile.controllers import ImageController
 from bviewer.profile.utils import JSONResponse
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
-@perm_any_required('core.user_holder')
+@permission_required('core.user_holder')
 def images_view(request):
     user = get_gallery_user(request)
     if not user:
@@ -27,7 +27,7 @@ def images_view(request):
 
 
 @login_required
-@perm_any_required('core.user_holder')
+@permission_required('core.user_holder')
 def json_storage_view(request):
     user = get_gallery_user(request)
     if not user:
@@ -38,7 +38,7 @@ def json_storage_view(request):
 
 
 @login_required
-@perm_any_required('core.user_holder')
+@permission_required('core.user_holder')
 def json_image_view(request):
     user = get_gallery_user(request)
     if not user:
@@ -60,7 +60,7 @@ def json_image_view(request):
 
 
 @login_required
-@perm_any_required('core.user_holder')
+@permission_required('core.user_holder')
 def download_image(request):
     if request.GET.get('p', None):
         path = request.GET['p']
