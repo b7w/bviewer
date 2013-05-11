@@ -17,7 +17,7 @@ class FileTest(TestCase):
     def test_file(self):
         self.assertEqual(self.f1.name, '1.jpg')
         self.assertEqual(self.f1.path, 'root/p1/1.jpg')
-        self.assertEqual(self.f1.checked, False)
+        self.assertEqual(self.f1.saved, False)
 
     def test_order(self):
         self.assertLess(self.f1, self.f2)
