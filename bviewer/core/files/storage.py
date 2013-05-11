@@ -13,7 +13,7 @@ class File(object):
     Store full `path`, `name` and `checked` flag.
     """
 
-    def __init__(self, root, name):
+    def __init__(self, root, name, saved=False):
         """
         Get folder path and file name.
 
@@ -22,7 +22,7 @@ class File(object):
         """
         self.path = os.path.join(root, name)
         self.name = name
-        self.checked = False
+        self.saved = saved
 
     def __lt__(self, other):
         return self.name < other.name
@@ -74,8 +74,9 @@ class Storage(object):
     types = ['.jpeg', '.jpg', ]
     path_checkers = ['../', './', '/.', ]
 
-    def __init__(self, path):
+    def __init__(self, path, images=None):
         self.root = settings.VIEWER_STORAGE_PATH
+        self.images = set(i.path for i in images) if images else None
         if self.is_valid_path(path):
             self.root = os.path.join(self.root, path)
         else:
@@ -100,7 +101,10 @@ class Storage(object):
                 if os.path.isdir(fname):
                     dirs.append(File(path, item))
                 elif self.is_image(item) and os.path.isfile(fname):
-                    files.append(File(path, item))
+                    item = File(path, item)
+                    if self.images and item.path in self.images:
+                        item.saved = True
+                    files.append(item)
         return Folder(path, dirs, files)
 
     def exists(self, path):
