@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+import logging
 import os
 
 from bviewer.core import settings
 from bviewer.core.exceptions import FileError
+
+logger = logging.getLogger(__name__)
 
 
 class File(object):
@@ -76,7 +79,8 @@ class Storage(object):
         if self.is_valid_path(path):
             self.root = os.path.join(self.root, path)
         else:
-            raise FileError('Wrong path\'{0}\''.format(path))
+            logger.warning('Wrong path "%s"', path)
+            raise FileError('Wrong path "{0}"'.format(path))
 
     def list(self, path):
         """
@@ -85,6 +89,7 @@ class Storage(object):
         """
         root = self.join(path)
         if not os.path.exists(root):
+            logger.warning('No such directory "%s"', root)
             raise FileError('No such directory')
         items = os.listdir(root)
         dirs = []
@@ -104,6 +109,7 @@ class Storage(object):
     def join(self, path):
         if path != '':
             if not self.is_valid_path(path):
+                logger.warning('Bad directory name "%s"', path)
                 raise FileError('Bad directory name')
             return os.path.join(self.root, path)
         return self.root
