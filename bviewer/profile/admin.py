@@ -53,7 +53,7 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
     fields = ('parent', 'title', 'visibility', 'images', 'description', 'time', 'thumbnails', )
 
     def images(self, obj):
-        return '<b><a href="{0}#!g={1}">edit</a></b>'.format(reverse('profile.images'), obj.id)
+        return '<b><a href="{0}">edit</a></b>'.format(reverse('profile.gallery', kwargs=dict(uid=obj.id)))
 
     images.allow_tags = True
 
