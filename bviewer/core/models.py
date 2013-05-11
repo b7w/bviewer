@@ -116,7 +116,7 @@ class Gallery(models.Model):
     user = models.ForeignKey(ProxyUser)
     visibility = models.SmallIntegerField(max_length=1, choices=VISIBILITY_CHOICE, default=VISIBLE)
     description = models.TextField(max_length=512, null=True, blank=True)
-    thumbnail = models.ForeignKey('Image', null=True, blank=True, related_name='thumbnail', on_delete=models.DO_NOTHING)
+    thumbnail = models.ForeignKey('Image', null=True, blank=True, related_name='thumbnail', on_delete=models.SET_NULL)
     time = models.DateTimeField(default=datetime.now)
 
     objects = ProxyManager()

@@ -39,14 +39,15 @@ class GalleryResource(ModelResource):
         If filter `user=self` and is authenticated, replace it with his id
         """
         query = 'user__exact'
-        if query in filters and filters[query] == 'self' and request.user.is_authenticated():
-            filters[query] = request.user.id
+        if request.user.is_authenticated():
+            if (query in filters and filters[query] == 'self') or request.method in ('POST', 'DELETE',):
+                filters[query] = request.user.id
         return super(GalleryResource, self).apply_filters(request, filters)
 
     class Meta:
         queryset = Gallery.objects.all().select_related()
         resource_name = 'gallery'
-        allowed_methods = ['get', ]
+        allowed_methods = ['get', 'post', 'delete', ]
         excludes = ['visibility', ]
         authentication = MultiAuthentication(SessionAuthentication(), Authentication())
         authorization = GalleryAuthorization()
@@ -77,12 +78,13 @@ class GalleryItemResource(ModelResource):
         If filter `gallery__user=self` and is authenticated, replace it with his id
         """
         query = 'gallery__user__exact'
-        if query in filters and filters[query] == 'self' and request.user.is_authenticated():
-            filters[query] = request.user.id
+        if request.user.is_authenticated():
+            if (query in filters and filters[query] == 'self') or request.method in ('POST', 'DELETE',):
+                filters[query] = request.user.id
         return super(GalleryItemResource, self).apply_filters(request, filters)
 
     class Meta:
-        allowed_methods = ['get', ]
+        allowed_methods = ['get', 'post', 'delete', ]
         authentication = MultiAuthentication(SessionAuthentication(), Authentication())
         authorization = GalleryItemAuthorization()
         filtering = {
