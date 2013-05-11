@@ -6,8 +6,6 @@
 {% block extrahead %}
     {{ block.super }}
     <script src="{% static 'core/js/jquery.min.js' %}" type="text/javascript"></script>
-    <script src="{% static 'profile/js/knockout.min.js' %}" type="text/javascript"></script>
-    <script src="{% static 'profile/js/profile.js' %}" type="text/javascript"></script>
 {% endblock %}
 
 
@@ -19,34 +17,28 @@
 
 
 {% block messages %}
-    <ul class="messagelist" data-bind="visible: messages().length > 0, foreach: messages">
-        <li class="info" data-bind="text: message, attr: { class: tags }"></li>
-    </ul>
-{% endblock messages %}
+    <ul class="messagelist" style="display: none"></ul>
+{% endblock %}
 
 
 {% block content %}
-
     <div id="content-main">
         <div class="module aligned">
             <div class="form-row">
-                <label for="id_gallery" class="required">Gallery:</label>
-                <select id="id_gallery" data-bind="options: galleries, optionsText: 'name', value: chosenGallery, optionsCaption: 'Choose...'"></select>
-            </div>
-
-            <div class="form-row">
                 <label>Path:</label>
 
-                <a href="#" class="split-path" data-bind="click: selectHome">Home</a>
-                <span class="split-path" data-bind="foreach: splitPath">
-                    › <a href="#" data-bind="text: name, click: $parent.select"></a>
+                <span class="split-path">
+                    <a href="{% url 'profile.gallery' gallery.id %}" class="split-path">Home</a>
+                    {% for name, path in folder.split_path %}
+                        › <a href="{% url 'profile.gallery' gallery.id %}?p={{ path }}">{{ name }}</a>
+                    {% endfor %}
                 </span>
             </div>
 
             <div class="form-row">
                 <label>Selected:</label>
 
-                <span data-bind="text: selectedImages"></span>
+                <span class="selected-count"></span>
 
                 <a href="#" style="margin-left: 20px;" data-bind="click: selectAll">Select all</a>
                 <a href="#" style="margin-left: 20px;" data-bind="click: deselectAll">Deselect all</a>
@@ -56,38 +48,38 @@
                 <label class="required" style="float: none;">Folder:</label>
                 <ul class="thumbnails">
                     <li data-bind="click: selectBack">
-                        <a href="#" class="thumbnail">
+                        <a href="{% url 'profile.gallery' gallery.id %}?p={{ folder.back }}" class="thumbnail">
                             <img src="{% static 'core/img/gallery.png' %}">
 
                             <p class="caption">back</p>
                         </a>
                     </li>
-                    <span data-bind="foreach: dirs">
-                        <li data-bind="click: $parent.select">
-                            <a href="#" class="thumbnail">
+                    {% for dir in folder.dirs %}
+                        <li>
+                            <a href="{% url 'profile.gallery' gallery.id %}?p={{ dir.path }}" class="thumbnail">
                                 <img src="{% static 'core/img/gallery.png' %}">
 
-                                <p class="caption" data-bind="text: name"></p>
+                                <p class="caption">{{ dir.name }}</p>
                             </a>
                         </li>
-                    </span>
-                    <span data-bind="foreach: files">
+                    {% endfor %}
+                    {% for file in folder.files %}
                         <li>
-                            <a class="thumbnail image" data-bind="event: { mouseover: focusIn, mouseout: focusOut }">
-                                <input type='checkbox' name="images" class="caption-checkbox" data-bind="checked: checked">
-                                <img src data-bind="attr: { src: url }">
+                            <a class="thumbnail image">
+                                <input type='checkbox' class="caption-checkbox" value="{{ file.path }}" {% if file.saved %}checked{% endif %}>
+                                <img src="{% url 'profile.download' %}?p={{ file.path }}">
 
-                                <p class="caption" data-bind="text: name, visible: underFocus"></p>
+                                <p class="caption">{{ file.name }}</p>
                             </a>
                         </li>
-                    </span>
+                    {% endfor %}
                 </ul>
             </div>
 
             <div class="form-row">
                 <label>Selected:</label>
 
-                <span data-bind="text: selectedImages"></span>
+                <span class="selected-count"></span>
 
                 <a href="#" style="margin-left: 20px;" data-bind="click: selectAll">Select all</a>
                 <a href="#" style="margin-left: 20px;" data-bind="click: deselectAll">Deselect all</a>
@@ -95,14 +87,58 @@
         </div>
     </div>
 
-    <div class="submit-row">
-        <input type="submit" value="{% trans 'Save and continue editing' %}" class="default" data-bind="click: save"/>
-    </div>
-
 
     <script type="text/javascript">
-        ko.applyBindings(new ImageModel());
+        function image_count() {
+            var checked = jQuery('.thumbnails input[type=checkbox]:checked').length;
+            jQuery('.selected-count').text(checked);
+        }
+
+        function image_create(path) {
+            jQuery.ajax({
+                type: 'POST',
+                url: '/api/v1/image/',
+                dataType: 'application/json',
+                contentType: 'application/json',
+                data: '{"path": "' + path + '", "gallery": "/api/v1/gallery/{{ gallery.id }}/"}',
+                complete: function (data) {
+                    if (data.status != 201) {
+                        jQuery('.messagelist').append('<li class="error">Error on saving</li>');
+                        jQuery('.messagelist').show('slow');
+                        console.log(data);
+                    }
+                },
+                async: true
+            });
+        }
+
+        function image_delete(path) {
+            jQuery.ajax({
+                type: 'DELETE',
+                url: '/api/v1/image/?path__exact=' + path,
+                dataType: 'application/json',
+                contentType: 'application/json',
+                complete: function (data) {
+                    if (data.status != 204) {
+                        jQuery('.messagelist').append('<li class="error">Error on deleting</li>');
+                        jQuery('.messagelist').show('slow');
+                        console.log(data);
+                    }
+                },
+                async: true
+            });
+        }
+
+        image_count();
+
+        jQuery('.image input').click(function (e) {
+            var path = jQuery(this).attr('value');
+            image_count();
+            if (jQuery(this).is(':checked')) {
+                image_create(path);
+            } else {
+                image_delete(path);
+            }
+        })
     </script>
 {% endblock %}
-
-

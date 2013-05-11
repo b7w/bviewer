@@ -5,14 +5,13 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.http import Http404
 from django.shortcuts import render
 
-from bviewer.core.controllers import get_gallery_user
+from bviewer.core.controllers import get_gallery_user, GalleryController
 from bviewer.core.exceptions import FileError
 from bviewer.core.files import Storage
 from bviewer.core.files.response import download_response
 from bviewer.core.images import CacheImage
 from bviewer.core.utils import ResizeOptions, as_job
-from bviewer.profile.controllers import ImageController
-from bviewer.profile.utils import JSONResponse
+from bviewer.core.views import message_view
 
 
 logger = logging.getLogger(__name__)
@@ -20,44 +19,23 @@ logger = logging.getLogger(__name__)
 
 @login_required
 @permission_required('core.user_holder')
-def images_view(request):
-    user = get_gallery_user(request)
-    if not user:
+def images_view(request, uid):
+    holder = get_gallery_user(request)
+    if not holder:
         raise Http404()
-    return render(request, 'profile/images.html', {})
 
+    controller = GalleryController(holder, request.user, uid)
+    main = controller.get_object()
+    if not main:
+        return message_view(request, message='No such gallery')
 
-@login_required
-@permission_required('core.user_holder')
-def json_storage_view(request):
-    user = get_gallery_user(request)
-    if not user:
-        raise Http404()
-    storage = Storage(user.home)
+    images = controller.get_images()
+    storage = Storage(holder.home, images)
     folder = storage.list(request.GET.get('p', ''))
-    return JSONResponse(folder)
-
-
-@login_required
-@permission_required('core.user_holder')
-def json_image_view(request):
-    user = get_gallery_user(request)
-    if not user:
-        raise Http404()
-    if request.method == 'POST':
-        try:
-            path = request.POST.get('path')
-            gallery_id = request.POST.get('gallery')
-            images = request.POST.getlist('images[]')
-
-            controller = ImageController(gallery_id, user)
-            controller.setPath(path)
-            controller.setChecked(images)
-            return JSONResponse(dict(status='ok'))
-        except Exception as e:
-            return JSONResponse(dict(error=str(e)), status=400)
-
-    return JSONResponse(dict(error='Need post request'), status=400)
+    return render(request, 'profile/images.html', {
+        'gallery': main,
+        'folder': folder,
+    })
 
 
 @login_required
