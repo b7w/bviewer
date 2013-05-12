@@ -13,14 +13,12 @@
     <ul class="album">
         {% for item in galleries %}
             <li class="preview">
-                <div class="preview-body">
-                    <a href="{% url 'core.gallery' item.id %}">
-                        {% if item.thumbnail_id %}
-                            <img data-src="{% url 'core.download' 'small' item.thumbnail_id %}">
-                        {% else %}
-                            <img src="{% static 'core/img/gallery.png' %}" alt="" style="opacity: 0.8;">
-                        {% endif %}
-                    </a>
+                <div class="preview-body" onclick="location.href='{% url 'core.gallery' item.id %}'">
+                    {% if item.thumbnail_id %}
+                        <img data-src="{% url 'core.download' 'small' item.thumbnail_id %}">
+                    {% else %}
+                        <img src="{% static 'core/img/gallery.png' %}" alt="" style="opacity: 0.8;">
+                    {% endif %}
 
                     <div class="carousel-caption">
                         {% if item.visibility == item.PRIVATE or item.visibility == item.HIDDEN %}
@@ -29,8 +27,8 @@
                         <h4>{{ item.title }}</h4>
 
                         <p class="carousel-description">
-                            <span style="color:#08C;">{{ item.time|date:"d M Y" }}</span>
-                            <br>{{ item.description|linebreaksbr }}
+                            <span class="time">{{ item.time|date:"d M Y" }}<br></span>
+                            <span class="text">{{ item.description|linebreaksbr }}</span>
                         </p>
                     </div>
                 </div>
