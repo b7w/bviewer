@@ -38,7 +38,13 @@ var core = {
                     var id = window.location.hash.substr(2);
                     var a = jQuery('#' + id).find('a.shadowbox')[0];
                     if (typeof(a) != "undefined") {
-                        Shadowbox.open(Shadowbox.cache[1]);
+                        for (i in Shadowbox.cache) {
+                            var item = Shadowbox.cache[i];
+                            if (item.link.href == a.href) {
+                                Shadowbox.open(item);
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -46,7 +52,6 @@ var core = {
             setTimeout(show_image, 1000);
 
             jQuery('body').delegate('#sb-body', 'click', function (e) {
-                console.log(e);
                 var width = jQuery(this).width() / 3;
                 var x = e.pageX - jQuery(this).offset().left;
                 if (x < width) {
