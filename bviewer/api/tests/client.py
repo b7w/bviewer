@@ -31,3 +31,20 @@ class ResourceClient(Client):
             response.object = result
 
         return response
+
+    def rest_post(self, path, data=None, **kwargs):
+        """
+        Method to interact with tastypie rest api. Send POST, only JSON.
+        """
+        kwargs['content_type'] = self.content_type
+        if data is not None:
+            kwargs['data'] = self.serializer.serialize(data, format=self.content_type)
+        return self.post(path, **kwargs)
+
+    def rest_delete(self, path, data=None, **kwargs):
+        """
+        Method to interact with tastypie rest api. Send DELETE, only JSON.
+        """
+        if data is not None:
+            kwargs['data'] = data
+        return self.delete(path, data=data, content_type=self.content_type, **kwargs)
