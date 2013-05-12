@@ -431,6 +431,10 @@ button {
     -o-transition: all 2s ease;
 }
 
+.preview .carousel-description .time {
+    color: #08C;
+}
+
 .preview .carousel-caption {
     top: 0;
     bottom: auto;
@@ -439,6 +443,7 @@ button {
 .preview:hover .carousel-description {
     height: 100px;
     margin-bottom: 2px;
+    cursor: pointer;
 }
 
 /* START MEDIA */
