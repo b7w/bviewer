@@ -1,6 +1,9 @@
-.split-path {
-    font-size: 14px;
-    font-style: italic;
+.row-value {
+    font-size: 13px;
+}
+
+.select-all, deselect-all {
+    margin-left: 20px;
 }
 
 .thumbnails {
@@ -22,10 +25,11 @@
     right: 0;
     bottom: 0;
     overflow: hidden;
-    color: #666;
+    color: #AAA;
 }
 
 .thumbnails .image .caption {
+    opacity: 0;
     background: rgba(0, 0, 0, 0.7);
 }
 
@@ -43,4 +47,8 @@
     position: absolute;
     right: 0;
     margin: 2px;
+}
+
+.thumbnails li:hover .caption {
+    opacity: 1;
 }
