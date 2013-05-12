@@ -11,7 +11,7 @@ class ResourceClient(Client):
         super(ResourceClient, self).__init__(enforce_csrf_checks, **defaults)
         self.serializer = Serializer()
 
-    def read(self, path, data=None, **kwargs):
+    def rest_get(self, path, data=None, **kwargs):
         """
         Method to interact with tastypie rest api. Send GET, only JSON.
         Deserialize result to `response.meta` and `response.objects` if `'meta' and 'objects' in result`.
