@@ -44,8 +44,11 @@
                     </a>
 
                     <div class="caption">
-                        <a href="{% url 'core.image' item.id %}">
+                        <a class="url-core-image" href="{% url 'core.image' item.id %}">
                             <i class="icon-white icon-zoom-in"></i>
+                        </a>
+                        <a class="url-core-download" href="{% url 'core.download' 'full' item.id %}">
+                            <i class="icon-white icon-arrow-down"></i>
                         </a>
                     </div>
                 </div>
