@@ -34,8 +34,8 @@ def index_view(request, gid):
     if not controller.is_album():
         return message_view(request, message='It is not album with images')
 
-    images = controller.get_images()
-    z = ZipArchiveController(images, holder)
+    image_paths = [i.path for i in controller.get_images()]
+    z = ZipArchiveController(image_paths, holder)
 
     # links for redirect to download, and check status
     redirect = reverse('archive.download', kwargs=dict(gid=gid, uid=z.uid))
@@ -70,7 +70,8 @@ def status_view(request, gid, uid):
     if not controller.is_album():
         return HttpResponse(json.dumps(dict(error='It is not album with images')))
 
-    z = ZipArchiveController(controller.get_images(), holder, uid=uid)
+    image_paths = [i.path for i in controller.get_images()]
+    z = ZipArchiveController(image_paths, holder, name=uid)
     data = dict(status=z.status, gallery=gid, uid=uid, progress=z.progress)
 
     return HttpResponse(json.dumps(data))
@@ -92,8 +93,8 @@ def download_view(request, gid, uid):
     if not controller.is_album():
         return message_view(request, message='It is not album with images')
 
-    images = controller.get_images()
-    z = ZipArchiveController(images, holder, uid)
+    image_paths = [i.path for i in controller.get_images()]
+    z = ZipArchiveController(image_paths, holder, name=uid)
 
     if z == 'NONE':
         raise Http404('No file found')

@@ -1,61 +1,31 @@
 # -*- coding: utf-8 -*-
-import os
-import zipfile
 import logging
 
 from django_rq import get_queue
 
-from bviewer.core import settings
-from bviewer.core.files import Storage
-from bviewer.core.utils import FileUniqueName, cache_method, abs_image_path
+from bviewer.core.files.storage import ImageStorage
+from bviewer.core.utils import ResizeOptions, cache_method
 
 
 logger = logging.getLogger(__name__)
 
 
 class ZipArchiveController(object):
-    def __init__(self, images, holder, uid=None):
+    def __init__(self, image_paths, holder, name=None):
         """
-        :type images: bviewer.core.models.Image
+        :type image_paths: list of str
         :type holder: bviewer.core.models.ProxyUser
-        :type uid: str
+        :type name: str
         """
-        self.images = images
         self.holder = holder
-        self.default_uid = uid
+        self.storage = ImageStorage(holder)
+        self.image_paths = [self.storage.get_path(i) for i in image_paths]
+        self.name = name or self.uid
 
-    def _archive_path(self, part=False):
-        """
-        Return abs archive path, if `part` add '.part' to the end.
+        options = ResizeOptions(name=self.name)
+        self.archive = self.storage.get_archive(options)
 
-        :type part: bool
-        :rtype: str
-        """
-        path = os.path.join(settings.VIEWER_CACHE_PATH, self.holder.url)
-        if not os.path.exists(path):
-            os.mkdir(path)
-        if part:
-            return os.path.join(path, '{0}.zip.part'.format(self.uid))
-        return os.path.join(path, '{0}.zip'.format(self.uid))
-
-    @property
-    @cache_method
-    def uid(self):
-        """
-        :rtype: str
-        """
-        if self.default_uid:
-            return self.default_uid
-        builder = FileUniqueName()
-        name = ';'.join(abs_image_path(self.holder.home, i.path) for i in self.images)
-        return builder.build(name)
-
-    @property
-    def url(self):
-        """
-        Get utl for download via unique name
-        """
-        return os.path.join(self.holder.url, '{0}.zip'.format(self.uid))
+        self.url = self.archive.url
 
     @property
     def status(self):
@@ -64,11 +34,20 @@ class ZipArchiveController(object):
 
         :rtype: str
         """
-        if os.path.exists(self._archive_path()):
+        #TODO: No way to check FS is archive creating
+        if self.archive.cache_exists:
             return 'DONE'
-        elif os.path.exists(self._archive_path(part=True)):
+        elif self.archive.cache_exists:
             return 'PROCESSING'
         return 'NONE'
+
+    @property
+    @cache_method
+    def uid(self):
+        pack = [self.holder.home, ]
+        for path in self.image_paths:
+            pack.append(path.cache_name)
+        return self.storage.hash_for(tuple(pack))
 
     @property
     def progress(self):
@@ -80,11 +59,10 @@ class ZipArchiveController(object):
         if self.status == 'DONE':
             return 100
         if self.status == 'PROCESSING':
-            fname = self._archive_path(part=True)
-            done = os.path.getsize(fname)
+            done = self.archive.cache_ctime
 
-            f = lambda path: os.path.getsize(abs_image_path(self.holder.home, path))
-            real = sum(f(i.path) for i in self.images)
+            f = lambda path: self.storage.get_path(path).ctime
+            real = sum(f(i.path) for i in self.image_paths)
             return int(float(done) / real * 100)
         if self.status == 'NONE':
             return 0
@@ -93,17 +71,13 @@ class ZipArchiveController(object):
         """
         Process if `self.status` == NONE
         """
-        cache_tmp = self._archive_path(part=True)
-        cache = self._archive_path()
         if self.status == 'NONE':
-            with open(cache_tmp, mode='wb') as f:
-                with zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED) as z:
-                    for image in self.images:
-                        abs_path = abs_image_path(self.holder.home, image.path)
-                        z.write(abs_path, Storage.name(image.path))
+            with self.archive.cache_open() as z:
+                for image_path in self.image_paths:
+                    with image_path.open(mode='rb') as f:
+                        z.writestr(image_path.name, f.read())
 
-            os.rename(cache_tmp, cache)
-        return True
+            self.archive.rename_temp_cache()
 
     def add_job(self):
         """

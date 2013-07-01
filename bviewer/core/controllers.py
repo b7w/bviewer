@@ -6,8 +6,8 @@ from django.core.cache import cache
 from django.db.models import Q
 
 from bviewer.core import settings
-from bviewer.core.files import Storage
 from bviewer.core.files.response import download_response
+from bviewer.core.files.storage import ImageStorage
 from bviewer.core.images import CacheImage
 from bviewer.core.models import Gallery, Video, Image, ProxyUser
 from bviewer.core.utils import cache_method, ResizeOptions, as_job
@@ -149,14 +149,15 @@ class ImageController(MediaController):
     def get_response(self, size):
         #: :type: bviewer.core.models.Image
         image = self.get_object()
-        name = Storage.name(image.path)
-
+        storage = ImageStorage(self.holder)
         options = ResizeOptions.from_settings(self.holder, size)
-        image_async = CacheImage(image.path, options)
-        if not image_async.is_exists():
+        image_path = storage.get_path(image.path, options)
+
+        if not image_path.cache_exists:
+            image_async = CacheImage(image_path)
             as_job(image_async.process)
 
-        return download_response(image_async.url, name)
+        return download_response(image_path.url, image_path.name)
 
 
 class VideoController(MediaController):
@@ -165,11 +166,12 @@ class VideoController(MediaController):
     def get_response(self, size):
         #: :type: bviewer.core.models.Video
         video = self.get_object()
-        name = video.uid + '.jpg'
-
+        storage = ImageStorage(self.holder)
         options = ResizeOptions.from_settings(self.holder, size, name=str(video.id))
-        image_async = CacheImage(video.thumbnail_url, options)
-        if not image_async.is_exists():
+        image_url = storage.get_url(video.thumbnail_url, options)
+
+        image_async = CacheImage(image_url)
+        if not image_url.cache_exists:
             as_job(image_async.download)
 
-        return download_response(image_async.url, name)
+        return download_response(image_url.url, image_url.name)
