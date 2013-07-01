@@ -62,7 +62,7 @@ class CacheImageTest(TestCase):
         def local(path, options):
             cache_image = CacheImage(path, options)
             #hack to use FileImageReader
-            cache_image.path = cache_image.abs_path
+            cache_image.image_path = cache_image.abs_path
             cache_image.clear_cache()
             self.assertFalse(cache_image.is_exists())
 

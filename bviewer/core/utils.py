@@ -2,7 +2,6 @@
 import os
 import time
 import logging
-from hashlib import sha1
 
 from django.utils.encoding import smart_text, smart_bytes
 from django.utils.functional import wraps
@@ -59,23 +58,18 @@ class ResizeOptions:
     crop - need or not.
     """
 
-    def __init__(self, user, width, height, crop=False, quality=95, name=None):
+    def __init__(self, width=0, height=0, crop=False, quality=95, name=None):
         """
         `size` item name of settings.VIEWER_IMAGE_SIZE.
 
-        :type user: bviewer.core.models.ProxyUser
         :type name: str
         """
-        self.user = user
-        self.cache = user.url
-        self.cache_abs = os.path.join(settings.VIEWER_CACHE_PATH, user.url)
-        self.home = user.home
-        self.name = name
         self.width = width
         self.height = height
         self.size = max(self.width, self.height)
         self.crop = crop
         self.quality = quality
+        self.name = smart_bytes(name) if name else None
         if not (80 <= quality <= 100):
             raise ResizeOptionsError('Image QUALITY settings have to be between 80 and 100')
 
@@ -91,7 +85,6 @@ class ResizeOptions:
         if size_name in settings.VIEWER_IMAGE_SIZE:
             value = settings.VIEWER_IMAGE_SIZE[size_name]
             return ResizeOptions(
-                user,
                 width=value['WIDTH'],
                 height=value['HEIGHT'],
                 crop='CROP' in value and value['CROP'] is True,
@@ -102,54 +95,8 @@ class ResizeOptions:
             raise ResizeOptionsError('Undefined size format \'{0}\''.format(size_name))
 
     def __repr__(self):
-        return smart_text('ResizeOptions({user}, {width}, {height})') \
-            .format(user=self.user, width=self.width, height=self.height)
-
-
-class FileUniqueName:
-    """
-    Create unique hash name for file
-
-        >>> builder = FileUniqueName()
-        >>> time = builder.time()
-        >>> time
-        1323242186.620497
-        >>> builder.build("some/file", time=time)
-        'fb41bb28d2614159246163f8dc77ac14'
-        >>> builder.build("some/file", time=builder.time())
-        '6ef61d7c41d391fcd17dd59e1d29dfc2'
-        >>> builder.build("some/file", time=time, extra='tag1')
-        'bb89a8697e7f2acfd5d904bc96ce5b81'
-    """
-
-    def __init__(self):
-        pass
-
-    def hash(self, name):
-        """
-        Return md5 of "files.storage" + name
-        """
-        return sha1('files.storage' + smart_bytes(name)).hexdigest()
-
-    def time(self):
-        """
-        Return just time.time( )
-        """
-        return time.time()
-
-    def build(self, path, time=None, extra=None):
-        """
-        return unique name of path + [extra]
-        """
-        full_name = settings.VIEWER_CACHE_PATH + path
-        if time:
-            if time is True:
-                full_name += str(self.time())
-            else:
-                full_name += str(time)
-        if extra:
-            full_name += str(extra)
-        return self.hash(full_name)
+        return smart_text('ResizeOptions(width={w}, height={h}, crop={c}, quality={q}, name={n})') \
+            .format(w=self.width, h=self.height, c=self.crop, q=self.quality, n=self.name)
 
 
 def decor_on(conditions, decor, *args, **kwargs):

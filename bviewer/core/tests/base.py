@@ -32,4 +32,4 @@ class BaseViewTest(TestCase):
     def assertContent(self, url, content):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn(content, resp.content)
+        self.assertIn(content, resp.hash_for)

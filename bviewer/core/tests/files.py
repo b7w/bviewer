@@ -3,16 +3,16 @@ import os
 
 from django.test import TestCase
 from django.conf import settings
+from mock import Mock
 
 from bviewer.core import settings as settings_local
 from bviewer.core.exceptions import FileError
-from bviewer.core.files import Storage
-from bviewer.core.files.storage import File, Folder
+from bviewer.core.files.storage import ImageStorage, ImagePath, ImageFolder
 
 
 class FileTest(TestCase):
-    f1 = File('root/p1', '1.jpg')
-    f2 = File('root/p1', '2.jpg')
+    f1 = ImagePath(Mock(), '1.jpg')
+    f2 = ImagePath(Mock(), '2.jpg')
 
     def test_file(self):
         self.assertEqual(self.f1.name, '1.jpg')
@@ -28,18 +28,8 @@ class FileTest(TestCase):
 
 
 class FolderTest(TestCase):
-    dirs = ['d2', 'd1']
-    files = ['f2', 'f1']
-
-    def test_folder(self):
-        f = Folder('root/p1', self.dirs, self.files)
-        self.assertEqual(f.path, 'root/p1')
-        self.assertEqual(f.back, 'root')
-        self.assertEqual(f.dirs, sorted(self.dirs))
-        self.assertEqual(f.files, sorted(self.files))
-
     def test_spit(self):
-        res = Folder('root/p1', [], []).split_path()
+        res = ImageFolder('root/p1', []).split_path
         ref = [
             ('root', 'root'),
             ('p1', 'root/p1'),
@@ -59,7 +49,8 @@ class StorageTest(TestCase):
         if not os.path.exists(self.test_dir):
             os.mkdir(self.test_dir)
 
-        self.storage = Storage('tmp')
+        holder = Mock(home='tmp', url='tmp')
+        self.storage = ImageStorage(holder)
 
     def tearDown(self):
         settings_local.VIEWER_STORAGE_PATH = self.VIEWER_STORAGE_PATH
@@ -92,6 +83,3 @@ class StorageTest(TestCase):
         self.assertRaises(FileError, self.storage.list, '.test')
         self.assertRaises(FileError, self.storage.list, 'test/.')
         self.assertRaises(FileError, self.storage.list, 'test/../../')
-
-    def test_name(self):
-        self.assertEqual(Storage.name('tmp/some name.jpg'), 'some name.jpg')
