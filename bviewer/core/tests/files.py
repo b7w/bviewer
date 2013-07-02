@@ -1,22 +1,24 @@
 # -*- coding: utf-8 -*-
 import os
+from mock import Mock
 
 from django.test import TestCase
 from django.conf import settings
-from mock import Mock
 
-from bviewer.core import settings as settings_local
 from bviewer.core.exceptions import FileError
 from bviewer.core.files.storage import ImageStorage, ImagePath, ImageFolder
+from bviewer.core.utils import ResizeOptions
 
 
-class FileTest(TestCase):
-    f1 = ImagePath(Mock(), '1.jpg')
-    f2 = ImagePath(Mock(), '2.jpg')
+class ImagePathTest(TestCase):
+    def setUp(self):
+        self.storage = Mock(hash_for=str)
+        self.f1 = ImagePath(self.storage, 'path/1.jpg')
+        self.f2 = ImagePath(self.storage, 'path/2.jpg')
 
     def test_file(self):
         self.assertEqual(self.f1.name, '1.jpg')
-        self.assertEqual(self.f1.path, 'root/p1/1.jpg')
+        self.assertEqual(self.f1.path, 'path/1.jpg')
         self.assertEqual(self.f1.saved, False)
 
     def test_order(self):
@@ -26,9 +28,32 @@ class FileTest(TestCase):
         l2 = [self.f1, self.f2]
         self.assertEqual(sorted(l), l2)
 
+    def test_cache_name_unique(self):
+        options = [
+            ResizeOptions(32, 32, crop=False, quality=95),
+            ResizeOptions(64, 32, crop=False, quality=95),
+            ResizeOptions(32, 64, crop=False, quality=95),
+            ResizeOptions(32, 32, crop=True, quality=95),
+            ResizeOptions(32, 32, crop=False, quality=100),
+            ResizeOptions(32, 32, crop=False, quality=100, name='unique_name'),
+        ]
+        path = 'some/path/img.jpg'
 
-class FolderTest(TestCase):
-    def test_spit(self):
+        hashes = set(ImagePath(self.storage, path, i).cache_name for i in options)
+        self.assertEqual(len(options), len(hashes), msg='Check unique hashes for different options')
+
+        name1 = ImagePath(self.storage, 'path1', ResizeOptions()).cache_name
+        name2 = ImagePath(self.storage, 'path2', ResizeOptions()).cache_name
+        self.assertNotEqual(name1, name2)
+
+    def test_cache_name_repeatability(self):
+        name1 = ImagePath(self.storage, 'path', ResizeOptions()).cache_name
+        name2 = ImagePath(self.storage, 'path', ResizeOptions()).cache_name
+        self.assertEqual(name1, name2)
+
+
+class ImageFolderTest(TestCase):
+    def test_spit_path(self):
         res = ImageFolder('root/p1', []).split_path
         ref = [
             ('root', 'root'),
@@ -39,39 +64,29 @@ class FolderTest(TestCase):
 
 class StorageTest(TestCase):
     def setUp(self):
-        self.data = ['1.jpg', '2.jpg', '3.jpg', '4.jpeg', '5.jpg']
+        self.data = ['1.jpg', '2.jpeg', '3.jpg', '4.jpg', '5.jpg']
+        self.test_dir = settings.VIEWER_CACHE_PATH
+        self.test_user_dir = os.path.join(self.test_dir, 'test')
+
+        holder = Mock(home='test', url='test')
+        self.storage = ImageStorage(holder, root_path=self.test_dir, cache_path=self.test_dir)
+        self.storage.clear_cache()
+        os.makedirs(os.path.join(self.test_dir, 'test/folder'))
+
         for i in self.data:
-            with open(os.path.join(settings.TMP_PATH, i), 'w') as f:
+            with open(os.path.join(self.test_user_dir, i), 'w') as f:
                 f.write('test')
-        self.VIEWER_STORAGE_PATH = settings_local.VIEWER_STORAGE_PATH
-        settings_local.VIEWER_STORAGE_PATH = settings.PROJECT_PATH
-        self.test_dir = os.path.join(settings.TMP_PATH, 'test')
-        if not os.path.exists(self.test_dir):
-            os.mkdir(self.test_dir)
-
-        holder = Mock(home='tmp', url='tmp')
-        self.storage = ImageStorage(holder)
-
-    def tearDown(self):
-        settings_local.VIEWER_STORAGE_PATH = self.VIEWER_STORAGE_PATH
-        if os.path.exists(self.test_dir):
-            os.removedirs(self.test_dir)
-        for i in self.data:
-            os.remove(os.path.join(settings.TMP_PATH, i))
 
     def test_list(self):
-        out = self.storage.list('')
-        self.assertEqual([i.path for i in out.dirs], ['test'])
-        self.assertEqual(out.back, '')
-        self.assertEqual([i.path for i in out.files], self.data)
+        out = self.storage.list()
+        self.assertEqual([i.path for i in out if i.is_dir], ['folder'])
+        self.assertEqual([i.path for i in out if i.is_image], self.data)
 
-        out = self.storage.list('test')
-        self.assertEqual(out.dirs, [])
-        self.assertEqual(out.back, '')
-        self.assertEqual(out.files, [])
+        out = self.storage.list('folder')
+        self.assertEqual(out, [])
 
     def test_exists(self):
-        self.assertRaises(FileError, self.storage.list, 'root')
+        self.assertRaises(FileError, self.storage.list, 'None')
 
     def test_path(self):
         """

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from bviewer.core.tests import BaseViewTest
+from bviewer.core.tests.base import BaseViewTest
 
 
 class ArchiveViewsTest(BaseViewTest):
@@ -15,5 +15,7 @@ class ArchiveViewsTest(BaseViewTest):
         self.assertContent(url_second, 'Error')
 
         self.login()
-        self.assertContent(url_first, 'Waite')
+        resp = self.client.get(url_first)
+        self.assertEqual(resp.status_code, 302)
+
         self.assertContent(url_second, 'Waite')

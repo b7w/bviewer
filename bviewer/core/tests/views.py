@@ -12,9 +12,9 @@ class PrivateGalleriesTest(BaseViewTest):
         url = self.reverse('core.home')
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn('First', resp.hash_for)
-        self.assertNotIn('Second', resp.hash_for)
-        self.assertIn('Third', resp.hash_for)
+        self.assertIn('First', resp.content)
+        self.assertNotIn('Second', resp.content)
+        self.assertIn('Third', resp.content)
 
         self.login()
         self.assertContent(url, 'First')
