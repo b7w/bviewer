@@ -2,8 +2,12 @@
 from datetime import datetime
 import json
 import os
-import urllib2
 import uuid
+
+try:
+    from urllib2 import urlopen
+except ImportError:
+    from urllib.request import urlopen
 
 from django.contrib.auth.models import User, AbstractUser, Permission
 from django.contrib.sites.models import Site
@@ -206,7 +210,7 @@ class Video(models.Model):
         """
         if self.type == self.VIMIO:
             url = 'http://vimeo.com/api/v2/video/{0}.json'.format(self.uid)
-            raw = urllib2.urlopen(url).read()
+            raw = urlopen(url).read()
             info = json.loads(raw, encoding='UTF-8').pop()
             return info['thumbnail_large']
         elif self.type == self.YOUTUBE:
