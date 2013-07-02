@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import json
-import os
 import uuid
 
 try:
@@ -19,7 +18,7 @@ from django.db.models.signals import post_save
 from django.utils.encoding import smart_text
 from django.utils.html import escape
 
-from bviewer.core.utils import cache_method, abs_image_path
+from bviewer.core.files.storage import ImageStorage
 
 
 def uuid_pk(length=10):
@@ -147,23 +146,12 @@ class Image(models.Model):
 
     objects = ProxyManager()
 
-    @property
-    @cache_method
-    def exif(self):
-        """
-        Return Exif instance fot this image
-        """
-        from bviewer.core.images import Exif
-
-        fname = abs_image_path(self.gallery.user.home, self.path)
-        return Exif(fname)
-
     def clean(self):
         """
         Check path exists
         """
-        fname = abs_image_path(self.gallery.user.home, self.path)
-        if not os.path.exists(fname):
+        storage = ImageStorage(self.gallery.user)
+        if not storage.exists(self.path):
             raise ValidationError('No {0} path exists'.format(self.path))
 
     def __str__(self):
@@ -175,6 +163,21 @@ class Image(models.Model):
         verbose_name = 'Image'
         ordering = ['time']
         unique_together = (('gallery', 'path'),)
+
+
+def update_time_from_exif(sender, instance, created, **kwargs):
+    """
+    :type instance: Image
+    """
+    if created:
+        storage = ImageStorage(instance.gallery.user)
+        image_path = storage.get_path(instance.path)
+        if image_path.exists and image_path.exif.ctime:
+            instance.time = image_path.exif.ctime
+            instance.save()
+
+
+post_save.connect(update_time_from_exif, sender=Image)
 
 
 class Video(models.Model):
