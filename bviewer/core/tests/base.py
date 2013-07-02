@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+import os
+import shutil
+
+from django.conf import settings as django_settings
 from django.core import urlresolvers
 from django.test import TestCase
 
@@ -12,6 +16,11 @@ class BaseViewTest(TestCase):
     """
 
     def setUp(self):
+        django_settings.TEST = True
+
+        if os.path.exists(settings.VIEWER_CACHE_PATH):
+            shutil.rmtree(settings.VIEWER_CACHE_PATH)
+
         self.data = TestData()
         self.data.load_all()
         settings.VIEWER_USER_ID = self.data.user_b7w.id
@@ -32,4 +41,4 @@ class BaseViewTest(TestCase):
     def assertContent(self, url, content):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn(content, resp.hash_for)
+        self.assertIn(content, resp.content)
