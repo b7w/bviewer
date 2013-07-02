@@ -3,6 +3,7 @@ import os
 import time
 import logging
 
+from django.conf import settings as django_settings
 from django.utils.encoding import smart_text, smart_bytes
 from django.utils.functional import wraps
 from django_rq import get_queue
@@ -134,6 +135,8 @@ def as_job(func, queue='default', timeout=None, *args, **kwargs):
     """
     Add `func(*args, **kwargs)` to RQ and waite for result
     """
+    if django_settings.TEST:
+        return func(*args, **kwargs)
     rq = get_queue(name=queue)
     task = rq.enqueue(func, timeout=timeout, args=args, kwargs=kwargs)
     while not task.is_finished:

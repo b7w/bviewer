@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
+from django.conf import settings as django_settings
 from django_rq import get_queue
 
 from bviewer.core.files.storage import ImageStorage
@@ -34,7 +35,6 @@ class ZipArchiveController(object):
 
         :rtype: str
         """
-        #TODO: No way to check FS is archive creating
         if self.archive.cache_exists:
             return 'DONE'
         elif self.archive.cache_exists:
@@ -83,5 +83,8 @@ class ZipArchiveController(object):
         """
         Send task to RQ `low` queue
         """
-        rq = get_queue(name='low')
-        rq.enqueue(self.process)
+        if django_settings.TEST:
+            self.process()
+        else:
+            rq = get_queue(name='low')
+            rq.enqueue(self.process)

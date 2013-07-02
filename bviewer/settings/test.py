@@ -2,6 +2,8 @@
 
 from bviewer.settings.local import *
 
+TEST = True
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
