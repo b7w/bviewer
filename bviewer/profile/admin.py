@@ -70,7 +70,6 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
     def save_model(self, request, obj, form, change):
         obj.user = ProxyUser.objects.get(pk=request.user.pk)
         thumbnail_id = form.data['thumbnail_id']
-        print(1, thumbnail_id)
         if thumbnail_id != 'None':
             obj.thumbnail_id = thumbnail_id
         else:

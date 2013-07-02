@@ -7,7 +7,6 @@ TEST = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(TMP_PATH, "test.sqlite"),
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
