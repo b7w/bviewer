@@ -8,9 +8,11 @@ DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 DEBUG_TOOL_BAR = DEBUG
 
+TEST = False
+
 SOURCE_PATH = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
 PROJECT_PATH = os.path.dirname(SOURCE_PATH)
-TMP_PATH = os.path.join(PROJECT_PATH, "tmp")
+TMP_PATH = os.path.join(PROJECT_PATH, 'tmp')
 
 ADMINS = (
 # ('Your Name', 'your_email@example.com'),
