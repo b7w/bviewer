@@ -3,8 +3,10 @@ from contextlib import contextmanager
 import hashlib
 import logging
 import os
+import shutil
 import uuid
 import zipfile
+from bviewer.core.exceptions import FileError
 
 try:
     from urllib2 import urlopen
@@ -12,7 +14,7 @@ except ImportError:
     from urllib.request import urlopen
 
 from django.utils.encoding import smart_bytes
-from six import BytesIO
+from django.utils.six import BytesIO
 
 from bviewer.core import settings
 from bviewer.core.utils import cache_method
@@ -154,11 +156,15 @@ class ImagePath(ImagePathCacheMixin):
     def ctime(self):
         return self.storage.ctime(self.name)
 
-    def open(self, mode='r'):
+    def open(self, mode='rb'):
         return self.storage.open(self.path, mode=mode)
 
     def __lt__(self, other):
         return self.name < other.name
+
+    def __repr__(self):
+        return 'ImagePath({s}, "{p}", options={o})' \
+            .format(s=self.storage, p=self.path, o=self.options)
 
 
 class ImageUrl(ImagePathCacheMixin):
@@ -217,7 +223,6 @@ class ImageArchivePath(ImagePathCacheMixin):
 
         :rtype: zipfile.ZipFile
         """
-        #TODO: look behavior
         with self.storage.open(self.cache_name_temp, mode=mode, for_cache=True) as f:
             with zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED) as z:
                 yield z
@@ -231,6 +236,7 @@ class ImageStorage(object):
     """
 
     TYPES_ALLOWED = ('.jpeg', '.jpg', )
+    PATH_CHECKERS = ('../', './', '/.', )
 
     def __init__(self, holder, root_path=None, cache_path=None):
         """
@@ -246,9 +252,30 @@ class ImageStorage(object):
         self._cache_path = os.path.join(self.cache_path, holder.url)
         self.create_cache()
 
+    def _is_valid_path(self, path):
+        if path.startswith('.') or path.startswith('/') or path.endswith('/'):
+            return False
+        for item in self.PATH_CHECKERS:
+            if item in path:
+                return False
+        return True
+
     def list(self, path=None, saved_images=None):
+        """
+        Return list of sorted ImagePath. If path is not - list `self.root_path`.
+        If `saved_images` declared with paths, saved=True will be check on equal paths.
+
+        :type saved_images: list of str
+        :rtype: lis of ImagePath
+        """
         out = []
+        path = path or ''
+        if not self._is_valid_path(path):
+            raise FileError('Invalid "{p}" path'.format(p=path))
         abs_path = os.path.join(self._root_path, path) if path else self._root_path
+        if not os.path.exists(abs_path):
+            raise FileError('Directory "{p}" not exists'.format(p=path))
+
         for file_name in os.listdir(abs_path):
             relative_path = os.path.join(path, file_name)
             image_path = ImagePath(self, relative_path)
@@ -257,7 +284,7 @@ class ImageStorage(object):
                     image_path.saved = True
                 out.append(image_path)
 
-        return out
+        return sorted(out)
 
     def get_path(self, path, options=None):
         return ImagePath(self, path, options)
@@ -290,6 +317,10 @@ class ImageStorage(object):
         if not os.path.exists(self._cache_path):
             os.makedirs(self._cache_path)
 
+    def clear_cache(self):
+        if os.path.exists(self._cache_path):
+            shutil.rmtree(self._cache_path)
+
     def rename_cache(self, path_from, path_to):
         root = self._cache_path
         abs_to = os.path.join(root, path_to)
@@ -299,10 +330,16 @@ class ImageStorage(object):
     def link_to_cache(self, path_from, path_to):
         abs_from = os.path.join(self._root_path, path_from)
         abs_to = os.path.join(self._cache_path, path_to)
-        os.symlink(abs_from, abs_to)
+        if hasattr(os, 'symlink'):
+            os.symlink(abs_from, abs_to)
+        else:
+            shutil.copyfile(abs_from, abs_to)
 
     def hash_for(self, content):
         return hashlib.sha1(smart_bytes(content)).hexdigest()
 
     def gen_temp_name(self):
         return uuid.uuid1().hex
+
+    def __repr__(self):
+        return 'ImageStorage({h})'.format(h=self.holder)
