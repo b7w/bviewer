@@ -6,7 +6,6 @@ import os
 import shutil
 import uuid
 import zipfile
-from bviewer.core.exceptions import FileError
 
 try:
     from urllib2 import urlopen
@@ -18,6 +17,8 @@ from django.utils.six import BytesIO
 
 from bviewer.core import settings
 from bviewer.core.utils import cache_method
+from bviewer.core.exceptions import FileError
+from bviewer.core.images import Exif
 
 logger = logging.getLogger(__name__)
 
@@ -147,6 +148,11 @@ class ImagePath(ImagePathCacheMixin):
     @property
     def exists(self):
         return self.storage.exists(self.path)
+
+    @property
+    @cache_method
+    def exif(self):
+        return self.storage.exif(self.path)
 
     @property
     def url(self):
@@ -308,6 +314,9 @@ class ImageStorage(object):
     def exists(self, path, for_cache=False):
         root = self._cache_path if for_cache else self._root_path
         return os.path.exists(os.path.join(root, path))
+
+    def exif(self, path):
+        return Exif(os.path.join(self._root_path, path))
 
     def open(self, path, mode='r', for_cache=False):
         root = self._cache_path if for_cache else self._root_path

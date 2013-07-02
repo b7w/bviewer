@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from bviewer.api.tests.base import BaseResourceTestCase
 
 
@@ -10,7 +9,8 @@ class EditTestCase(BaseResourceTestCase):
         gallery_id = self.data.gallery_b7w.id
 
         self.new_gallery = dict(title='New', user='/api/v1/user/{0}/'.format(user_id))
-        self.new_image = dict(path='path', gallery='/api/v1/gallery/{0}/'.format(gallery_id))
+        self.new_image = dict(path='image1.jpg2', gallery='/api/v1/gallery/{0}/'.format(gallery_id))
+        self.data.generate_image(self.data.user_b7w.home, 'image1.jpg')
         self.new_video = dict(uid='123456', title='New', gallery='/api/v1/gallery/{0}/'.format(gallery_id))
 
     def test_public_post(self):
