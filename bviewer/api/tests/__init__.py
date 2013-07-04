@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from advance import *
-from edit import *
-from private import *
+from bviewer.api.tests.advance import *
+from bviewer.api.tests.edit import *
+from bviewer.api.tests.private import *
