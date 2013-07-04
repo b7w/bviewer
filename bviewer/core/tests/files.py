@@ -4,7 +4,6 @@ import shutil
 from mock import Mock, patch
 
 from django.test import TestCase
-from django.conf import settings
 
 from bviewer.core.exceptions import FileError
 from bviewer.core.files.storage import ImageStorage, ImagePath, ImageFolder
@@ -79,18 +78,30 @@ class ImageFolderTest(TestCase):
         self.assertEqual(res, ref)
 
 
-class StorageTest(TestCase):
+class ImageStorageTestCase(TestCase):
     def setUp(self):
-        self.data = ['1.jpg', '2.jpeg', '3.jpg', '4.jpg', '5.jpg']
-        self.test_dir = settings.VIEWER_TESTS_PATH
+        self.holder = Mock(home='holder_home', url='holder_url')
+        self.storage = ImageStorage(self.holder)
+        self.remove_storage_folders()
+        self.create_storage_folders()
 
-        holder = Mock(home='holder_home', url='holder_url')
-        self.storage = ImageStorage(holder, root_path=self.test_dir, cache_path=self.test_dir)
+    def create_storage_folders(self):
+        if not os.path.exists(self.storage._abs_root_path):
+            os.makedirs(self.storage._abs_root_path)
+        if not os.path.exists(self.storage._abs_cache_path):
+            os.makedirs(self.storage._abs_cache_path)
 
+    def remove_storage_folders(self):
         if os.path.exists(self.storage._abs_root_path):
             shutil.rmtree(self.storage._abs_root_path)
         if os.path.exists(self.storage._abs_cache_path):
             shutil.rmtree(self.storage._abs_cache_path)
+
+
+class ImageStorageTest(ImageStorageTestCase):
+    def setUp(self):
+        super(ImageStorageTest, self).setUp()
+        self.data = ['1.jpg', '2.jpeg', '3.jpg', '4.jpg', '5.jpg']
         os.makedirs(os.path.join(self.storage._abs_root_path, 'folder'))
 
         for i in self.data:

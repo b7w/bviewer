@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
 import time
 import logging
 
@@ -142,7 +141,3 @@ def as_job(func, queue='default', timeout=None, *args, **kwargs):
     while not task.is_finished:
         time.sleep(0.1)
     return task.result
-
-
-def abs_image_path(user_home, image_path):
-    return os.path.join(settings.VIEWER_STORAGE_PATH, user_home, image_path)
