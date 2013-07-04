@@ -8,6 +8,7 @@ bviewer/settings/local\.py
 \.idea/
 
 cache/
+tests/
 ^static/
 logs/
 tmp/

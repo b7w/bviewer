@@ -35,7 +35,7 @@ class ImageFolder(object):
         :type image_paths: list of ImagePath
         """
         self.path = path
-        self.back = '/'.join(path.split('/')[:-1])
+        self.back = os.path.dirname(path)
         self.dirs = sorted(i for i in image_paths if i.is_dir)
         self.files = sorted(i for i in image_paths if i.is_image)
 
@@ -156,7 +156,7 @@ class ImagePath(ImagePathCacheMixin):
 
     @property
     def url(self):
-        return os.path.join(self.storage.holder.url, self.cache_name)
+        return '/'.join([self.storage.holder.url, self.cache_name])
 
     @property
     def ctime(self):
@@ -195,7 +195,7 @@ class ImageUrl(ImagePathCacheMixin):
 
     @property
     def url(self):
-        return os.path.join(self.storage.holder.url, self.cache_name)
+        return '/'.join([self.storage.holder.url, self.cache_name])
 
     @contextmanager
     def open(self, mode=None):
@@ -220,7 +220,7 @@ class ImageArchivePath(ImagePathCacheMixin):
 
     @property
     def url(self):
-        return os.path.join(self.storage.holder.url, self.cache_name)
+        return '/'.join([self.storage.holder.url, self.cache_name])
 
     @contextmanager
     def cache_open(self, mode='wb'):
@@ -254,8 +254,8 @@ class ImageStorage(object):
         self.root = root_path or settings.VIEWER_STORAGE_PATH
         self.cache_path = cache_path or settings.VIEWER_CACHE_PATH
 
-        self._root_path = os.path.join(self.root, holder.home)
-        self._cache_path = os.path.join(self.cache_path, holder.url)
+        self._abs_root_path = os.path.join(self.root, holder.home)
+        self._abs_cache_path = os.path.join(self.cache_path, holder.url)
         self.create_cache()
 
     def _is_valid_path(self, path):
@@ -271,14 +271,14 @@ class ImageStorage(object):
         Return list of sorted ImagePath. If path is not - list `self.root_path`.
         If `saved_images` declared with paths, saved=True will be check on equal paths.
 
-        :type saved_images: list of str
-        :rtype: lis of ImagePath
+        :type saved_images: set of str
+        :rtype: list of ImagePath
         """
         out = []
         path = path or ''
         if not self._is_valid_path(path):
             raise FileError('Invalid "{p}" path'.format(p=path))
-        abs_path = os.path.join(self._root_path, path) if path else self._root_path
+        abs_path = os.path.join(self._abs_root_path, path) if path else self._abs_root_path
         if not os.path.exists(abs_path):
             raise FileError('Directory "{p}" not exists'.format(p=path))
 
@@ -302,43 +302,43 @@ class ImageStorage(object):
         return ImageArchivePath(self, options)
 
     def is_file(self, path):
-        return os.path.isfile(os.path.join(self._root_path, path))
+        return os.path.isfile(os.path.join(self._abs_root_path, path))
 
     def is_dir(self, path):
-        return os.path.isdir(os.path.join(self._root_path, path))
+        return os.path.isdir(os.path.join(self._abs_root_path, path))
 
     def ctime(self, path, for_cache=False):
-        root = self._cache_path if for_cache else self._root_path
+        root = self._abs_cache_path if for_cache else self._abs_root_path
         return os.path.getctime(os.path.join(root, path))
 
     def exists(self, path, for_cache=False):
-        root = self._cache_path if for_cache else self._root_path
+        root = self._abs_cache_path if for_cache else self._abs_root_path
         return os.path.exists(os.path.join(root, path))
 
     def exif(self, path):
-        return Exif(os.path.join(self._root_path, path))
+        return Exif(os.path.join(self._abs_root_path, path))
 
     def open(self, path, mode='r', for_cache=False):
-        root = self._cache_path if for_cache else self._root_path
+        root = self._abs_cache_path if for_cache else self._abs_root_path
         return open(os.path.join(root, path), mode=mode)
 
     def create_cache(self):
-        if not os.path.exists(self._cache_path):
-            os.makedirs(self._cache_path)
+        if not os.path.exists(self._abs_cache_path):
+            os.makedirs(self._abs_cache_path)
 
     def clear_cache(self):
-        if os.path.exists(self._cache_path):
-            shutil.rmtree(self._cache_path)
+        if os.path.exists(self._abs_cache_path):
+            shutil.rmtree(self._abs_cache_path)
 
     def rename_cache(self, path_from, path_to):
-        root = self._cache_path
+        root = self._abs_cache_path
         abs_to = os.path.join(root, path_to)
         if not os.path.lexists(abs_to):
             os.rename(os.path.join(root, path_from), abs_to)
 
     def link_to_cache(self, path_from, path_to):
-        abs_from = os.path.join(self._root_path, path_from)
-        abs_to = os.path.join(self._cache_path, path_to)
+        abs_from = os.path.join(self._abs_root_path, path_from)
+        abs_to = os.path.join(self._abs_cache_path, path_to)
         if hasattr(os, 'symlink'):
             os.symlink(abs_from, abs_to)
         else:
