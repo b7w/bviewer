@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
-from mock import Mock
+import shutil
+from mock import Mock, patch
 
 from django.test import TestCase
 from django.conf import settings
@@ -19,7 +20,16 @@ class ImagePathTest(TestCase):
     def test_file(self):
         self.assertEqual(self.f1.name, '1.jpg')
         self.assertEqual(self.f1.path, 'path/1.jpg')
+        self.assertEqual(self.f1.parent, 'path')
         self.assertEqual(self.f1.saved, False)
+
+    def test_url(self):
+        storage = Mock(hash_for=Mock(return_value='cache_name'), holder=Mock(url='holder.url'))
+        self.assertEqual(storage.hash_for(), 'cache_name')
+        self.assertEqual(storage.holder.url, 'holder.url')
+
+        path = ImagePath(storage, 'path/1.jpg')
+        self.assertEqual(path.url, 'holder.url/cache_name.jpg')
 
     def test_order(self):
         self.assertLess(self.f1, self.f2)
@@ -53,6 +63,13 @@ class ImagePathTest(TestCase):
 
 
 class ImageFolderTest(TestCase):
+    def test_back(self):
+        folder = ImageFolder('root/p1', [])
+        self.assertEqual(folder.back, 'root')
+
+        folder = ImageFolder('root', [])
+        self.assertEqual(folder.back, '')
+
     def test_spit_path(self):
         res = ImageFolder('root/p1', []).split_path
         ref = [
@@ -65,16 +82,19 @@ class ImageFolderTest(TestCase):
 class StorageTest(TestCase):
     def setUp(self):
         self.data = ['1.jpg', '2.jpeg', '3.jpg', '4.jpg', '5.jpg']
-        self.test_dir = settings.VIEWER_CACHE_PATH
-        self.test_user_dir = os.path.join(self.test_dir, 'test')
+        self.test_dir = settings.VIEWER_TESTS_PATH
 
-        holder = Mock(home='test', url='test')
+        holder = Mock(home='holder_home', url='holder_url')
         self.storage = ImageStorage(holder, root_path=self.test_dir, cache_path=self.test_dir)
-        self.storage.clear_cache()
-        os.makedirs(os.path.join(self.test_dir, 'test/folder'))
+
+        if os.path.exists(self.storage._abs_root_path):
+            shutil.rmtree(self.storage._abs_root_path)
+        if os.path.exists(self.storage._abs_cache_path):
+            shutil.rmtree(self.storage._abs_cache_path)
+        os.makedirs(os.path.join(self.storage._abs_root_path, 'folder'))
 
         for i in self.data:
-            with open(os.path.join(self.test_user_dir, i), 'w') as f:
+            with open(os.path.join(self.storage._abs_root_path, i), 'w') as f:
                 f.write('test')
 
     def test_list(self):
@@ -85,10 +105,10 @@ class StorageTest(TestCase):
         out = self.storage.list('folder')
         self.assertEqual(out, [])
 
-    def test_exists(self):
+    def test_list_not_found(self):
         self.assertRaises(FileError, self.storage.list, 'None')
 
-    def test_path(self):
+    def test_list_wrong_paths(self):
         """
         Test path path inject to look throw higher directories
         """
@@ -98,3 +118,26 @@ class StorageTest(TestCase):
         self.assertRaises(FileError, self.storage.list, '.test')
         self.assertRaises(FileError, self.storage.list, 'test/.')
         self.assertRaises(FileError, self.storage.list, 'test/../../')
+
+    def test_method_for_cache(self):
+        """
+        Test that method(path) and method(path, for_cache) retrun right values
+        """
+
+        def assert_method_for_cache(patch_module, func, side_effect):
+            with patch(patch_module) as mock:
+                mock.configure_mock(side_effect=side_effect)
+                image_path = os.path.normpath('path/img.jpg')
+
+                for_root = os.path.normcase('root/home/path/img.jpg')
+                self.assertEqual(func(image_path, for_cache=False), for_root)
+
+                for_cache = os.path.normcase('cache/url/path/img.jpg')
+                self.assertEqual(func(image_path, for_cache=True), for_cache)
+
+        holder = Mock(home='home', url='url')
+        storage = ImageStorage(holder, root_path='root', cache_path='cache')
+
+        assert_method_for_cache('os.path.getctime', storage.ctime, side_effect=str)
+        assert_method_for_cache('os.path.exists', storage.exists, side_effect=str)
+        assert_method_for_cache('__builtin__.open', storage.open, side_effect=lambda path, mode: str(path))
