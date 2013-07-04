@@ -42,3 +42,4 @@ LOGGING = {
 
 VIEWER_TESTS_PATH = os.path.join(PROJECT_PATH, 'tests')
 VIEWER_STORAGE_PATH = os.path.join(VIEWER_TESTS_PATH, 'storage')
+VIEWER_CACHE_PATH = os.path.join(VIEWER_TESTS_PATH, 'cache')

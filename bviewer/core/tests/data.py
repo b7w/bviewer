@@ -6,7 +6,6 @@ from django.contrib.auth.models import User, Permission
 from bviewer.core import settings
 from bviewer.core.images import RandomImage
 from bviewer.core.models import ProxyUser, Gallery, Image, Video
-from bviewer.core.utils import abs_image_path
 
 
 class TestData:
@@ -67,9 +66,7 @@ class TestData:
         Create random image in settings.VIEWER_STORAGE_PATH if not exists.
         Or user `force=True` to override.
         """
-        if not os.path.exists(settings.VIEWER_STORAGE_PATH):
-            os.makedirs(settings.VIEWER_STORAGE_PATH)
-        path = abs_image_path(home, name)
+        path = os.path.join(settings.VIEWER_STORAGE_PATH, home, name)
         if not os.path.exists(path) or force:
             image = RandomImage(2048)
             image.draw(name)
