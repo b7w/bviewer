@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 
 from django.contrib.admin import AdminSite
 from django.contrib.auth.admin import UserAdmin
@@ -45,7 +46,7 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
 
     list_display = ('title', 'parent', 'visibility', 'images', 'time',)
     list_filter = ('parent__title', 'time', )
-    ordering = ('parent', 'time',)
+    ordering = ('parent', '-time',)
 
     search_fields = ('title', 'description',)
 
@@ -93,17 +94,17 @@ profile.register(Gallery, ProfileGalleryAdmin)
 class ProfileImageAdmin(ProfileModelAdmin):
     list_select_related = True
 
-    list_display = ('gallery_title', 'path', )
-    list_filter = ('gallery__title', )
-    ordering = ('gallery__user__username', 'path',)
+    list_display = ('path', 'file_name', 'gallery_title', 'time', )
+    list_filter = ('gallery__title', 'time',)
+    ordering = ('-time', 'gallery', )
 
     search_fields = ('gallery__title', 'path',)
 
+    def file_name(self, obj):
+        return os.path.basename(obj.path)
+
     def gallery_title(self, obj):
         return obj.gallery.title
-
-    def gallery_user(self, obj):
-        return obj.gallery.user.username
 
     def queryset(self, request):
         return super(ProfileImageAdmin, self).queryset(request).filter(gallery__user=request.user)
@@ -120,17 +121,14 @@ profile.register(Image, ProfileImageAdmin)
 class ProfileVideoAdmin(ProfileModelAdmin):
     list_select_related = True
 
-    list_display = ('gallery_title', 'title', 'type', 'uid',)
-    list_filter = ('gallery__title', 'type', )
-    ordering = ('gallery__title',)
+    list_display = ('gallery_title', 'title', 'type', 'uid', 'time', )
+    list_filter = ('gallery__title', 'type', 'time',)
+    ordering = ('-time', 'gallery', )
 
     search_fields = ('gallery__title', 'title',)
 
     def gallery_title(self, obj):
         return obj.gallery.title
-
-    def gallery_user(self, obj):
-        return obj.gallery.user.username
 
     def queryset(self, request):
         return super(ProfileVideoAdmin, self).queryset(request).filter(gallery__user=request.user)

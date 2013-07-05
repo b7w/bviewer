@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
@@ -23,7 +24,7 @@ class GalleryAdmin(ModelAdmin):
 
     list_display = ('title', 'parent', 'user', 'visibility', 'time',)
     list_filter = ('parent__title', 'user__username', 'time', )
-    ordering = ('user', 'parent', 'time',)
+    ordering = ('user', 'parent', '-time',)
 
     search_fields = ('title', 'description',)
 
@@ -39,11 +40,14 @@ admin.site.register(Gallery, GalleryAdmin)
 class ImageAdmin(ModelAdmin):
     list_select_related = True
 
-    list_display = ('gallery_title', 'gallery_user', 'path', 'time',)
+    list_display = ('path', 'file_name', 'gallery_user', 'gallery_title', 'time', )
     list_filter = ('gallery__title', 'gallery__user__username', 'time',)
-    ordering = ('gallery__user__username', 'path', 'time',)
+    ordering = ('gallery__user__username', 'path', '-time',)
 
     search_fields = ('gallery__title', 'path',)
+
+    def file_name(self, obj):
+        return os.path.basename(obj.path)
 
     def gallery_title(self, obj):
         return obj.gallery.title
@@ -63,9 +67,9 @@ admin.site.register(Image, ImageAdmin)
 class VideoAdmin(ModelAdmin):
     list_select_related = True
 
-    list_display = ('gallery_title', 'gallery_user', 'title', 'uid', 'time',)
+    list_display = ('gallery_title', 'gallery_user', 'title', 'type', 'uid', 'time', )
     list_filter = ('gallery__title', 'gallery__user__username', 'time',)
-    ordering = ('gallery__user__username', 'time',)
+    ordering = ('gallery__user__username', '-time',)
 
     search_fields = ('gallery__title', 'title',)
 
@@ -103,7 +107,7 @@ class ProxyUserForm(models.ModelForm):
         model = ProxyUser
 
 
-class UserAdmin(UserAdmin, ModelAdmin):
+class ProxyUserAdmin(UserAdmin, ModelAdmin):
     list_select_related = True
 
     list_display = ('username', 'email', 'is_staff', 'home', 'top_gallery', )
