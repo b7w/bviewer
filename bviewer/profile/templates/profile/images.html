@@ -15,6 +15,15 @@
     <link rel="stylesheet" type="text/css" href="{% static 'profile/css/profile.css' %}"/>
 {% endblock %}
 
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'profile:index' %}">{% trans 'Home' %}</a>
+        &rsaquo; <a href="{% url 'profile:app_list' 'core' %}">Core</a>
+        &rsaquo; <a href="{% url 'profile:core_gallery_changelist' %}">Galleries</a>
+        &rsaquo; <a href="{% url 'profile:core_gallery_change' gallery.id %}">{{ gallery }}</a>
+        &rsaquo; Select images
+    </div>
+{% endblock %}
 
 {% block messages %}
     <ul class="messagelist" style="display: none"></ul>

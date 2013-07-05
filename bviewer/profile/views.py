@@ -36,6 +36,7 @@ def images_view(request, uid):
     return render(request, 'profile/images.html', {
         'gallery': main,
         'folder': folder,
+        'title': 'Select images',
     })
 
 
