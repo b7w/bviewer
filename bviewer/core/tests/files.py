@@ -6,7 +6,9 @@ from mock import Mock, patch
 from django.test import TestCase
 
 from bviewer.core.exceptions import FileError
-from bviewer.core.files.storage import ImageStorage, ImagePath, ImageFolder
+from bviewer.core.files.path import ImagePath
+from bviewer.core.files.storage import ImageStorage
+from bviewer.core.files.utils import ImageFolder
 from bviewer.core.utils import ResizeOptions
 
 
@@ -19,7 +21,6 @@ class ImagePathTest(TestCase):
     def test_file(self):
         self.assertEqual(self.f1.name, '1.jpg')
         self.assertEqual(self.f1.path, 'path/1.jpg')
-        self.assertEqual(self.f1.parent, 'path')
         self.assertEqual(self.f1.saved, False)
 
     def test_url(self):
