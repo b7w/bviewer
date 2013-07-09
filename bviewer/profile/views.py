@@ -8,7 +8,8 @@ from django.shortcuts import render
 from bviewer.core.controllers import get_gallery_user, GalleryController
 from bviewer.core.exceptions import FileError
 from bviewer.core.files.response import download_response
-from bviewer.core.files.storage import ImageFolder, ImageStorage
+from bviewer.core.files.storage import ImageStorage
+from bviewer.core.files.utils import ImageFolder
 from bviewer.core.images import CacheImage
 from bviewer.core.utils import ResizeOptions, as_job
 from bviewer.core.views import message_view

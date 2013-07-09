@@ -121,7 +121,7 @@ class CacheImage(object):
 
     def __init__(self, image):
         """
-        :type image: bviewer.core.files.storage.ImagePath
+        :type image: bviewer.core.files.path.ImagePath
         """
         self.image = image
         self.options = image.options
