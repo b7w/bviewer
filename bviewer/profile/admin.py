@@ -82,7 +82,7 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
             kwargs['queryset'] = Gallery.objects.filter(user__id=self.object.user.id)
         return super(ProfileGalleryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
-    class Media:
+    class Media(object):
         css = {
             'all': ('profile/css/profile.css',)
         }

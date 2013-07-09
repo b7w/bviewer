@@ -103,7 +103,7 @@ class ProxyUserForm(models.ModelForm):
         super(ProxyUserForm, self).__init__(*args, **kwargs)
         self.fields['cache_size'] = forms.ChoiceField(choices=self.choice)
 
-    class Meta:
+    class Meta(object):
         model = ProxyUser
 
 

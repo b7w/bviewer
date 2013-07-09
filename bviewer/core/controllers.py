@@ -49,7 +49,7 @@ def get_gallery_user(request):
     return None
 
 
-class BaseController:
+class BaseController(object):
     def __init__(self, holder, user, uid):
         """
         :type holder: bviewer.core.models.ProxyUser
