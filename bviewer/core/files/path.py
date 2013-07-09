@@ -73,7 +73,7 @@ class BasePath(object):
         Options is used to get unique file names.
 
         :type storage: ImageStorage
-        :type options: bviewer.core.utils.ResizeOptions
+        :type options: bviewer.core.utils.ImageOptions
         """
         self.storage = storage
         self.path = path
@@ -108,7 +108,7 @@ class ImagePath(BasePath, ImagePathCacheMixin):
         Options is used to get unique file names.
 
         :type storage: ImageStorage
-        :type options: bviewer.core.utils.ResizeOptions
+        :type options: bviewer.core.utils.ImageOptions
         """
         super(ImagePath, self).__init__(storage, path, options=options)
 
@@ -167,7 +167,7 @@ class ImageUrl(BasePath, ImagePathCacheMixin):
         Options is used to get unique file names.
 
         :type storage: ImageStorage
-        :type options: bviewer.core.utils.ResizeOptions
+        :type options: bviewer.core.utils.ImageOptions
         """
         super(ImageUrl, self).__init__(storage, thumbnail_url, options=options)
 
@@ -191,7 +191,7 @@ class ImageArchivePath(BasePath, ImagePathCacheMixin):
         Get storage. Options is used to get unique file names.
 
         :type storage: ImageStorage
-        :type options: bviewer.core.utils.ResizeOptions
+        :type options: bviewer.core.utils.ImageOptions
         """
         super(ImageArchivePath, self).__init__(storage, 'None', options=options)
 

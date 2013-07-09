@@ -9,7 +9,7 @@ from bviewer.core.exceptions import FileError
 from bviewer.core.files.path import ImagePath
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.files.utils import ImageFolder
-from bviewer.core.utils import ResizeOptions
+from bviewer.core.utils import ImageOptions
 
 
 class ImagePathTest(TestCase):
@@ -40,25 +40,25 @@ class ImagePathTest(TestCase):
 
     def test_cache_name_unique(self):
         options = [
-            ResizeOptions(32, 32, crop=False, quality=95),
-            ResizeOptions(64, 32, crop=False, quality=95),
-            ResizeOptions(32, 64, crop=False, quality=95),
-            ResizeOptions(32, 32, crop=True, quality=95),
-            ResizeOptions(32, 32, crop=False, quality=100),
-            ResizeOptions(32, 32, crop=False, quality=100, name='unique_name'),
+            ImageOptions(32, 32, crop=False, quality=95),
+            ImageOptions(64, 32, crop=False, quality=95),
+            ImageOptions(32, 64, crop=False, quality=95),
+            ImageOptions(32, 32, crop=True, quality=95),
+            ImageOptions(32, 32, crop=False, quality=100),
+            ImageOptions(32, 32, crop=False, quality=100, name='unique_name'),
         ]
         path = 'some/path/img.jpg'
 
         hashes = set(ImagePath(self.storage, path, i).cache_name for i in options)
         self.assertEqual(len(options), len(hashes), msg='Check unique hashes for different options')
 
-        name1 = ImagePath(self.storage, 'path1', ResizeOptions()).cache_name
-        name2 = ImagePath(self.storage, 'path2', ResizeOptions()).cache_name
+        name1 = ImagePath(self.storage, 'path1', ImageOptions()).cache_name
+        name2 = ImagePath(self.storage, 'path2', ImageOptions()).cache_name
         self.assertNotEqual(name1, name2)
 
     def test_cache_name_repeatability(self):
-        name1 = ImagePath(self.storage, 'path', ResizeOptions()).cache_name
-        name2 = ImagePath(self.storage, 'path', ResizeOptions()).cache_name
+        name1 = ImagePath(self.storage, 'path', ImageOptions()).cache_name
+        name2 = ImagePath(self.storage, 'path', ImageOptions()).cache_name
         self.assertEqual(name1, name2)
 
 

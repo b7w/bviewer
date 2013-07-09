@@ -10,7 +10,7 @@ from bviewer.core.files.response import download_response
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.images import CacheImage
 from bviewer.core.models import Gallery, Video, Image, ProxyUser
-from bviewer.core.utils import cache_method, ResizeOptions, as_job
+from bviewer.core.utils import cache_method, ImageOptions, as_job
 
 
 logger = logging.getLogger(__name__)
@@ -150,7 +150,7 @@ class ImageController(MediaController):
         #: :type: bviewer.core.models.Image
         image = self.get_object()
         storage = ImageStorage(self.holder)
-        options = ResizeOptions.from_settings(self.holder, size)
+        options = ImageOptions.from_settings(size)
         image_path = storage.get_path(image.path, options)
 
         if not image_path.cache_exists:
@@ -167,7 +167,7 @@ class VideoController(MediaController):
         #: :type: bviewer.core.models.Video
         video = self.get_object()
         storage = ImageStorage(self.holder)
-        options = ResizeOptions.from_settings(self.holder, size, name=str(video.id))
+        options = ImageOptions.from_settings(size, name=str(video.id))
         image_url = storage.get_url(video.thumbnail_url, options)
 
         image_async = CacheImage(image_url)

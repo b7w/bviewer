@@ -4,7 +4,7 @@ from datetime import datetime
 from bviewer.core.images import CacheImage
 from bviewer.core.tests import ImageStorageTestCase
 from bviewer.core.tests.data import TestData
-from bviewer.core.utils import ResizeOptions
+from bviewer.core.utils import ImageOptions
 
 
 class CacheImageTest(ImageStorageTestCase):
@@ -27,11 +27,11 @@ class CacheImageTest(ImageStorageTestCase):
         """
         Very simple test to detect if `small < real < big` options create cache image file
         """
-        small_options = ResizeOptions(width=1024, height=1024)
+        small_options = ImageOptions(width=1024, height=1024)
         self.assertCacheImage(small_options)
         self.assertCacheImage(small_options, download=True)
 
-        big_options = ResizeOptions(width=1024 ** 2, height=1024 ** 2)
+        big_options = ImageOptions(width=1024 ** 2, height=1024 ** 2)
         self.assertCacheImage(big_options)
         self.assertCacheImage(big_options, download=True)
 

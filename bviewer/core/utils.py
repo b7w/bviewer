@@ -51,7 +51,7 @@ class RaisingRange(object):
         return str(list(self))
 
 
-class ResizeOptions(object):
+class ImageOptions(object):
     """
     Options for resize such as width, height,
     max size - max of width/height,
@@ -60,8 +60,6 @@ class ResizeOptions(object):
 
     def __init__(self, width=0, height=0, crop=False, quality=95, name=None):
         """
-        `size` item name of settings.VIEWER_IMAGE_SIZE.
-
         :type name: str
         """
         self.width = width
@@ -74,17 +72,17 @@ class ResizeOptions(object):
             raise ResizeOptionsError('Image QUALITY settings have to be between 80 and 100')
 
     @classmethod
-    def from_settings(cls, user, size_name, name=None):
+    def from_settings(cls, size_name, name=None):
         """
         Select size by name from settings.VIEWER_IMAGE_SIZE.
         If not found - raise ResizeOptionsError.
 
         :type size_name: str
-        :rtype: ResizeOptions
+        :rtype: ImageOptions
         """
         if size_name in settings.VIEWER_IMAGE_SIZE:
             value = settings.VIEWER_IMAGE_SIZE[size_name]
-            return ResizeOptions(
+            return ImageOptions(
                 width=value['WIDTH'],
                 height=value['HEIGHT'],
                 crop='CROP' in value and value['CROP'] is True,
@@ -95,7 +93,7 @@ class ResizeOptions(object):
             raise ResizeOptionsError('Undefined size format \'{0}\''.format(size_name))
 
     def __repr__(self):
-        return smart_text('ResizeOptions(width={w}, height={h}, crop={c}, quality={q}, name={n})') \
+        return smart_text('ImageOptions(width={w}, height={h}, crop={c}, quality={q}, name={n})') \
             .format(w=self.width, h=self.height, c=self.crop, q=self.quality, n=self.name)
 
 

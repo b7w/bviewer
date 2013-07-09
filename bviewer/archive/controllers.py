@@ -5,7 +5,7 @@ import django_rq
 from django.conf import settings as django_settings
 
 from bviewer.core.files.storage import ImageStorage
-from bviewer.core.utils import ResizeOptions, cache_method
+from bviewer.core.utils import ImageOptions, cache_method
 
 
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ class ZipArchiveController(object):
         self.image_paths = [self.storage.get_path(i) for i in image_paths]
         self.name = name or self.uid
 
-        options = ResizeOptions(name=self.name)
+        options = ImageOptions(name=self.name)
         self.archive = self.storage.get_archive(options)
 
         self.url = self.archive.url

@@ -11,7 +11,7 @@ from bviewer.core.files.response import download_response
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.files.utils import ImageFolder
 from bviewer.core.images import CacheImage
-from bviewer.core.utils import ResizeOptions, as_job
+from bviewer.core.utils import ImageOptions, as_job
 from bviewer.core.views import message_view
 
 
@@ -48,7 +48,7 @@ def download_image(request):
         path = request.GET['p']
         user = get_gallery_user(request)
         storage = ImageStorage(user)
-        options = ResizeOptions.from_settings(user, 'tiny')
+        options = ImageOptions.from_settings('tiny')
         image_path = storage.get_path(path, options)
         try:
             if image_path.exists:
