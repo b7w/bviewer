@@ -7,6 +7,7 @@ import sys
 import shutil
 
 from bviewer import settings
+from bviewer.settings import test as settings_test
 
 
 __all__ = ['syncdb', 'test', 'clear', 'static']
@@ -60,8 +61,11 @@ def clear():
     Delete cache, just a proxy command
     """
     print('[ INFO ] Delete all cache')
-    for item in os.listdir(settings.VIEWER_CACHE_PATH):
-        shutil.rmtree(os.path.join(settings.VIEWER_CACHE_PATH, item))
+    if os.path.exists(settings.VIEWER_CACHE_PATH):
+        shutil.rmtree(settings.VIEWER_CACHE_PATH)
+
+    if os.path.exists(settings_test.VIEWER_TESTS_PATH):
+        shutil.rmtree(settings_test.VIEWER_TESTS_PATH)
 
 
 def static():
