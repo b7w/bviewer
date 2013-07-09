@@ -14,7 +14,7 @@ EXACT = ['exact', ]
 
 
 class UserResource(ModelResource):
-    class Meta:
+    class Meta(object):
         queryset = ProxyUser.objects.all()
         resource_name = 'user'
         allowed_methods = ['get', ]
@@ -44,7 +44,7 @@ class GalleryResource(ModelResource):
                 filters[query] = request.user.id
         return super(GalleryResource, self).apply_filters(request, filters)
 
-    class Meta:
+    class Meta(object):
         queryset = Gallery.objects.all().select_related()
         resource_name = 'gallery'
         allowed_methods = ['get', 'post', 'delete', ]
@@ -83,7 +83,7 @@ class GalleryItemResource(ModelResource):
                 filters[query] = request.user.id
         return super(GalleryItemResource, self).apply_filters(request, filters)
 
-    class Meta:
+    class Meta(object):
         allowed_methods = ['get', 'post', 'delete', ]
         authentication = MultiAuthentication(SessionAuthentication(), Authentication())
         authorization = GalleryItemAuthorization()

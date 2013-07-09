@@ -72,7 +72,7 @@ class ProxyUser(User):
             return self.id == other.id
         return False
 
-    class Meta:
+    class Meta(object):
         db_table = 'core_profile'
         ordering = ['username']
         verbose_name = 'Gallery user'
@@ -131,7 +131,7 @@ class Gallery(models.Model):
 
     __unicode__ = __str__
 
-    class Meta:
+    class Meta(object):
         verbose_name = 'Gallery'
         verbose_name_plural = 'Galleries'
         ordering = ['-time']
@@ -159,7 +159,7 @@ class Image(models.Model):
 
     __unicode__ = __str__
 
-    class Meta:
+    class Meta(object):
         verbose_name = 'Image'
         ordering = ['time']
         unique_together = (('gallery', 'path'),)
@@ -225,7 +225,7 @@ class Video(models.Model):
 
     __unicode__ = __str__
 
-    class Meta:
+    class Meta(object):
         verbose_name = 'Video'
         ordering = ['time']
         unique_together = (('uid', 'gallery'),)

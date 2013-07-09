@@ -8,7 +8,7 @@ from bviewer.core.images import RandomImage
 from bviewer.core.models import ProxyUser, Gallery, Image, Video
 
 
-class TestData:
+class TestData(object):
     PASSWORD = 'pass'
 
     def load_all(self):

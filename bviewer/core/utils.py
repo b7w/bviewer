@@ -14,7 +14,7 @@ from bviewer.core.exceptions import ResizeOptionsError
 logger = logging.getLogger(__name__)
 
 
-class RaisingRange:
+class RaisingRange(object):
     """
     Iterator range that double sum base value if item/base == 8
 
@@ -51,7 +51,7 @@ class RaisingRange:
         return str(list(self))
 
 
-class ResizeOptions:
+class ResizeOptions(object):
     """
     Options for resize such as width, height,
     max size - max of width/height,

@@ -233,7 +233,7 @@ class Exif(object):
         return '<Exif{0}>'.format(self.items())
 
 
-class RandomImage:
+class RandomImage(object):
     """
     Create simple square image with color tile background and text on center
     """
