@@ -420,7 +420,11 @@ button {
 }
 
 .preview:hover .caption {
-    opacity: 0.32;
+    opacity: 0.48;
+}
+
+.preview .caption:hover {
+    opacity: 1;
 }
 
 .preview .carousel-description {
