@@ -62,6 +62,8 @@ class ZipArchiveController(object):
 
         :rtype: int
         """
+        if django_settings.TEST:
+            return -1
         redis = django_rq.get_connection()
         value = redis.get(self._redis_uid)
         return int(value) if value is not None else -1
@@ -81,8 +83,9 @@ class ZipArchiveController(object):
                     with image_path.open(mode='rb') as f:
                         z.writestr(image_path.name, f.read())
 
-                    percent = int(float(i) / lenght * 100)
-                    redis.setex(self._redis_uid, percent, time=self.STATUS_KEY_TIMOUT)
+                    if not django_settings.TEST:
+                        percent = int(float(i) / lenght * 100)
+                        redis.setex(self._redis_uid, percent, time=self.STATUS_KEY_TIMOUT)
 
             self.archive.rename_temp_cache()
 
