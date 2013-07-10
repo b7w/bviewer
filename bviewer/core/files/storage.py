@@ -117,10 +117,10 @@ class ImageStorage(object):
             shutil.rmtree(self._abs_cache_path)
 
     def rename_cache(self, path_from, path_to):
-        root = self._abs_cache_path
-        abs_to = os.path.join(root, path_to)
-        if not os.path.lexists(abs_to):
-            os.rename(os.path.join(root, path_from), abs_to)
+        abs_from = os.path.join(self._abs_cache_path, path_from)
+        abs_to = os.path.join(self._abs_cache_path, path_to)
+        if os.path.exists(abs_from) and not os.path.lexists(abs_to):
+            os.rename(abs_from, abs_to)
 
     def link_to_cache(self, path_from, path_to):
         abs_from = os.path.join(self._abs_root_path, path_from)
