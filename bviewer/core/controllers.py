@@ -157,7 +157,7 @@ class ImageController(MediaController):
             image_async = CacheImage(image_path)
             as_job(image_async.process)
 
-        return download_response(image_path.url, image_path.name)
+        return download_response(image_path)
 
 
 class VideoController(MediaController):
@@ -174,4 +174,4 @@ class VideoController(MediaController):
         if not image_url.cache_exists:
             as_job(image_async.download)
 
-        return download_response(image_url.url, image_url.name)
+        return download_response(image_url)

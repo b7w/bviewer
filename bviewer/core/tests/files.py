@@ -144,7 +144,7 @@ class ImageStorageTest(ImageStorageTestCase):
                 for_root = os.path.normcase('root/home/path/img.jpg')
                 self.assertEqual(func(image_path, for_cache=False), for_root)
 
-                for_cache = os.path.normcase('cache/url/path/img.jpg')
+                for_cache = os.path.normcase('cache/images/url/path/img.jpg')
                 self.assertEqual(func(image_path, for_cache=True), for_cache)
 
         holder = Mock(home='home', url='url')

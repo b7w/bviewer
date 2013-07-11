@@ -101,4 +101,4 @@ def download_view(request, gid, uid):
 
     logger.info(smart_text('download archive "%s"'), main.title)
     name = smart_text('{0} - {1}.zip').format(main.time.strftime('%Y-%m-%d'), main.title)
-    return download_response(z.url, name)
+    return download_response(z.archive, name=name)

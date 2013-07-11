@@ -42,20 +42,25 @@ class ImagePathCacheMixin(object):
         return self.storage.hash_for(option_pack) + self.CACHE_FILE_TYPE
 
     @property
-    def cache_exists(self):
-        return self.storage.exists(self.cache_name, for_cache=True)
-
-    @property
     @cache_method
     def cache_name_temp(self):
         return self.storage.gen_temp_name() + self.CACHE_FILE_TYPE + '.tmp'
 
     @property
-    def cache_ctime(self):
-        return self.storage.ctime(self.cache_name_temp, for_cache=True)
+    def cache_exists(self):
+        return self.storage.exists(self.cache_name, for_cache=True)
 
-    def cache_open(self, mode='wb'):
-        return self.storage.open(self.cache_name_temp, mode=mode, for_cache=True)
+    @property
+    def cache_ctime(self):
+        return self.storage.ctime(self.cache_name, for_cache=True)
+
+    @property
+    def cache_size(self):
+        return self.storage.size(self.cache_name, for_cache=True)
+
+    def cache_open(self, mode='wb', temp=True):
+        path = self.cache_name_temp if temp else self.cache_name
+        return self.storage.open(path, mode=mode, for_cache=True)
 
     def rename_temp_cache(self):
         self.storage.rename_cache(self.cache_name_temp, self.cache_name)
@@ -80,6 +85,7 @@ class BasePath(object):
         self.options = options
         self.name = os.path.basename(path)
         self.saved = False
+        self.content_type = 'image/jpeg'
 
     @property
     def url(self):
@@ -194,18 +200,20 @@ class ImageArchivePath(BasePath, ImagePathCacheMixin):
         :type options: bviewer.core.utils.ImageOptions
         """
         super(ImageArchivePath, self).__init__(storage, 'None', options=options)
+        self.content_type = 'application/zip'
 
     @property
     def url_name(self):
         return self.cache_name
 
     @contextmanager
-    def cache_open(self, mode='wb'):
+    def open(self, mode='w'):
         """
         Return new zip file
 
         :rtype: zipfile.ZipFile
         """
-        with self.storage.open(self.cache_name_temp, mode=mode, for_cache=True) as f:
-            with zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED) as z:
+        with self.cache_open(mode=mode + 'b') as f:
+            with zipfile.ZipFile(f, mode, zipfile.ZIP_DEFLATED) as z:
                 yield z
+

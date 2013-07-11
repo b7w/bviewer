@@ -21,14 +21,12 @@ class ZipArchiveController(object):
         :type name: str
         """
         self.holder = holder
-        self.storage = ImageStorage(holder)
+        self.storage = ImageStorage(holder, archive_cache=True)
         self.image_paths = [self.storage.get_path(i) for i in image_paths]
         self.name = name or self.uid
 
         options = ImageOptions(name=self.name)
         self.archive = self.storage.get_archive(options)
-
-        self.url = self.archive.url
 
     @property
     def status(self):
@@ -78,7 +76,7 @@ class ZipArchiveController(object):
         redis = django_rq.get_connection()
 
         if self.status == 'NONE':
-            with self.archive.cache_open() as z:
+            with self.archive.open(mode='w') as z:
                 for i, image_path in enumerate(self.image_paths, start=1):
                     with image_path.open(mode='rb') as f:
                         z.writestr(image_path.name, f.read())
