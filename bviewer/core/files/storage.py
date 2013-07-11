@@ -30,10 +30,11 @@ class ImageStorage(object):
     TYPES_ALLOWED = ('.jpeg', '.jpg', )
     PATH_CHECKERS = ('../', './', '/.', )
 
-    def __init__(self, holder, root_path=None, cache_path=None):
+    def __init__(self, holder, root_path=None, cache_path=None, archive_cache=False):
         """
         :param root_path: place where image files stored, default settings.VIEWER_STORAGE_PATH
         :param cache_path: place where cache stored, default settings.VIEWER_CACHE_PATH
+        :param archive_cache: set 'archives' sub cache folder instead of 'images'
         :type holder: bviewer.core.models.ProxyUser
         """
         self.holder = holder
@@ -41,7 +42,10 @@ class ImageStorage(object):
         self.cache_path = cache_path or settings.VIEWER_CACHE_PATH
 
         self._abs_root_path = os.path.join(self.root, holder.home)
-        self._abs_cache_path = os.path.join(self.cache_path, holder.url)
+        if archive_cache:
+            self._abs_cache_path = os.path.join(self.cache_path, 'archives', holder.url)
+        else:
+            self._abs_cache_path = os.path.join(self.cache_path, 'images', holder.url)
         self.create_cache()
 
     def _is_valid_path(self, path):
@@ -96,6 +100,10 @@ class ImageStorage(object):
     def ctime(self, path, for_cache=False):
         root = self._abs_cache_path if for_cache else self._abs_root_path
         return os.path.getctime(os.path.join(root, path))
+
+    def size(self, path, for_cache=False):
+        root = self._abs_cache_path if for_cache else self._abs_root_path
+        return os.path.getsize(os.path.join(root, path))
 
     def exists(self, path, for_cache=False):
         root = self._abs_cache_path if for_cache else self._abs_root_path

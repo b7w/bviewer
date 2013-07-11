@@ -55,7 +55,7 @@ def download_image(request):
                 if not image_path.cache_exists:
                     image = CacheImage(image_path)
                     as_job(image.process)
-                return download_response(image_path.url, image_path.name)
+                return download_response(image_path)
             raise Http404('No such file')
         except FileError as e:
             raise Http404(e)
