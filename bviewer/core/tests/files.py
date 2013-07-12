@@ -81,7 +81,7 @@ class ImageFolderTest(TestCase):
 
 class ImageStorageTestCase(TestCase):
     def setUp(self):
-        self.holder = Mock(home='holder_home', url='holder_url')
+        self.holder = Mock(home='holder_home', url='holder_url', cache_size=0)
         self.storage = ImageStorage(self.holder)
         self.remove_storage_folders()
         self.create_storage_folders()
@@ -147,7 +147,7 @@ class ImageStorageTest(ImageStorageTestCase):
                 for_cache = os.path.normcase('cache/images/url/path/img.jpg')
                 self.assertEqual(func(image_path, for_cache=True), for_cache)
 
-        holder = Mock(home='home', url='url')
+        holder = Mock(home='home', url='url', cache_size=0)
         storage = ImageStorage(holder, root_path='root', cache_path='cache')
 
         assert_method_for_cache('os.path.getctime', storage.ctime, side_effect=str)
