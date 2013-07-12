@@ -98,10 +98,22 @@ class ProxyUserForm(models.ModelForm):
     """
 
     def __init__(self, *args, **kwargs):
-        self.range = RaisingRange(512, start=16, base=16)
-        self.choice = [(i, '%s MB' % i) for i in self.range]
         super(ProxyUserForm, self).__init__(*args, **kwargs)
-        self.fields['cache_size'] = forms.ChoiceField(choices=self.choice)
+        self._set_choice('cache_size',
+            cache_max=ProxyUser.CACHE_SIZE_MAX,
+            cache_min=ProxyUser.CACHE_SIZE_MIN,
+            base=16
+        )
+        self._set_choice('cache_archive_size',
+            cache_max=ProxyUser.CACHE_ARCHIVE_SIZE_MAX,
+            cache_min=ProxyUser.CACHE_ARCHIVE_SIZE_MIN,
+            base=64
+        )
+
+    def _set_choice(self, field_name, cache_max, cache_min, base):
+        raising = RaisingRange(cache_max, start=cache_min, base=base)
+        choice = [(i, '%s MB' % i) for i in raising]
+        self.fields[field_name] = forms.ChoiceField(choices=choice)
 
     class Meta(object):
         model = ProxyUser
@@ -111,12 +123,13 @@ class ProxyUserAdmin(UserAdmin, ModelAdmin):
     list_select_related = True
 
     list_display = ('username', 'email', 'is_staff', 'home', 'top_gallery', )
-    fieldsets = (
-        ('Main', {'fields': ('username', 'email', 'password',)}),
-        ('Personal info', {'fields': ('url', 'home', 'cache_size', 'top_gallery', 'about_title', 'about_text',)}),
-        ('Permissions', {'fields': ('is_active', 'is_staff',)}),
-        ('Important dates', {'fields': ('last_login', 'date_joined',)}),
+
+    extra_fieldsets = (
+        ('Viewer info', {'fields': ('url', 'top_gallery', 'cache_size', 'cache_archive_size', )}),
+        ('Additional info', {'fields': ('about_title', 'about_text',)}),
     )
+    fieldsets = UserAdmin.fieldsets[:2] + extra_fieldsets + UserAdmin.fieldsets[2:]
+
     readonly_fields = ('password', 'is_active', 'is_staff', 'last_login', 'date_joined', )
     form = ProxyUserForm
 
@@ -129,4 +142,4 @@ class ProxyUserAdmin(UserAdmin, ModelAdmin):
         return super(UserAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-admin.site.register(ProxyUser, UserAdmin)
+admin.site.register(ProxyUser, ProxyUserAdmin)

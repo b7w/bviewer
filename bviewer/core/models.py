@@ -46,9 +46,19 @@ class ProxyManager(models.Manager):
 
 
 class ProxyUser(User):
+    CACHE_SIZE_MIN = 16
+    CACHE_SIZE_MAX = 256
+    CACHE_ARCHIVE_SIZE_MIN = 256
+    CACHE_ARCHIVE_SIZE_MAX = 2048
+
     url = models.CharField(max_length=16, unique=True)
     home = models.CharField(max_length=256, blank=True, default='')
-    cache_size = models.PositiveIntegerField(default=32, validators=[MinValueValidator(16), MaxValueValidator(256)])
+
+    cache_size = models.PositiveIntegerField(default=32,
+        validators=[MinValueValidator(CACHE_SIZE_MIN), MaxValueValidator(CACHE_SIZE_MAX)])
+    cache_archive_size = models.PositiveIntegerField(default=126,
+        validators=[MinValueValidator(CACHE_ARCHIVE_SIZE_MIN), MaxValueValidator(CACHE_ARCHIVE_SIZE_MAX)])
+
     top_gallery = models.ForeignKey('Gallery', related_name='top', null=True, blank=True, on_delete=models.DO_NOTHING)
     about_title = models.CharField(max_length=256, blank=True)
     about_text = models.TextField(max_length=1024, blank=True)
