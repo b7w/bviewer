@@ -30,9 +30,10 @@ class RaisingRange(object):
         :type start: int
         :type base: int
         """
-        self.value = start or 0
-        self.base = base or 1
         self.max = maximum
+        self.start = start or 0
+        self.base = base or 1
+        self.value = self.start
 
     def __iter__(self):
         return self
@@ -40,7 +41,7 @@ class RaisingRange(object):
     def next(self):
         if self.value <= self.max:
             tmp = self.value
-            if self.value / self.base == 8:
+            if (self.value - self.start) / self.base == 8:
                 self.base *= 2
             self.value += self.base
             return tmp
