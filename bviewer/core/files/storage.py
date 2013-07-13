@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-from contextlib import contextmanager
 import hashlib
 import logging
 import os
 import shutil
 import uuid
-import zipfile
 
 try:
     from urllib2 import urlopen
@@ -13,225 +11,13 @@ except ImportError:
     from urllib.request import urlopen
 
 from django.utils.encoding import smart_bytes
-from django.utils.six import BytesIO
 
 from bviewer.core import settings
-from bviewer.core.utils import cache_method
+from bviewer.core.files.path import ImagePath, ImageUrl, ImageArchivePath
 from bviewer.core.exceptions import FileError
 from bviewer.core.images import Exif
 
 logger = logging.getLogger(__name__)
-
-
-class ImageFolder(object):
-    """
-    Simple help class to use in views.
-    Store `path`, `back` path, sorted `dirs` and `files`
-    """
-
-    def __init__(self, path, image_paths):
-        """
-        :type path: str
-        :type image_paths: list of ImagePath
-        """
-        self.path = path
-        self.back = os.path.dirname(path)
-        self.dirs = sorted(i for i in image_paths if i.is_dir)
-        self.files = sorted(i for i in image_paths if i.is_image)
-
-    @property
-    def split_path(self):
-        """
-        Split path for folders name with path fot this name.
-
-        Example::
-
-            /r/p1/p2 -> r:/r, p1:/r/p2, p2:/r/p1/p2
-
-        :rtype: list of (str,str)
-        """
-
-        def _split(path, data):
-            name = os.path.basename(path)
-            if name:
-                second = os.path.dirname(path)
-                data = _split(second, data)
-                data.append((name, path))
-                return data
-            return data
-
-        return _split(self.path, [])
-
-
-class ImagePathCacheMixin(object):
-    """
-    Provide operation on cache files. Unique name, tnp name, move, link, exists
-    """
-
-    storage = NotImplemented
-    path = NotImplemented
-    options = None
-
-    CACHE_FILE_TYPE = NotImplemented
-
-    @property
-    @cache_method
-    def cache_name(self):
-        option_pack = tuple()
-        if self.options:
-            option_pack += (self.options.height, self.options.width, self.options.quality, self.options.crop)
-            if self.options.name:
-                option_pack += (self.options.name,)
-            else:
-                option_pack += (self.path, self.storage.ctime(self.path),)
-        else:
-            option_pack += (self.path, self.storage.ctime(self.path),)
-        return self.storage.hash_for(option_pack) + self.CACHE_FILE_TYPE
-
-    @property
-    def cache_exists(self):
-        return self.storage.exists(self.cache_name, for_cache=True)
-
-    @property
-    @cache_method
-    def cache_name_temp(self):
-        return self.storage.gen_temp_name() + self.CACHE_FILE_TYPE + '.tmp'
-
-    @property
-    def cache_ctime(self):
-        return self.storage.ctime(self.cache_name_temp, for_cache=True)
-
-    def cache_open(self, mode='wb'):
-        return self.storage.open(self.cache_name_temp, mode=mode, for_cache=True)
-
-    def rename_temp_cache(self):
-        self.storage.rename_cache(self.cache_name_temp, self.cache_name)
-
-    def link_to_cache(self):
-        self.storage.link_to_cache(self.path, self.cache_name)
-
-
-class ImagePath(ImagePathCacheMixin):
-    """
-    Provide basic operation on files, and cache.
-    """
-
-    CACHE_FILE_TYPE = '.jpg'
-
-    def __init__(self, storage, path, options=None):
-        """
-        Get storage and related file path.
-        Options is used to get unique file names.
-
-        :type storage: ImageStorage
-        :type options: bviewer.core.utils.ResizeOptions
-        """
-        self.storage = storage
-        self.path = path
-        self.options = options
-        self.name = os.path.basename(path)
-        self.parent = os.path.dirname(path)
-        self.saved = False
-
-    @property
-    def is_image(self):
-        if self.storage.is_file(self.path):
-            for item in self.storage.TYPES_ALLOWED:
-                if self.name.lower().endswith(item):
-                    return True
-        return False
-
-    @property
-    def is_dir(self):
-        return self.storage.is_dir(self.path)
-
-    @property
-    def exists(self):
-        return self.storage.exists(self.path)
-
-    @property
-    @cache_method
-    def exif(self):
-        return self.storage.exif(self.path)
-
-    @property
-    def url(self):
-        return '/'.join([self.storage.holder.url, self.cache_name])
-
-    @property
-    def ctime(self):
-        return self.storage.ctime(self.name)
-
-    def open(self, mode='rb'):
-        return self.storage.open(self.path, mode=mode)
-
-    def __lt__(self, other):
-        return self.name < other.name
-
-    def __repr__(self):
-        return 'ImagePath({s}, "{p}", options={o})' \
-            .format(s=self.storage, p=self.path, o=self.options)
-
-
-class ImageUrl(ImagePathCacheMixin):
-    """
-    Provide an opportunity to get image from URL, and cache.
-    """
-
-    CACHE_FILE_TYPE = '.jpg'
-
-    def __init__(self, storage, thumbnail_url, options=None):
-        """
-        Get storage and thumbnail url.
-        Options is used to get unique file names.
-
-        :type storage: ImageStorage
-        :type options: bviewer.core.utils.ResizeOptions
-        """
-        self.storage = storage
-        self.thumbnail_url = thumbnail_url
-        self.options = options
-        self.name = os.path.basename(thumbnail_url)
-
-    @property
-    def url(self):
-        return '/'.join([self.storage.holder.url, self.cache_name])
-
-    @contextmanager
-    def open(self, mode=None):
-        image = BytesIO()
-        image.write(urlopen(self.thumbnail_url).read())
-        image.seek(0)
-        yield image
-
-
-class ImageArchivePath(ImagePathCacheMixin):
-    CACHE_FILE_TYPE = '.zip'
-
-    def __init__(self, storage, options=None):
-        """
-        Get storage. Options is used to get unique file names.
-
-        :type storage: ImageStorage
-        :type options: bviewer.core.utils.ResizeOptions
-        """
-        self.storage = storage
-        self.options = options
-
-    @property
-    def url(self):
-        return '/'.join([self.storage.holder.url, self.cache_name])
-
-    @contextmanager
-    def cache_open(self, mode='wb'):
-        """
-        Return new zip file
-
-        :rtype: zipfile.ZipFile
-        """
-        with self.storage.open(self.cache_name_temp, mode=mode, for_cache=True) as f:
-            with zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED) as z:
-                yield z
 
 
 class ImageStorage(object):
@@ -244,10 +30,11 @@ class ImageStorage(object):
     TYPES_ALLOWED = ('.jpeg', '.jpg', )
     PATH_CHECKERS = ('../', './', '/.', )
 
-    def __init__(self, holder, root_path=None, cache_path=None):
+    def __init__(self, holder, root_path=None, cache_path=None, archive_cache=False):
         """
         :param root_path: place where image files stored, default settings.VIEWER_STORAGE_PATH
         :param cache_path: place where cache stored, default settings.VIEWER_CACHE_PATH
+        :param archive_cache: set 'archives' sub cache folder instead of 'images'
         :type holder: bviewer.core.models.ProxyUser
         """
         self.holder = holder
@@ -255,7 +42,12 @@ class ImageStorage(object):
         self.cache_path = cache_path or settings.VIEWER_CACHE_PATH
 
         self._abs_root_path = os.path.join(self.root, holder.home)
-        self._abs_cache_path = os.path.join(self.cache_path, holder.url)
+        if archive_cache:
+            self._abs_cache_path = os.path.join(self.cache_path, 'archives', holder.url)
+            self._max_cache_size = holder.cache_archive_size * 2 ** 20
+        else:
+            self._abs_cache_path = os.path.join(self.cache_path, 'images', holder.url)
+            self._max_cache_size = holder.cache_size * 2 ** 20
         self.create_cache()
 
     def _is_valid_path(self, path):
@@ -311,6 +103,10 @@ class ImageStorage(object):
         root = self._abs_cache_path if for_cache else self._abs_root_path
         return os.path.getctime(os.path.join(root, path))
 
+    def size(self, path, for_cache=False):
+        root = self._abs_cache_path if for_cache else self._abs_root_path
+        return os.path.getsize(os.path.join(root, path))
+
     def exists(self, path, for_cache=False):
         root = self._abs_cache_path if for_cache else self._abs_root_path
         return os.path.exists(os.path.join(root, path))
@@ -326,15 +122,27 @@ class ImageStorage(object):
         if not os.path.exists(self._abs_cache_path):
             os.makedirs(self._abs_cache_path)
 
-    def clear_cache(self):
-        if os.path.exists(self._abs_cache_path):
-            shutil.rmtree(self._abs_cache_path)
+    def clear_cache(self, full=False):
+        """
+        Clear old cache while size of directory bigger than holder.cache_size.
+        If `full` is True - delete user cache folder.
+        """
+        abs_cache = self._abs_cache_path
+        if os.path.exists(abs_cache):
+            if full:
+                shutil.rmtree(abs_cache)
+            else:
+                cache_paths = [os.path.join(abs_cache, i) for i in os.listdir(abs_cache)]
+                cache_paths = [i for i in cache_paths if not os.path.islink(i)]
+                cache_paths = sorted(cache_paths, key=os.path.getctime, reverse=True)
+                while sum(map(os.path.getsize, cache_paths)) > self._max_cache_size:
+                    os.remove(cache_paths.pop())
 
     def rename_cache(self, path_from, path_to):
-        root = self._abs_cache_path
-        abs_to = os.path.join(root, path_to)
-        if not os.path.lexists(abs_to):
-            os.rename(os.path.join(root, path_from), abs_to)
+        abs_from = os.path.join(self._abs_cache_path, path_from)
+        abs_to = os.path.join(self._abs_cache_path, path_to)
+        if os.path.exists(abs_from) and not os.path.lexists(abs_to):
+            os.rename(abs_from, abs_to)
 
     def link_to_cache(self, path_from, path_to):
         abs_from = os.path.join(self._abs_root_path, path_from)
