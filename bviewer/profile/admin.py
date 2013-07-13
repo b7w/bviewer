@@ -6,7 +6,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
 
-from bviewer.core.admin import ModelAdmin, ProxyUserForm, ProxyUserAdmin
+from bviewer.core.admin import ModelAdmin, ProxyUserForm
 from bviewer.core.models import Gallery, Image, ProxyUser, Video
 
 
@@ -151,8 +151,12 @@ class ProfileUserAdmin(ProfileModelAdmin, UserAdmin):
     list_display = ('username', 'email', 'top_gallery', 'is_staff', )
     list_filter = ()
 
+    extra_fieldsets = (
+        ('Viewer info', {'fields': ('url', 'top_gallery', 'cache_size', 'cache_archive_size', )}),
+        ('Additional info', {'fields': ('about_title', 'about_text',)}),
+    )
     # Model field + important dates
-    fieldsets = ProxyUserAdmin.extra_fieldsets + UserAdmin.fieldsets[-1:]
+    fieldsets = extra_fieldsets + UserAdmin.fieldsets[-1:]
     readonly_fields = ('password', 'last_login', 'date_joined', )
 
     form = ProxyUserForm

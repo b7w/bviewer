@@ -125,7 +125,7 @@ class ProxyUserAdmin(UserAdmin, ModelAdmin):
     list_display = ('username', 'email', 'is_staff', 'home', 'top_gallery', )
 
     extra_fieldsets = (
-        ('Viewer info', {'fields': ('url', 'top_gallery', 'cache_size', 'cache_archive_size', )}),
+        ('Viewer info', {'fields': ('url', 'home', 'top_gallery', 'cache_size', 'cache_archive_size', )}),
         ('Additional info', {'fields': ('about_title', 'about_text',)}),
     )
     fieldsets = UserAdmin.fieldsets[:2] + extra_fieldsets + UserAdmin.fieldsets[2:]
