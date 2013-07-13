@@ -122,20 +122,21 @@ class ImageStorage(object):
         if not os.path.exists(self._abs_cache_path):
             os.makedirs(self._abs_cache_path)
 
-    def clear_cache(self, to_limit=True):
+    def clear_cache(self, full=False):
         """
         Clear old cache while size of directory bigger than holder.cache_size.
-        If `to_limit` is False - delete cache folder.
+        If `full` is True - delete user cache folder.
         """
         abs_cache = self._abs_cache_path
         if os.path.exists(abs_cache):
-            if to_limit:
+            if full:
+                shutil.rmtree(abs_cache)
+            else:
                 cache_paths = [os.path.join(abs_cache, i) for i in os.listdir(abs_cache)]
+                cache_paths = [i for i in cache_paths if not os.path.islink(i)]
                 cache_paths = sorted(cache_paths, key=os.path.getctime, reverse=True)
                 while sum(map(os.path.getsize, cache_paths)) > self._max_cache_size:
                     os.remove(cache_paths.pop())
-            else:
-                shutil.rmtree(abs_cache)
 
     def rename_cache(self, path_from, path_to):
         abs_from = os.path.join(self._abs_cache_path, path_from)
