@@ -1,8 +1,6 @@
 {% load staticfiles %}
 
 <script type="text/javascript">
-    // Hide by default images, it is too heavy to load it.
-    // On click show block and set real src address.
     django.jQuery('#thumbnails-open').live('click', function (e) {
         e.preventDefault();
         django.jQuery('#thumbnails-open').css('display', 'none');
@@ -15,7 +13,7 @@
     });
 </script>
 
-<a id="thumbnails-open" href="#"><b>Click to see image previews or select gallery thumbnail</b></a>
+<a id="thumbnails-open" href="#"><b>Click to see all image previews or select gallery thumbnail</b></a>
 
 <ul class="thumbnails" id="thumbnails" style="display:none;">
     <li>
