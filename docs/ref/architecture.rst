@@ -58,8 +58,8 @@ Image storage
 .. index:: Image storage
 
 | Application does not have any image/video upload system.
-  Because from another hand complex file manager needed.
-  For me - I'm already have image library mounted to the server, and I'm not want to copy past and store twice.
+  Because complex file manager needed. For me - I'm already have image library mounted to the server.
+  And I'm not want to copy past and store it twice.
 
 | So app need only some :ref:`folder <CONF_VIEWER_STORAGE_PATH>` where images stored.
   Each user can have *home* parameter that defines relative path of his root folder from main storage path.
@@ -83,11 +83,13 @@ Models
   but is is more simple to implement and use.
 
 .. index:: ProxyUser model
+.. _proxy-user-model:
 
 | Special model for gallery holders with additional fields.
   **url** - full domain name.
   **home** - relative path from :ref:`VIEWER_STORAGE_PATH <CONF_VIEWER_STORAGE_PATH>`.
-  **cache_size** - size in MB of cache per user, than will ber cleared :ref:`periodically <application-cache>`.
+  **cache_size** - size in MB of user images cache, range [16, 256].
+  **cache_archive_size** - size in MB of user archives cache, range [128, 2048].
   **top_gallery** - witch gallery will be displayed on home page. The gallery is created automatically with user.
   **about_title** - Title for text in about page.
   **about_text** - Text in about page.
@@ -98,6 +100,7 @@ Models
         url = models.CharField(max_length=16, unique=True)
         home = models.CharField(max_length=256, blank=True, default='')
         cache_size = models.PositiveIntegerField(default=32)
+        cache_archive_size = models.PositiveIntegerField(default=256)
         top_gallery = models.ForeignKey('Gallery', null=True)
         about_title = models.CharField(max_length=256)
         about_text = models.TextField(max_length=1024)
@@ -107,9 +110,11 @@ Models
 | Model to store tree galleries.
   **parent** - For example ``ProxyUser.top_gallery`` to show on home page.
   **user** - Not show on user profile, editable only by admin.
-  **visibility** - type of visibility. VISIBLE - all user see in gallery tree and can access,
+  **visibility** - type of visibility.
+  VISIBLE - all user see in gallery tree and can access,
   HIDDEN - not visible in gallery tree but can be access if you new url,
   PRIVATE - visible and accessible only for gallery holder.
+  *If parent is None it will be hidden from gallery tree for holder too.*
   **thumbnail** - Image of gallery tile.
 
 .. code-block:: python
@@ -129,7 +134,7 @@ Models
 | Model to store path to images.
   **gallery** - Belonging to the gallery.
   **path** - relative path fom user home. For example: ``[/home/bviewer/data/[user]]/gallery1/img1.jpg``.
-  **time** - if image add from profile gallery, time will be taken from exif.
+  **time** - Default time will be taken from image exif.
 
 .. code-block:: python
 
