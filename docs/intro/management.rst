@@ -11,10 +11,9 @@ Application cache
 .. index:: Application cache
 .. _application-cache:
 
-| To clear image and zip archive cache run first command.
-  Files will be deleted if their size will be bigger than user available.
-  First will be deleted bigger files, like archives.
-  To remove all cache run second.
+| To clear images and zip archives cache run first command.
+  Old files will be deleted if hole size will be bigger than :ref:`user available <proxy-user-model>`.
+  To remove cache directory run second.
 
 .. code-block:: python
 
