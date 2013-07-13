@@ -15,7 +15,8 @@ class Command(BaseCommand):
     help = 'Clear old links and delete old files if size of user cache is bigger'
 
     def handle(self, *args, **options):
+        full = 'full' in args
         for user in ProxyUser.objects.all():
-            ImageStorage(user).clear_cache()
-            ImageStorage(user, archive_cache=True).clear_cache()
+            ImageStorage(user).clear_cache(full=full)
+            ImageStorage(user, archive_cache=True).clear_cache(full=full)
         self.stdout.write('Clear cache for {c} users'.format(c=ProxyUser.objects.count()))
