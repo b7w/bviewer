@@ -5,7 +5,7 @@ import django_rq
 from django.conf import settings as django_settings
 
 from bviewer.core.files.storage import ImageStorage
-from bviewer.core.utils import ResizeOptions, cache_method
+from bviewer.core.utils import ImageOptions, cache_method
 
 
 logger = logging.getLogger(__name__)
@@ -21,14 +21,12 @@ class ZipArchiveController(object):
         :type name: str
         """
         self.holder = holder
-        self.storage = ImageStorage(holder)
+        self.storage = ImageStorage(holder, archive_cache=True)
         self.image_paths = [self.storage.get_path(i) for i in image_paths]
         self.name = name or self.uid
 
-        options = ResizeOptions(name=self.name)
+        options = ImageOptions(name=self.name)
         self.archive = self.storage.get_archive(options)
-
-        self.url = self.archive.url
 
     @property
     def status(self):
@@ -62,6 +60,8 @@ class ZipArchiveController(object):
 
         :rtype: int
         """
+        if django_settings.TEST:
+            return -1
         redis = django_rq.get_connection()
         value = redis.get(self._redis_uid)
         return int(value) if value is not None else -1
@@ -76,13 +76,14 @@ class ZipArchiveController(object):
         redis = django_rq.get_connection()
 
         if self.status == 'NONE':
-            with self.archive.cache_open() as z:
+            with self.archive.open(mode='w') as z:
                 for i, image_path in enumerate(self.image_paths, start=1):
                     with image_path.open(mode='rb') as f:
                         z.writestr(image_path.name, f.read())
 
-                    percent = int(float(i) / lenght * 100)
-                    redis.setex(self._redis_uid, percent, time=self.STATUS_KEY_TIMOUT)
+                    if not django_settings.TEST:
+                        percent = int(float(i) / lenght * 100)
+                        redis.setex(self._redis_uid, percent, time=self.STATUS_KEY_TIMOUT)
 
             self.archive.rename_temp_cache()
 

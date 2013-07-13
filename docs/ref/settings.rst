@@ -29,9 +29,10 @@ VIEWER_CACHE_PATH
 
 Required
 
-| Path where cache will bw stored. It is a resize images so it can be huge.
-  Also it is soft links to full images. Check that this folder can be seen from nginx.
-  Each user have his own sub folder.
+| Path where cache will be stored. Check that this folder can be seen from nginx.
+  Path split for 2 sub folders: reised images and links and zip archives.
+  Under this folders each user have his own sub folder.
+  About cache clearing read :ref:`Application cache <application-cache>`.
 
 
 VIEWER_STORAGE_PATH

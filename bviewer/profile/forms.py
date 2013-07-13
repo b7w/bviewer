@@ -6,12 +6,12 @@ from bviewer.core.models import Gallery, Video
 
 
 class GalleryForm(ModelForm):
-    class Meta:
+    class Meta(object):
         model = Gallery
         fields = ('title', 'visibility', 'description', 'time')
 
 
 class VideoForm(ModelForm):
-    class Meta:
+    class Meta(object):
         model = Video
         fields = ('uid', 'type', 'title', 'description')

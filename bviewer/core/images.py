@@ -121,7 +121,7 @@ class CacheImage(object):
 
     def __init__(self, image):
         """
-        :type image: bviewer.core.files.storage.ImagePath
+        :type image: bviewer.core.files.path.ImagePath
         """
         self.image = image
         self.options = image.options
@@ -178,11 +178,8 @@ class Exif(object):
     def __init__(self, image_path):
         self.image_path = image_path
         image = Image.open(image_path)
-        info = image._getexif()
-        if info:
-            self._data = dict((TAGS.get(tag, tag), value) for tag, value in info.items())
-        else:
-            self._data = {}
+        info = image._getexif() or {}
+        self._data = dict((TAGS.get(tag, tag), value) for tag, value in info.items())
 
     @property
     @cache_method
@@ -215,12 +212,12 @@ class Exif(object):
     @property
     @cache_method
     def ctime(self):
-        time = self._data.get('DateTime', None)
+        time = self._data.get('DateTimeOriginal', None)
         if time:
             try:
                 return datetime.strptime(time, '%Y:%m:%d %H:%M:%S')
             except ValueError:
-                pass
+                logger.warning('Wrong datetime "%s" in "%s" file', time, self.image_path)
 
     def items(self):
         return dict(
@@ -236,7 +233,7 @@ class Exif(object):
         return '<Exif{0}>'.format(self.items())
 
 
-class RandomImage:
+class RandomImage(object):
     """
     Create simple square image with color tile background and text on center
     """

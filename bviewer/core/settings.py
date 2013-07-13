@@ -7,7 +7,7 @@ from django.conf import settings
 VIEWER_USER_ID = getattr(settings, 'VIEWER_USER_ID', None)
 
 
-# Path where cache will bw stored
+# Path where cache will be stored
 # It is a resize images so it can be huge
 # also it is soft links to full images
 # check that this folder can be seen from nginx

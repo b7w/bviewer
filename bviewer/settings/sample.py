@@ -51,7 +51,7 @@ LOGGING = {
         },
         'bviewer': {
             'handlers': ['log-file'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,
         },
     }

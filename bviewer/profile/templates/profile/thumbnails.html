@@ -1,6 +1,21 @@
 {% load staticfiles %}
 
-<ul class="thumbnails">
+<script type="text/javascript">
+    django.jQuery('#thumbnails-open').live('click', function (e) {
+        e.preventDefault();
+        django.jQuery('#thumbnails-open').css('display', 'none');
+        django.jQuery('#thumbnails').css('display', 'block');
+        django.jQuery('#thumbnails img[data-src]').each(function (i, img) {
+            var image = django.jQuery(img);
+            image.attr('src', image.attr('data-src'));
+            image.removeAttr('data-src');
+        });
+    });
+</script>
+
+<a id="thumbnails-open" href="#"><b>Click to see all image previews or select gallery thumbnail</b></a>
+
+<ul class="thumbnails" id="thumbnails" style="display:none;">
     <li>
         <span class="thumbnail">
             <input type="radio" name="thumbnail_id" value="None" {% if obj.thumbnail_id == item.id %}checked{% endif %}>
@@ -11,7 +26,7 @@
         <li>
             <span class="thumbnail">
                 <input type="radio" name="thumbnail_id" value="{{ item.id }}" {% if obj.thumbnail_id == item.id %}checked{% endif %}>
-                <img class="thumbnail" src="{% url 'core.download' 'tiny' item.id %}">
+                <img class="thumbnail" data-src="{% url 'core.download' 'tiny' item.id %}">
             </span>
         </li>
     {% endfor %}
