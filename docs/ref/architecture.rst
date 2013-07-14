@@ -27,29 +27,29 @@ Project structure
 | Here brief lists of projects tree structure.
   Expected that you are familiar with django app structure.
   All small helper functions stored in *utils*.
-  All functions and classes processing database models stored in *controls*.
+  All functions and classes required for processing models are stored in *controls*.
 
 * **api** - Simple REST tastypie api for basic models.
-* **archive** - Some views and functions to create zip archive of one album.
+* **archive** - Some views and controls to create albums zip archives.
 * **core** - Main app, all base logic stored here.
-    * **files** - Some logic to process files like storage access and serving.
+    * **files** - File system wrapper for storage access and image serving.
     * **exceptions** - All main exception classes.
-    * **images** - Resizing and Caching of images, Exif data.
+    * **images** - Resizing and Image caching, Exif data.
     * **settings** - main app setting, based on getattr from django settings.
-* **profile** - Provide subclass of *AdminSite* for gallery owner with limited access.
+* **profile** - Provide subclass of *AdminSite* for gallery owners with limited access.
 * **settings** - Django settings but split and pack into python package.
 * **static** - Favicons and robots.txt.
-* **templates** - Static templates for 404 and 500 error pages.
+* **templates** - Static templates for some error pages.
 
 
-Profile
-=======
+Holder profile
+==============
 
-.. index:: Profile
+.. index:: Holder profile
 
 | Profile was made for gallery owners, where he can edit only his galleries and images.
   Technically it is sub class of django *AdminSite*.
-  Plus some separate views to provide ajax image managing.
+  Plus some separate views to provide extra image managing.
 
 
 Image storage
@@ -59,9 +59,9 @@ Image storage
 
 | Application does not have any image/video upload system.
   Because complex file manager needed. For me - I'm already have image library mounted to the server.
-  And I'm not want to copy past and store it twice.
+  And I'm not want to copy/past and store it twice.
 
-| So app need only some :ref:`folder <CONF_VIEWER_STORAGE_PATH>` where images stored.
+| So app need only some :ref:`path <CONF_VIEWER_STORAGE_PATH>` where images stored.
   Each user can have *home* parameter that defines relative path of his root folder from main storage path.
   For example ``/home/bviewer/data/[user]``.
   Also it is better to give only *list* and *read* operation access for this directory and files.
@@ -80,19 +80,19 @@ Models
 | Gallery, Image, Video models have special unique identifier. It is text field about 8-12 char length.
   It is made to provide way to hide some galleries. If all galleries with long complex urls,
   you can hide one form gallery tree and share it personally. Off course it is worth than authentication,
-  but is is more simple to implement and use.
+  but more simple to implement and use.
 
 .. index:: ProxyUser model
 .. _proxy-user-model:
 
 | Special model for gallery holders with additional fields.
-  **url** - full domain name.
-  **home** - relative path from :ref:`VIEWER_STORAGE_PATH <CONF_VIEWER_STORAGE_PATH>`.
-  **cache_size** - size in MB of user images cache, range [16, 256].
-  **cache_archive_size** - size in MB of user archives cache, range [128, 2048].
-  **top_gallery** - witch gallery will be displayed on home page. The gallery is created automatically with user.
-  **about_title** - Title for text in about page.
-  **about_text** - Text in about page.
+  **URL** - full domain name.
+  **Home** - relative path from :ref:`VIEWER_STORAGE_PATH <CONF_VIEWER_STORAGE_PATH>`.
+  **Cache size** - size in MB of user images cache, range [16, 256].
+  **Cache archive size** - size in MB of user archives cache, range [128, 2048].
+  **Top gallery** - witch gallery will be displayed on home page. The gallery is created automatically with user.
+  **About title** - title for text in about page.
+  **About text** - text in about page.
 
 .. code-block:: python
 
@@ -108,14 +108,14 @@ Models
 .. index:: Gallery model
 
 | Model to store tree galleries.
-  **parent** - For example ``ProxyUser.top_gallery`` to show on home page.
-  **user** - Not show on user profile, editable only by admin.
-  **visibility** - type of visibility.
+  **Parent** - for example ``ProxyUser.top_gallery`` to show on home page.
+  **User** - not show on user profile, editable only by admin.
+  **Visibility** - Type of visibility.
   VISIBLE - all user see in gallery tree and can access,
-  HIDDEN - not visible in gallery tree but can be access if you new url,
+  HIDDEN - not visible in gallery tree but can be access if you know url,
   PRIVATE - visible and accessible only for gallery holder.
   *If parent is None it will be hidden from gallery tree for holder too.*
-  **thumbnail** - Image of gallery tile.
+  **Thumbnail** - image of gallery tile.
 
 .. code-block:: python
 
@@ -132,9 +132,9 @@ Models
 .. index:: Image model
 
 | Model to store path to images.
-  **gallery** - Belonging to the gallery.
-  **path** - relative path fom user home. For example: ``[/home/bviewer/data/[user]]/gallery1/img1.jpg``.
-  **time** - Default time will be taken from image exif.
+  **Gallery** - gallery FK.
+  **Path** - relative path fom user home. For example: ``[/home/bviewer/data/[user]]/gallery1/img1.jpg``.
+  **Time** - default time will be taken from image exif.
 
 .. code-block:: python
 
@@ -146,10 +146,10 @@ Models
 
 .. index:: Video model
 
-| Model to store  Vimio or YouTube links.
-  **uid** - Vimio or YouTube video id.
-  **type** - VIMIO or YOUTUBE.
-  **gallery** - Belonging to the gallery.
+| Model to store Vimio or YouTube links.
+  **UID** - vimio or YouTube video id.
+  **Type** - VIMIO or YOUTUBE.
+  **Gallery** - gallery FK.
 
 .. code-block:: python
 
@@ -169,10 +169,11 @@ Image processing
 .. index:: Image processing
 
 | All image resizing happens in separate processes via `Redis Queue <http://python-rq.org/>`__.
-  The result stored in :ref:`cache <CONF_VIEWER_CACHE_PATH>`. If image is bigger link created.
-  Cache name calculate from file last change time and resize options. Task added when first access happened.
+  The result stored in :ref:`cache <CONF_VIEWER_CACHE_PATH>`.
+  On full image downloading or if :ref:`size <CONF_VIEWER_IMAGE_SIZE>` is bigger than real image, link created.
+  Cache file name calculated from last change time and resize options. Task added when first access happened.
   Image fully private and controlled by app, from outside there is no access to cache.
-  To get image application send back special header, and nginx serve it manually.
+  To get image, application send back special header, and nginx serve it manually.
   To read more go `wiki.nginx.org <http://wiki.nginx.org/X-accel>`__.
 
 | For now there is one *feature*, while images resizing - django process hang.
