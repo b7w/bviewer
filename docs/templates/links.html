@@ -1,0 +1,8 @@
+{%- if link_sidebar_items %}
+<h3>Links</h3>
+<ul class="this-page-menu">
+    {%- for link, name in link_sidebar_items %}
+    <li><a href="{{ link }}">{{ name }}</a></li>
+    {%- endfor %}
+</ul>
+{%- endif %}
