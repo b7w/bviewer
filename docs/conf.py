@@ -30,7 +30,7 @@ READ_THE_DOCS = os.environ.get('READTHEDOCS', None) == 'True'
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.coverage', 'sphinx.ext.viewcode']
 
 # Add any paths that contain templates here, relative to this directory.
-#templates_path = ['templates']
+templates_path = ['templates']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
@@ -91,6 +91,14 @@ pygments_style = 'sphinx'
 # If true, keep warnings as "system message" paragraphs in the built documents.
 #keep_warnings = False
 
+# -- User options --------------------------------------------------------------
+
+link_sidebar_items = [
+    ('https://bitbucket.org/b7w/believeviewer/overview', 'Project on Bitbucket'),
+    ('https://bitbucket.org/b7w/believeviewer/issues?status=new&status=open', 'Issue tracker'),
+]
+
+html_context = {'link_sidebar_items': link_sidebar_items}
 
 # -- Options for HTML output ---------------------------------------------------
 
@@ -139,7 +147,7 @@ else:
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+html_sidebars = {'**': 'links.html'}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
