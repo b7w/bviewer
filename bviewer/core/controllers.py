@@ -2,10 +2,10 @@
 import logging
 import re
 
+from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
 
-from bviewer.core import settings
 from bviewer.core.files.response import download_response
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.images import CacheImage

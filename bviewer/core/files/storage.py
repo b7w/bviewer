@@ -10,9 +10,9 @@ try:
 except ImportError:
     from urllib.request import urlopen
 
+from django.conf import settings
 from django.utils.encoding import smart_bytes
 
-from bviewer.core import settings
 from bviewer.core.files.path import ImagePath, ImageUrl, ImageArchivePath
 from bviewer.core.exceptions import FileError
 from bviewer.core.images import Exif

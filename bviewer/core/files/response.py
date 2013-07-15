@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse
 from django.utils.importlib import import_module
-
-from bviewer.core import settings
 
 
 class DjangoDownloadHttpResponse(HttpResponse):

@@ -96,7 +96,7 @@ Default:
 .. code-block:: python
 
     {
-        'BACKEND': 'bviewer.core.files.response.django',
+        'BACKEND': 'bviewer.core.files.response.nginx',
         'INTERNAL_URL': '/protected',
         'CACHE': False,
     }

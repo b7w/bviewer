@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from mock import Mock
 
+from django.conf import settings
 from django.test import TestCase
 
-from bviewer.core import settings
 from bviewer.core.controllers import domain_match, get_gallery_user
 from bviewer.core.models import ProxyUser
 

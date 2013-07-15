@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import logging
 
+from django.conf import settings
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 
-from bviewer.core import settings
 from bviewer.core.controllers import GalleryController, ImageController, VideoController, get_gallery_user
 from bviewer.core.exceptions import ResizeOptionsError, FileError
 from bviewer.core.utils import decor_on

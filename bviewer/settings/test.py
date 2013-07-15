@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-
+#
+# Default test settings
+#
 from bviewer.settings.local import *
 
 TEST = True
