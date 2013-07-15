@@ -15,6 +15,7 @@ First steps
 ===========
 
 * :doc:`Overview </intro/overview>`
+* :doc:`FAQ </intro/faq>`
 * :doc:`Installation </intro/installation>`
 * :doc:`Management </intro/management>`
 

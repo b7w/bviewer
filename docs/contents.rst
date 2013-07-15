@@ -17,6 +17,8 @@ Believe documentation content
 
     intro/management
 
+    intro/faq
+
     ref/settings
 
     ref/architecture
