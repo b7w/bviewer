@@ -2,12 +2,11 @@
 import time
 import logging
 
-from django.conf import settings as django_settings
+from django.conf import settings
 from django.utils.encoding import smart_text, smart_bytes
 from django.utils.functional import wraps
 from django_rq import get_queue
 
-from bviewer.core import settings
 from bviewer.core.exceptions import ResizeOptionsError
 
 
@@ -133,7 +132,7 @@ def as_job(func, queue='default', timeout=None, waite=True, args=None, kwargs=No
     """
     Add `func(*args, **kwargs)` to RQ. And waite for result, if `waite`.
     """
-    if django_settings.RQ_DEBUG:
+    if settings.RQ_DEBUG:
         args = args or tuple()
         kwargs = kwargs or dict()
         return func(*args, **kwargs)

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from bviewer.settings.local import *
 
 DEBUG = True

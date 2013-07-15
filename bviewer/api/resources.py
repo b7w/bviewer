@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from tastypie import fields
@@ -7,7 +8,6 @@ from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource
 
 from bviewer.api.authorization import GalleryAuthorization, GalleryItemAuthorization
-from bviewer.core import settings
 from bviewer.core.models import Gallery, ProxyUser, Image, Video
 
 EXACT = ['exact', ]

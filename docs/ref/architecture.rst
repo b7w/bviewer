@@ -35,9 +35,14 @@ Project structure
     * **files** - File system wrapper for storage access and image serving.
     * **exceptions** - All main exception classes.
     * **images** - Resizing and Image caching, Exif data.
-    * **settings** - main app setting, based on getattr from django settings.
 * **profile** - Provide subclass of *AdminSite* for gallery owners with limited access.
-* **settings** - Django settings but split and pack into python package.
+* **settings** - Django and project settings. Split and pack into python packages.
+    * **django** - Default django settings setup for this project.
+    * **project** - Settings used by application. Import django settings.
+    * **local** - Local settings, like databases and folder paths. Import project -> django.
+    * **test** - Settings to run unittests.  Import local -> project -> django.
+    * **debug** - Settings to run debug server. Import local -> project -> django.
+    * **sample** - Sample of local settings.
 * **static** - Favicons and robots.txt.
 * **templates** - Static templates for some error pages.
 
