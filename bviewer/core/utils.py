@@ -129,14 +129,17 @@ def cache_method(func):
     return wrapped
 
 
-def as_job(func, queue='default', timeout=None, *args, **kwargs):
+def as_job(func, queue='default', timeout=None, waite=True, args=None, kwargs=None):
     """
-    Add `func(*args, **kwargs)` to RQ and waite for result
+    Add `func(*args, **kwargs)` to RQ. And waite for result, if `waite`.
     """
-    if django_settings.TEST:
+    if django_settings.RQ_DEBUG:
+        args = args or tuple()
+        kwargs = kwargs or dict()
         return func(*args, **kwargs)
     rq = get_queue(name=queue)
     task = rq.enqueue(func, timeout=timeout, args=args, kwargs=kwargs)
-    while not task.is_finished:
-        time.sleep(0.1)
+    if waite:
+        while not task.is_finished:
+            time.sleep(0.1)
     return task.result

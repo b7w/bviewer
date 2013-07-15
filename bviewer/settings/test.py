@@ -3,6 +3,7 @@
 from bviewer.settings.local import *
 
 TEST = True
+RQ_DEBUG = True
 
 DATABASES = {
     'default': {

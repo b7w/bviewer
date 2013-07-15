@@ -5,7 +5,7 @@ import django_rq
 from django.conf import settings as django_settings
 
 from bviewer.core.files.storage import ImageStorage
-from bviewer.core.utils import ImageOptions, cache_method
+from bviewer.core.utils import ImageOptions, cache_method, as_job
 
 
 logger = logging.getLogger(__name__)
@@ -91,8 +91,4 @@ class ZipArchiveController(object):
         """
         Send task to RQ `low` queue
         """
-        if django_settings.TEST:
-            self.process()
-        else:
-            rq = django_rq.get_queue(name='low')
-            rq.enqueue(self.process)
+        as_job(self.process, queue='low', waite=False)

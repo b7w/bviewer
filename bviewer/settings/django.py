@@ -7,6 +7,7 @@ import os
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 DEBUG_TOOL_BAR = DEBUG
+RQ_DEBUG = DEBUG
 
 TEST = False
 
