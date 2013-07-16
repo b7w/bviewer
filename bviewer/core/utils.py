@@ -142,3 +142,17 @@ def as_job(func, queue='default', timeout=None, waite=True, args=None, kwargs=No
         while not task.is_finished:
             time.sleep(0.1)
     return task.result
+
+
+def method_call_str(func_name, self, *args, **kwargs):
+    """
+    Make code string
+
+        >>> str(method_call_str('some', 'object', 1, 2, flag=True))
+        'object.some(1, 2, flag=True)'
+    """
+    func_format = '{o}.{n}({a}, {kw})' if kwargs else '{o}.{n}({a})'
+    str_args = smart_text(', ').join(map(smart_text, args))
+    str_kwargs_pairs = [smart_text('{0}={1}').format(k, v) for k, v in kwargs.items()]
+    str_kwargs = smart_text(', ').join(str_kwargs_pairs)
+    return smart_text(func_format).format(o=self, n=func_name, a=str_args, kw=str_kwargs)
