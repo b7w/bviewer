@@ -123,6 +123,7 @@ class ImagePath(BasePath, ImagePathCacheMixin):
         return self.cache_name
 
     @property
+    @cache_method
     def is_image(self):
         if self.storage.is_file(self.path):
             for item in self.storage.TYPES_ALLOWED:
@@ -131,6 +132,7 @@ class ImagePath(BasePath, ImagePathCacheMixin):
         return False
 
     @property
+    @cache_method
     def is_dir(self):
         return self.storage.is_dir(self.path)
 
