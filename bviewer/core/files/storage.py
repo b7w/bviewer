@@ -12,7 +12,7 @@ except ImportError:
     from urllib.request import urlopen
 
 from django.conf import settings
-from django.utils.encoding import smart_bytes
+from django.utils.encoding import smart_bytes, smart_text
 
 from bviewer.core.files.path import ImagePath, ImageUrl, ImageArchivePath
 from bviewer.core.exceptions import FileError
@@ -90,10 +90,10 @@ class ImageStorage(object):
         out = []
         path = path or ''
         if not self._is_valid_path(path):
-            raise FileError('Invalid "{p}" path'.format(p=path))
+            raise FileError(smart_text('Invalid "{p}" path').format(p=path))
         abs_path = os.path.join(self._abs_root_path, path) if path else self._abs_root_path
         if not os.path.exists(abs_path):
-            raise FileError('Directory "{p}" not exists'.format(p=path))
+            raise FileError(smart_text('Directory "{p}" not exists').format(p=path))
 
         for file_name in os.listdir(abs_path):
             relative_path = os.path.join(path, file_name)

@@ -4,6 +4,7 @@ import logging
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import Http404
 from django.shortcuts import render
+from django.utils.encoding import smart_text
 
 from bviewer.core.controllers import get_gallery_user, GalleryController
 from bviewer.core.exceptions import FileError
@@ -33,7 +34,11 @@ def images_view(request, uid):
     images = set(i.path for i in controller.get_images())
     storage = ImageStorage(holder)
     path = request.GET.get('p', '')
-    folder = ImageFolder(path, storage.list(path, images))
+    try:
+        folder = ImageFolder(path, storage.list(path, images))
+    except FileError as e:
+        logger.exception(e)
+        return message_view(request, message=smart_text(e))
     return render(request, 'profile/images.html', {
         'gallery': main,
         'folder': folder,
@@ -56,8 +61,11 @@ def download_image(request):
                     image = CacheImage(image_path)
                     as_job(image.process)
                 return download_response(image_path)
-            raise Http404('No such file')
+            err_msg = smart_text('Path not exists "{0}"').format(path)
+            logger.info(err_msg)
+            raise Http404(err_msg)
         except FileError as e:
+            logger.info(e)
             raise Http404(e)
 
     raise Http404('No Image')
