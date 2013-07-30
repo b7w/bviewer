@@ -62,7 +62,7 @@ def gallery_view(request, uid):
         'galleries': galleries,
         'videos': videos,
         'images': images,
-        'back': True,
+        'back': dict(gallery_id=main.parent_id, home=holder.top_gallery_id == main.parent_id),
     })
 
 
@@ -84,7 +84,7 @@ def image_view(request, uid):
     return render(request, 'core/image.html', {
         'gallery': image.gallery,
         'image': image,
-        'back': True,
+        'back': dict(gallery_id=image.gallery_id),
     })
 
 
@@ -106,7 +106,7 @@ def video_view(request, uid):
     return render(request, 'core/video.html', {
         'gallery': video.gallery,
         'video': video,
-        'back': True,
+        'back': dict(gallery_id=video.gallery_id),
     })
 
 
