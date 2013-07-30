@@ -164,7 +164,7 @@ def message_view(request, title='Error', info=None, message=None):
     """
     Show simple message with default title='Error', info=None, message=None
     """
-    logger.warning('title:%s, info:%s \n %s', title, info, message)
+    logger.warning('title:%s, info:%s, %s', title, info, message)
     return render(request, 'core/message.html', {
         'title': title,
         'info': info,

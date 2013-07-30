@@ -95,7 +95,8 @@ class ImageStorage(object):
         if not os.path.exists(abs_path):
             raise FileError(smart_text('Directory "{p}" not exists').format(p=path))
 
-        for file_name in os.listdir(abs_path):
+        list_dir = [i for i in os.listdir(abs_path) if not i.startswith('.')]
+        for file_name in list_dir:
             relative_path = os.path.join(path, file_name)
             image_path = ImagePath(self, relative_path)
             if image_path.is_image or image_path.is_dir:
