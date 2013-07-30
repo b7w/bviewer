@@ -50,7 +50,7 @@ def index_view(request, gid):
         'link': link,
         'redirect': redirect,
         'gallery': main,
-        'back': True,
+        'back': dict(gallery_id=main.id),
     })
 
 

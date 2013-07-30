@@ -11,3 +11,7 @@ class ResizeOptionsError(ViewerError):
 
 class FileError(ViewerError):
     pass
+
+
+class HttpError(ViewerError):
+    pass

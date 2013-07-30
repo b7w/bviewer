@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import json
+import logging
 import uuid
 
 try:
-    from urllib2 import urlopen
+    from urllib2 import urlopen, URLError
 except ImportError:
     from urllib.request import urlopen
+    from urllib.error import URLError
 
 from django.contrib.auth.models import User, AbstractUser, Permission
 from django.contrib.sites.models import Site
@@ -19,6 +21,9 @@ from django.utils.encoding import smart_text
 from django.utils.html import escape
 
 from bviewer.core.files.storage import ImageStorage
+from bviewer.core.exceptions import HttpError, ViewerError
+
+logger = logging.getLogger(__name__)
 
 
 def uuid_pk(length=10):
@@ -222,13 +227,17 @@ class Video(models.Model):
         Get video thumbnail url.
         """
         if self.type == self.VIMIO:
-            url = 'http://vimeo.com/api/v2/video/{0}.json'.format(self.uid)
-            raw = urlopen(url).read()
-            info = json.loads(raw, encoding='UTF-8').pop()
-            return info['thumbnail_large']
+            try:
+                url = 'http://vimeo.com/api/v2/video/{0}.json'.format(self.uid)
+                raw = urlopen(url, timeout=4).read()
+                info = json.loads(raw, encoding='UTF-8').pop()
+                return info['thumbnail_large']
+            except URLError as e:
+                logger.exception('Error urlopen VIMIO api')
+                raise HttpError(e)
         elif self.type == self.YOUTUBE:
             return 'http://img.youtube.com/vi/{0}/hqdefault.jpg'.format(self.uid)
-        raise ValueError('Unknown video type: {0}'.format(self.type))
+        raise ViewerError('Unknown video type: {0}'.format(self.type))
 
     def __str__(self):
         return self.title
