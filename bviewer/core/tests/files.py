@@ -24,12 +24,16 @@ class ImagePathTest(TestCase):
         self.assertEqual(self.f1.saved, False)
 
     def test_url(self):
-        storage = Mock(hash_for=Mock(return_value='cache_name'), holder=Mock(url='holder.url'))
+        storage = Mock(
+            hash_for=Mock(return_value='cache_name'),
+            holder=Mock(url='holder.url'),
+            type='type'
+        )
         self.assertEqual(storage.hash_for(), 'cache_name')
         self.assertEqual(storage.holder.url, 'holder.url')
 
         path = ImagePath(storage, 'path/1.jpg')
-        self.assertEqual(path.url, 'holder.url/cache_name.jpg')
+        self.assertEqual(path.url, 'type/holder.url/cache_name.jpg')
 
     def test_order(self):
         self.assertLess(self.f1, self.f2)

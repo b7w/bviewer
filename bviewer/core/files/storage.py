@@ -60,13 +60,14 @@ class ImageStorage(object):
         self.holder = holder
         self.root = root_path or settings.VIEWER_STORAGE_PATH
         self.cache_path = cache_path or settings.VIEWER_CACHE_PATH
+        self.type = 'archives' if archive_cache else 'images'
 
         self._abs_root_path = os.path.join(self.root, holder.home)
         if archive_cache:
-            self._abs_cache_path = os.path.join(self.cache_path, 'archives', holder.url)
+            self._abs_cache_path = os.path.join(self.cache_path, self.type, holder.url)
             self._max_cache_size = holder.cache_archive_size * 2 ** 20
         else:
-            self._abs_cache_path = os.path.join(self.cache_path, 'images', holder.url)
+            self._abs_cache_path = os.path.join(self.cache_path, self.type, holder.url)
             self._max_cache_size = holder.cache_size * 2 ** 20
         self.create_cache()
 

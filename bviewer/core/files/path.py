@@ -91,7 +91,7 @@ class BasePath(object):
 
     @property
     def url(self):
-        return '/'.join([self.storage.holder.url, self.url_name])
+        return '/'.join([self.storage.type, self.storage.holder.url, self.url_name])
 
     @property
     def url_name(self):
@@ -146,10 +146,6 @@ class ImagePath(BasePath, ImagePathCacheMixin):
     @cache_method
     def exif(self):
         return self.storage.exif(self.path)
-
-    @property
-    def url(self):
-        return '/'.join([self.storage.holder.url, self.cache_name])
 
     @property
     def ctime(self):
