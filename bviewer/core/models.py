@@ -132,11 +132,18 @@ class Gallery(models.Model):
     PRIVATE = 3
     VISIBILITY_CHOICE = ((VISIBLE, 'Visible'), (HIDDEN, 'Hidden'), (PRIVATE, 'Private'),)
 
+    ASK = 1
+    DESK = 2
+    SORT_CHOICE = ((ASK, 'Ascending '), (DESK, 'Descending'), )
+
     id = models.CharField(max_length=32, default=uuid_pk(length=8), primary_key=True)
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.SET_NULL)
     title = models.CharField(max_length=256)
     user = models.ForeignKey(ProxyUser)
-    visibility = models.SmallIntegerField(max_length=1, choices=VISIBILITY_CHOICE, default=VISIBLE)
+    visibility = models.SmallIntegerField(max_length=1, choices=VISIBILITY_CHOICE, default=VISIBLE,
+        help_text='HIDDEN - not shown on page for anonymous, PRIVATE - available only to the holder')
+    gallery_sorting = models.SmallIntegerField(max_length=1, choices=SORT_CHOICE, default=ASK,
+        help_text='How to sort galleries inside')
     description = models.TextField(max_length=512, null=True, blank=True)
     thumbnail = models.ForeignKey('Image', null=True, blank=True, related_name='thumbnail', on_delete=models.SET_NULL)
     time = models.DateTimeField(default=date_now)

@@ -6,7 +6,8 @@ Release notes
 
 
 | **v1.0.1**
-| No any new features. Just some clean up and improvements.
+| Choice for asc/desc gallery sorting. Plus some clean up and improvements.
+  Need update database ``ALTER TABLE core_gallery ADD COLUMN gallery_sorting smallint NOT NULL DEFAULT 1;``
 
 * Fix not playing video from js gallery
 * Add RQ_DEBUG settings
