@@ -2,11 +2,10 @@
 import os
 import shutil
 
-from django.conf import settings as django_settings
+from django.conf import settings
 from django.core import urlresolvers
 from django.test import TestCase
 
-from bviewer.core import settings
 from bviewer.core.tests.data import TestData
 
 
@@ -16,7 +15,7 @@ class BaseViewTest(TestCase):
     """
 
     def setUp(self):
-        django_settings.TEST = True
+        settings.TEST = True
 
         if os.path.exists(settings.VIEWER_CACHE_PATH):
             shutil.rmtree(settings.VIEWER_CACHE_PATH)

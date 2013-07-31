@@ -51,10 +51,11 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
     search_fields = ('title', 'description',)
 
     readonly_fields = ('images', 'thumbnails',)
-    fields = ('parent', 'title', 'visibility', 'images', 'description', 'time', 'thumbnails', )
+    fields = ('parent', 'title', 'visibility', 'gallery_sorting', 'images', 'description', 'time', 'thumbnails', )
 
     def images(self, obj):
-        return '<b><a href="{0}">edit</a></b>'.format(reverse('profile.gallery', kwargs=dict(uid=obj.id)))
+        return '<b><a href="{0}">Select images on disk</a></b>' \
+            .format(reverse('profile.gallery', kwargs=dict(uid=obj.id)))
 
     images.allow_tags = True
 

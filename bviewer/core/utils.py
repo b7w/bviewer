@@ -2,12 +2,11 @@
 import time
 import logging
 
-from django.conf import settings as django_settings
+from django.conf import settings
 from django.utils.encoding import smart_text, smart_bytes
 from django.utils.functional import wraps
 from django_rq import get_queue
 
-from bviewer.core import settings
 from bviewer.core.exceptions import ResizeOptionsError
 
 
@@ -129,14 +128,31 @@ def cache_method(func):
     return wrapped
 
 
-def as_job(func, queue='default', timeout=None, *args, **kwargs):
+def as_job(func, queue='default', timeout=None, waite=True, args=None, kwargs=None):
     """
-    Add `func(*args, **kwargs)` to RQ and waite for result
+    Add `func(*args, **kwargs)` to RQ. And waite for result, if `waite`.
     """
-    if django_settings.TEST:
+    if settings.RQ_DEBUG:
+        args = args or tuple()
+        kwargs = kwargs or dict()
         return func(*args, **kwargs)
     rq = get_queue(name=queue)
     task = rq.enqueue(func, timeout=timeout, args=args, kwargs=kwargs)
-    while not task.is_finished:
-        time.sleep(0.1)
+    if waite:
+        while not task.is_finished:
+            time.sleep(0.1)
     return task.result
+
+
+def method_call_str(func_name, self, *args, **kwargs):
+    """
+    Make code string
+
+        >>> str(method_call_str('some', 'object', 1, 2, flag=True))
+        'object.some(1, 2, flag=True)'
+    """
+    func_format = '{o}.{n}({a}, {kw})' if kwargs else '{o}.{n}({a})'
+    str_args = smart_text(', ').join(map(smart_text, args))
+    str_kwargs_pairs = [smart_text('{0}={1}').format(k, v) for k, v in kwargs.items()]
+    str_kwargs = smart_text(', ').join(str_kwargs_pairs)
+    return smart_text(func_format).format(o=self, n=func_name, a=str_args, kw=str_kwargs)

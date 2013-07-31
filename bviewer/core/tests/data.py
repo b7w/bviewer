@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
 
+from django.conf import settings
 from django.contrib.auth.models import User, Permission
 
-from bviewer.core import settings
 from bviewer.core.images import RandomImage
 from bviewer.core.models import ProxyUser, Gallery, Image, Video
 

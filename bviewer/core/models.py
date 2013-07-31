@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
 import json
+import logging
 import uuid
 
 try:
-    from urllib2 import urlopen
+    from urllib2 import urlopen, URLError
 except ImportError:
     from urllib.request import urlopen
+    from urllib.error import URLError
 
 from django.contrib.auth.models import User, AbstractUser, Permission
 from django.contrib.sites.models import Site
@@ -15,10 +16,14 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
+from django.utils import timezone
 from django.utils.encoding import smart_text
 from django.utils.html import escape
 
 from bviewer.core.files.storage import ImageStorage
+from bviewer.core.exceptions import HttpError, ViewerError
+
+logger = logging.getLogger(__name__)
 
 
 def uuid_pk(length=10):
@@ -117,20 +122,31 @@ def add_top_gallery(sender, instance, created, **kwargs):
 post_save.connect(add_top_gallery, sender=ProxyUser)
 
 
+def date_now():
+    return timezone.now().replace(minute=0, second=0, microsecond=0)
+
+
 class Gallery(models.Model):
     VISIBLE = 1
     HIDDEN = 2
     PRIVATE = 3
     VISIBILITY_CHOICE = ((VISIBLE, 'Visible'), (HIDDEN, 'Hidden'), (PRIVATE, 'Private'),)
 
+    ASK = 1
+    DESK = 2
+    SORT_CHOICE = ((ASK, 'Ascending '), (DESK, 'Descending'), )
+
     id = models.CharField(max_length=32, default=uuid_pk(length=8), primary_key=True)
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.SET_NULL)
     title = models.CharField(max_length=256)
     user = models.ForeignKey(ProxyUser)
-    visibility = models.SmallIntegerField(max_length=1, choices=VISIBILITY_CHOICE, default=VISIBLE)
+    visibility = models.SmallIntegerField(max_length=1, choices=VISIBILITY_CHOICE, default=VISIBLE,
+        help_text='HIDDEN - not shown on page for anonymous, PRIVATE - available only to the holder')
+    gallery_sorting = models.SmallIntegerField(max_length=1, choices=SORT_CHOICE, default=ASK,
+        help_text='How to sort galleries inside')
     description = models.TextField(max_length=512, null=True, blank=True)
     thumbnail = models.ForeignKey('Image', null=True, blank=True, related_name='thumbnail', on_delete=models.SET_NULL)
-    time = models.DateTimeField(default=datetime.now)
+    time = models.DateTimeField(default=date_now)
 
     objects = ProxyManager()
 
@@ -152,7 +168,7 @@ class Image(models.Model):
     id = models.CharField(max_length=32, default=uuid_pk(length=12), primary_key=True)
     gallery = models.ForeignKey(Gallery)
     path = models.CharField(max_length=256)
-    time = models.DateTimeField(default=datetime.now)
+    time = models.DateTimeField(default=timezone.now)
 
     objects = ProxyManager()
 
@@ -201,7 +217,7 @@ class Video(models.Model):
     gallery = models.ForeignKey(Gallery)
     title = models.CharField(max_length=256)
     description = models.TextField(max_length=512, null=True, blank=True)
-    time = models.DateTimeField(default=datetime.now)
+    time = models.DateTimeField(default=timezone.now)
 
     objects = ProxyManager()
 
@@ -222,13 +238,17 @@ class Video(models.Model):
         Get video thumbnail url.
         """
         if self.type == self.VIMIO:
-            url = 'http://vimeo.com/api/v2/video/{0}.json'.format(self.uid)
-            raw = urlopen(url).read()
-            info = json.loads(raw, encoding='UTF-8').pop()
-            return info['thumbnail_large']
+            try:
+                url = 'http://vimeo.com/api/v2/video/{0}.json'.format(self.uid)
+                raw = urlopen(url, timeout=4).read()
+                info = json.loads(raw, encoding='UTF-8').pop()
+                return info['thumbnail_large']
+            except URLError as e:
+                logger.exception('Error urlopen VIMIO api')
+                raise HttpError(e)
         elif self.type == self.YOUTUBE:
             return 'http://img.youtube.com/vi/{0}/hqdefault.jpg'.format(self.uid)
-        raise ValueError('Unknown video type: {0}'.format(self.type))
+        raise ViewerError('Unknown video type: {0}'.format(self.type))
 
     def __str__(self):
         return self.title

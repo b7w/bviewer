@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
-
+#
+# Default test settings
+#
 from bviewer.settings.local import *
 
 TEST = True
+RQ_DEBUG = True
 
 DATABASES = {
     'default': {

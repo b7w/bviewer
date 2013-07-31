@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import logging
 
+from django.conf import settings
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 
-from bviewer.core import settings
 from bviewer.core.controllers import GalleryController, ImageController, VideoController, get_gallery_user
 from bviewer.core.exceptions import ResizeOptionsError, FileError
 from bviewer.core.utils import decor_on
@@ -62,7 +62,7 @@ def gallery_view(request, uid):
         'galleries': galleries,
         'videos': videos,
         'images': images,
-        'back': True,
+        'back': dict(gallery_id=main.parent_id, home=holder.top_gallery_id == main.parent_id),
     })
 
 
@@ -84,7 +84,7 @@ def image_view(request, uid):
     return render(request, 'core/image.html', {
         'gallery': image.gallery,
         'image': image,
-        'back': True,
+        'back': dict(gallery_id=image.gallery_id),
     })
 
 
@@ -106,7 +106,7 @@ def video_view(request, uid):
     return render(request, 'core/video.html', {
         'gallery': video.gallery,
         'video': video,
-        'back': True,
+        'back': dict(gallery_id=video.gallery_id),
     })
 
 
@@ -164,7 +164,7 @@ def message_view(request, title='Error', info=None, message=None):
     """
     Show simple message with default title='Error', info=None, message=None
     """
-    logger.warning('title:%s, info:%s \n %s', title, info, message)
+    logger.warning('title:%s, info:%s, %s', title, info, message)
     return render(request, 'core/message.html', {
         'title': title,
         'info': info,
