@@ -6,8 +6,11 @@ Release notes
 
 
 | **v1.0.1**
-| Choice for asc/desc gallery sorting. Plus some clean up and improvements.
-  Need update database ``ALTER TABLE core_gallery ADD COLUMN gallery_sorting smallint NOT NULL DEFAULT 1;``
+| Add choice for asc/desc gallery sorting. Plus some clean up and improvements.
+  Need database scheme update.
+
+| ``ALTER TABLE core_gallery ADD COLUMN gallery_sorting smallint NOT NULL DEFAULT 1;``
+  (v194:4b54f1ac9c78)
 
 * Fix not playing video from js gallery
 * Add RQ_DEBUG settings
