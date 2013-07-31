@@ -12,6 +12,8 @@ Release notes
 * Add RQ_DEBUG settings
 * Move all settings to default django.settings package
 * Edit documentation, add simple FAQ
+* Make normal back link in galleries
+* Improve logging and error handling
 
 
 | **v1.0.0**

@@ -64,8 +64,12 @@ var core = {
     },
 
     imageLoading: function () {
+        var isMobile = window.matchMedia('only screen and (max-width: 480px)').matches;
+
         function load() {
             var height = jQuery(window).scrollTop() + jQuery(window).height();
+            if (isMobile) height = height + jQuery(window).height() / 2
+
             jQuery('.album img[data-src]').each(function (i, img) {
                 var image = jQuery(img);
                 if (image.offset().top < height) {
