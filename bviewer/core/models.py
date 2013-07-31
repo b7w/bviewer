@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
 import json
 import logging
 import uuid
@@ -17,6 +16,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
+from django.utils import timezone
 from django.utils.encoding import smart_text
 from django.utils.html import escape
 
@@ -122,6 +122,10 @@ def add_top_gallery(sender, instance, created, **kwargs):
 post_save.connect(add_top_gallery, sender=ProxyUser)
 
 
+def date_now():
+    return timezone.now().replace(minute=0, second=0, microsecond=0)
+
+
 class Gallery(models.Model):
     VISIBLE = 1
     HIDDEN = 2
@@ -135,7 +139,7 @@ class Gallery(models.Model):
     visibility = models.SmallIntegerField(max_length=1, choices=VISIBILITY_CHOICE, default=VISIBLE)
     description = models.TextField(max_length=512, null=True, blank=True)
     thumbnail = models.ForeignKey('Image', null=True, blank=True, related_name='thumbnail', on_delete=models.SET_NULL)
-    time = models.DateTimeField(default=datetime.now)
+    time = models.DateTimeField(default=date_now)
 
     objects = ProxyManager()
 
@@ -157,7 +161,7 @@ class Image(models.Model):
     id = models.CharField(max_length=32, default=uuid_pk(length=12), primary_key=True)
     gallery = models.ForeignKey(Gallery)
     path = models.CharField(max_length=256)
-    time = models.DateTimeField(default=datetime.now)
+    time = models.DateTimeField(default=timezone.now)
 
     objects = ProxyManager()
 
@@ -206,7 +210,7 @@ class Video(models.Model):
     gallery = models.ForeignKey(Gallery)
     title = models.CharField(max_length=256)
     description = models.TextField(max_length=512, null=True, blank=True)
-    time = models.DateTimeField(default=datetime.now)
+    time = models.DateTimeField(default=timezone.now)
 
     objects = ProxyManager()
 
