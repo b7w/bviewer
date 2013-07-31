@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from functools import wraps
 import hashlib
 import logging
 import os
@@ -10,14 +11,33 @@ try:
 except ImportError:
     from urllib.request import urlopen
 
-from django.utils.encoding import smart_bytes
+from django.conf import settings
+from django.utils.encoding import smart_bytes, smart_text
 
-from bviewer.core import settings
 from bviewer.core.files.path import ImagePath, ImageUrl, ImageArchivePath
 from bviewer.core.exceptions import FileError
 from bviewer.core.images import Exif
+from bviewer.core.utils import method_call_str
 
 logger = logging.getLogger(__name__)
+
+
+def io_call(func):
+    """
+    Wrap method where can be raised `IOError` and re raise `FileError`.
+    Save method calls with all args to debug log.
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        try:
+            logger.debug(method_call_str(func.__name__, self, *args, **kwargs))
+            return func(self, *args, **kwargs)
+        except IOError as e:
+            logger.exception(e)
+            raise FileError(e)
+
+    return wrapper
 
 
 class ImageStorage(object):
@@ -58,6 +78,7 @@ class ImageStorage(object):
                 return False
         return True
 
+    @io_call
     def list(self, path=None, saved_images=None):
         """
         Return list of sorted ImagePath. If path is not - list `self.root_path`.
@@ -69,12 +90,13 @@ class ImageStorage(object):
         out = []
         path = path or ''
         if not self._is_valid_path(path):
-            raise FileError('Invalid "{p}" path'.format(p=path))
+            raise FileError(smart_text('Invalid "{p}" path').format(p=path))
         abs_path = os.path.join(self._abs_root_path, path) if path else self._abs_root_path
         if not os.path.exists(abs_path):
-            raise FileError('Directory "{p}" not exists'.format(p=path))
+            raise FileError(smart_text('Directory "{p}" not exists').format(p=path))
 
-        for file_name in os.listdir(abs_path):
+        list_dir = [i for i in os.listdir(abs_path) if not i.startswith('.')]
+        for file_name in list_dir:
             relative_path = os.path.join(path, file_name)
             image_path = ImagePath(self, relative_path)
             if image_path.is_image or image_path.is_dir:
@@ -93,35 +115,44 @@ class ImageStorage(object):
     def get_archive(self, options=None):
         return ImageArchivePath(self, options)
 
+    @io_call
     def is_file(self, path):
         return os.path.isfile(os.path.join(self._abs_root_path, path))
 
+    @io_call
     def is_dir(self, path):
         return os.path.isdir(os.path.join(self._abs_root_path, path))
 
+    @io_call
     def ctime(self, path, for_cache=False):
         root = self._abs_cache_path if for_cache else self._abs_root_path
         return os.path.getctime(os.path.join(root, path))
 
+    @io_call
     def size(self, path, for_cache=False):
         root = self._abs_cache_path if for_cache else self._abs_root_path
         return os.path.getsize(os.path.join(root, path))
 
+    @io_call
     def exists(self, path, for_cache=False):
         root = self._abs_cache_path if for_cache else self._abs_root_path
         return os.path.exists(os.path.join(root, path))
 
+    @io_call
     def exif(self, path):
         return Exif(os.path.join(self._abs_root_path, path))
 
+    @io_call
     def open(self, path, mode='r', for_cache=False):
         root = self._abs_cache_path if for_cache else self._abs_root_path
         return open(os.path.join(root, path), mode=mode)
 
+    @io_call
     def create_cache(self):
         if not os.path.exists(self._abs_cache_path):
             os.makedirs(self._abs_cache_path)
 
+    @io_call
     def clear_cache(self, full=False):
         """
         Clear old cache while size of directory bigger than holder.cache_size.
@@ -138,12 +169,14 @@ class ImageStorage(object):
                 while sum(map(os.path.getsize, cache_paths)) > self._max_cache_size:
                     os.remove(cache_paths.pop())
 
+    @io_call
     def rename_cache(self, path_from, path_to):
         abs_from = os.path.join(self._abs_cache_path, path_from)
         abs_to = os.path.join(self._abs_cache_path, path_to)
         if os.path.exists(abs_from) and not os.path.lexists(abs_to):
             os.rename(abs_from, abs_to)
 
+    @io_call
     def link_to_cache(self, path_from, path_to):
         abs_from = os.path.join(self._abs_root_path, path_from)
         abs_to = os.path.join(self._abs_cache_path, path_to)

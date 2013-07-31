@@ -6,9 +6,6 @@ import os
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
-DEBUG_TOOL_BAR = DEBUG
-
-TEST = False
 
 SOURCE_PATH = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
 PROJECT_PATH = os.path.dirname(SOURCE_PATH)
@@ -53,7 +50,7 @@ USE_I18N = True
 USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = False
+USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"

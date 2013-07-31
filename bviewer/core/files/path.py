@@ -5,13 +5,15 @@ import os
 import zipfile
 
 try:
-    from urllib2 import urlopen
+    from urllib2 import urlopen, URLError
 except ImportError:
     from urllib.request import urlopen
+    from urllib.error import URLError
 
 from django.utils.six import BytesIO
 
 from bviewer.core.utils import cache_method
+from bviewer.core.exceptions import HttpError
 
 logger = logging.getLogger(__name__)
 
@@ -123,6 +125,7 @@ class ImagePath(BasePath, ImagePathCacheMixin):
         return self.cache_name
 
     @property
+    @cache_method
     def is_image(self):
         if self.storage.is_file(self.path):
             for item in self.storage.TYPES_ALLOWED:
@@ -131,6 +134,7 @@ class ImagePath(BasePath, ImagePathCacheMixin):
         return False
 
     @property
+    @cache_method
     def is_dir(self):
         return self.storage.is_dir(self.path)
 
@@ -183,10 +187,14 @@ class ImageUrl(BasePath, ImagePathCacheMixin):
 
     @contextmanager
     def open(self, mode=None):
-        image = BytesIO()
-        image.write(urlopen(self.path).read())
-        image.seek(0)
-        yield image
+        try:
+            image = BytesIO()
+            image.write(urlopen(self.path).read())
+            image.seek(0)
+            yield image
+        except URLError as e:
+            logger.exception('Error image urlopen')
+            raise HttpError(e)
 
 
 class ImageArchivePath(BasePath, ImagePathCacheMixin):

@@ -32,7 +32,11 @@
             </ul>
             <ul class="pull-right">
                 {% if back %}
-                    <li><a href="javascript:history.go(-1)">Back</a></li>
+                    {% if back.home %}
+                        <li><a href="{% url 'core.home' %}">Back</a></li>
+                    {% else %}
+                        <li><a href="{% url 'core.gallery' back.gallery_id %}">Back</a></li>
+                    {% endif %}
                     <li class="divider-vertical"></li>
                 {% endif %}
                 {% if request.user.is_authenticated %}

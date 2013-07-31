@@ -5,4 +5,5 @@ django-tastypie==0.9.15
 django>=1.5
 fabric
 mock
+pytz
 redis

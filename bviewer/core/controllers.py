@@ -2,10 +2,10 @@
 import logging
 import re
 
+from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
 
-from bviewer.core import settings
 from bviewer.core.files.response import download_response
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.images import CacheImage
@@ -75,6 +75,13 @@ class BaseController(object):
 class GalleryController(BaseController):
     OPEN = Q(visibility=Gallery.VISIBLE) | Q(visibility=Gallery.HIDDEN)
 
+    def _ordering(self, query_set):
+        sorting = self.get_object().gallery_sorting
+        if sorting == Gallery.ASK:
+            return query_set.order_by('time')
+        if sorting == Gallery.DESK:
+            return query_set.order_by('-time')
+
     @cache_method
     def get_object(self):
         """
@@ -94,8 +101,8 @@ class GalleryController(BaseController):
         :rtype: list of bviewer.core.models.Gallery
         """
         if self.is_owner():
-            return list(Gallery.objects.filter(parent=self.uid))
-        return list(Gallery.objects.filter(parent=self.uid, visibility=Gallery.VISIBLE))
+            return list(self._ordering(Gallery.objects.filter(parent=self.uid)))
+        return list(self._ordering(Gallery.objects.filter(parent=self.uid, visibility=Gallery.VISIBLE)))
 
     def is_album(self):
         """

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-
 from bviewer.settings.local import *
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+RQ_DEBUG = DEBUG
 
 # By default templates in cache and dev server not see changes.
 TEMPLATE_LOADERS = (

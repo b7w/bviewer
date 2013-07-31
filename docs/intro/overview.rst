@@ -11,7 +11,7 @@ About
 .. index:: About
 
 | BelieveViewer is a simple photo gallery written in python with django.
-  The main idea of this app is personal web photo and video sharing.
+  The main idea of this app is personal web photo sharing.
   There is no any comments, ratings, even registration and other social stuff.
   There is no complex management system.
 

@@ -96,14 +96,15 @@ Default:
 .. code-block:: python
 
     {
-        'BACKEND': 'bviewer.core.files.response.django',
+        'BACKEND': 'bviewer.core.files.response.nginx',
         'INTERNAL_URL': '/protected',
         'CACHE': False,
     }
 
 | X-Accel-Redirect for web server to improve file serving, highly recommended!
+  Have two values ``bviewer.core.files.response.nginx`` and ``bviewer.core.files.response.django``.
   Set cache true to activate redirect response caching, it save 2 queries per image.
-  Be careful, cache can't work with ``default``! because it return hole file.
+  Be careful, cache can't work with ``django``! because it return hole file.
 
 
 Django configuration
