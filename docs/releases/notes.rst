@@ -4,10 +4,15 @@ Release notes
 
 .. index:: Release notes
 
+| **v1.0.2**
+| Hot critical bug fix.
+
+* Fix bug with wrong nginx response protected url
+
 
 | **v1.0.1**
 | Add choice for asc/desc gallery sorting. Plus some clean up and improvements.
-  Need database scheme update.
+  Need database scheme update. Need update local.py setting file, change import statement.
 
 | ``ALTER TABLE core_gallery ADD COLUMN gallery_sorting smallint NOT NULL DEFAULT 1;``
   (v194:4b54f1ac9c78)

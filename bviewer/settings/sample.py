@@ -69,12 +69,6 @@ FORCE_SCRIPT_NAME = ''
 VIEWER_CACHE_PATH = os.path.join(PROJECT_PATH, 'cache')
 VIEWER_STORAGE_PATH = PROJECT_PATH
 
-VIEWER_DOWNLOAD_RESPONSE = {
-    'BACKEND': 'bviewer.core.files.response.nginx',
-    'INTERNAL_URL': '/protected',
-    'CACHE': True,
-}
-
 # RQ configs
 RQ_QUEUES = {
     'default': {
