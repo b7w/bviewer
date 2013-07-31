@@ -14,6 +14,7 @@ Release notes
 * Edit documentation, add simple FAQ
 * Make normal back link in galleries
 * Improve logging and error handling
+* Add timezone support
 
 
 | **v1.0.0**
