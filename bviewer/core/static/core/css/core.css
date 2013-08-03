@@ -257,8 +257,11 @@ button {
 
 /* START GALLERY */
 
+.tile {
+}
+
 .flow {
-    margin: 0 -16px;
+    margin: 0 8px;
 }
 
 .album {
@@ -301,24 +304,6 @@ button {
     width: 80%;
 }
 
-/* START COLUMN */
-
-.column {
-    width: 33.3%;
-    float: left;
-    display: inline;
-}
-
-.column a {
-    display: block;
-    margin: 16px;
-}
-
-.column img {
-    width: 100%;
-    box-shadow: 0 0 36px 4px rgba(255, 255, 255, 0.15);
-}
-
 /* START PREVIEW */
 
 .carousel-caption {
@@ -344,36 +329,31 @@ button {
     margin-bottom: 0
 }
 
-.preview {
+.album .preview {
     float: left;
     position: relative;
     width: 25%;
     padding-bottom: 25%;
-
 }
 
-.preview-body {
+.album .preview-body {
     position: absolute;
     left: 10px;
     right: 10px;
     top: 10px;
     bottom: 10px;
-    /*overflow: hidden;*/
     border: 1px solid #222;
     padding: 6px;
-    /*max real image size*/
-    /*max-width: 320px;*/
-    /*max-height: 320px;*/
 }
 
-.preview-body:hover {
+.album .preview-body:hover {
     border-color: rgba(0, 105, 214, 0.5);
     -webkit-box-shadow: 0 0 4px 3px rgba(0, 105, 214, 0.25);
     -moz-box-shadow: 0 0 4px 3px rgba(0, 105, 214, 0.25);
     box-shadow: 0 0 4px 3px rgba(0, 105, 214, 0.25);
 }
 
-.preview-body img {
+.album .preview-body img {
     width: 100%;
     opacity: 0;
     -moz-transition: opacity 2s;
@@ -381,7 +361,7 @@ button {
     -o-transition: opacity 2s;
 }
 
-.preview-body .video-tag {
+.album .preview-body .video-tag {
     position: absolute;
     opacity: 0.65;
     top: -24px;
@@ -396,11 +376,11 @@ button {
     -o-transition: all 1s ease;
 }
 
-.preview-body:hover .video-tag {
+.album .preview-body:hover .video-tag {
     opacity: 0.9;
 }
 
-.preview .caption {
+.album .preview .caption {
     position: absolute;
     opacity: 0;
     bottom: 4px;
@@ -447,6 +427,39 @@ button {
     height: 100px;
     margin-bottom: 2px;
     cursor: pointer;
+}
+
+/* START ROW PREVIEW */
+
+.flow .preview {
+    float: left;
+    position: relative;
+    margin: 8px 8px;
+}
+
+.flow .preview-body {
+}
+
+.flow .preview-body img {
+    width: 100%;
+    opacity: 0;
+    -moz-transition: opacity 2s;
+    -webkit-transition: opacity 2s;
+    -o-transition: opacity 2s;
+}
+
+.flow .preview .caption {
+    position: absolute;
+    opacity: 0;
+    bottom: 4px;
+    right: 6px;
+    -webkit-transition: all 1s ease;
+    -moz-transition: all 1s ease;
+    -o-transition: all 1s ease;
+}
+
+.flow .preview .caption:hover {
+    opacity: 1;
 }
 
 /* START MEDIA */

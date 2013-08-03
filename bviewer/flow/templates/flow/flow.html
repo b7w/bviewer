@@ -1,0 +1,20 @@
+{% load staticfiles %}
+
+{% for item in flow %}
+    <li id="{{ item.id }}" class="preview" style="width: {{ item.width }}px; height: {{ item.height }}px;">
+        <div class="preview-body">
+            <a class="shadowbox" href="{% url 'core.download' 'big' item.id %}" rel="shadowbox[images]">
+                <img data-src="{% url 'core.download' 'flow' item.id %}" style="width: {{ item.width }}px; height: {{ item.height }}px;">
+            </a>
+
+            <div class="caption">
+                <a class="url-core-image" href="{% url 'core.image' item.id %}">
+                    <i class="icon-white icon-zoom-in"></i>
+                </a>
+                <a class="url-core-download" href="{% url 'core.download' 'full' item.id %}">
+                    <i class="icon-white icon-arrow-down"></i>
+                </a>
+            </div>
+        </div>
+    </li>
+{% endfor %}
