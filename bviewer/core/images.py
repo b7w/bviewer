@@ -219,6 +219,16 @@ class Exif(object):
             except ValueError:
                 logger.warning('Wrong datetime "%s" in "%s" file', time, self.image_path)
 
+    @property
+    @cache_method
+    def width(self):
+        return self._data.get('ExifImageWidth', 0)
+
+    @property
+    @cache_method
+    def height(self):
+        return self._data.get('ExifImageHeight', 0)
+
     def items(self):
         return dict(
             fnumber=self.fnumber,

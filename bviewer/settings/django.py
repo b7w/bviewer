@@ -143,6 +143,7 @@ INSTALLED_APPS = (
     'bviewer.archive',
     'bviewer.api',
     'bviewer.profile',
+    'bviewer.flow',
     'django_rq',
 )
 

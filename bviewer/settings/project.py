@@ -47,6 +47,10 @@ VIEWER_IMAGE_SIZE = {
         'HEIGHT': 300,
         'CROP': True,
     },
+    'flow': {
+        'WIDTH': 480,
+        'HEIGHT': 720,
+    },
     'big': {
         'WIDTH': 1280,
         'HEIGHT': 720,

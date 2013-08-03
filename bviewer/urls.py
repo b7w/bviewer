@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
@@ -9,6 +10,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'^', include('bviewer.core.urls')),
     url(r'^', include('bviewer.archive.urls')),
+    url(r'^', include('bviewer.flow.urls')),
     url(r'^api/', include('bviewer.api.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^profile/', include('bviewer.profile.urls')),
@@ -16,4 +18,7 @@ urlpatterns = patterns('',
 
     url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'core/login.html'}, name='core.login'),
     url(r'^logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}, name='core.logout'),
+
+    url(r'^static/(?P<path>.*)$', 'django.views.static.serve',
+        {'document_root': settings.STATIC_ROOT}),
 )

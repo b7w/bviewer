@@ -1,0 +1,43 @@
+{% extends 'core/base.html' %}
+{% load staticfiles %}
+
+{% block title %}{{ main.title }}{% endblock %}
+
+{% block navigation %}
+    <li class="view-full">
+        <a href="{% url 'archive.archive' main.id %}" title="Download all images in archive">Download</a>
+    </li>
+{% endblock %}
+
+{% block main %}
+    <div class="album-title">
+        <h2>{{ main.title }}</h2>
+
+        <p class="description">{{ main.description|linebreaksbr }}</p>
+    </div>
+
+    <ul class='flow'></ul>
+{% endblock %}
+
+{% block media %}
+    {{ block.super }}
+    <link id="shadowbox.css" href="{% static 'core/css/shadowbox.css' %}" rel="stylesheet" type="text/css">
+    <script id="shadowbox.js" src="{% static 'core/js/shadowbox.min.js' %}" type="text/javascript"></script>
+    <script id="shadowbox.js" src="{% static 'core/js/core.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        var width = jQuery('.album-title').width();
+
+        function get_margin() {
+            var tmp = jQuery('<span></span>').hide().addClass('preview').appendTo('.flow');
+            var margin = tmp.css('margin');
+            tmp.remove();
+            return margin;
+        }
+
+        jQuery.get('/flow/{{ main.id }}/row/flow/', {width: width, margin: get_margin()}, function (data) {
+            jQuery('.flow').append(data);
+            core.imageLoading();
+            core.shadowbox();
+        });
+    </script>
+{% endblock %}

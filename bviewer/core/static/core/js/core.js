@@ -70,7 +70,7 @@ var core = {
             var height = jQuery(window).scrollTop() + jQuery(window).height();
             if (isMobile) height = height + jQuery(window).height() / 2
 
-            jQuery('.album img[data-src]').each(function (i, img) {
+            jQuery('img[data-src]').each(function (i, img) {
                 var image = jQuery(img);
                 if (image.offset().top < height) {
                     image.attr('src', image.attr('data-src'));
