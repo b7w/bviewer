@@ -34,7 +34,7 @@
             return margin;
         }
 
-        jQuery.get('/flow/{{ main.id }}/row/flow/', {width: width, margin: get_margin()}, function (data) {
+        jQuery.get('/flow/{{ main.id }}/images/', {width: width, margin: get_margin()}, function (data) {
             jQuery('.flow').append(data);
             core.imageLoading();
             core.shadowbox();
