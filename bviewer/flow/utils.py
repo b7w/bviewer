@@ -2,11 +2,12 @@
 
 
 class FlowImage(object):
-    def __init__(self, entity, width, height):
+    def __init__(self, entity):
         self.id = entity.id
         self.entity = entity
-        self.width = width
-        self.height = height
+        self.width = entity.width
+        self.height = entity.height
+        self.vertical = self.height > self.width
 
     def width_for(self, height):
         scale = height / float(self.height)
@@ -17,7 +18,7 @@ class FlowImage(object):
         self.height = height
 
     def __repr__(self):
-        return 'FlowImage({id}, {w},{h})' \
+        return 'FlowImage({id},{w},{h})' \
             .format(id=self.id, w=self.width, h=self.height)
 
 
@@ -27,13 +28,41 @@ class FlowRow(object):
         :type flow: FlowCollection
         """
         self.flow = flow
-        self.row = []
+        self.images = []
 
-    def add(self, image, width, height):
-        if self.flow.check_sum(height, self.row) < self.flow.flow_width:
-            self.row.append(FlowImage(image, width, height))
+    def add(self, image):
+        width = self.flow.width_sum(self.flow_height, self.images)
+        if width < self.flow.flow_width or len(self.images) < 3:
+            self.images.append(image)
             return True
         return False
+
+    @property
+    def flow_height(self):
+        """
+        If more than 1 vertical image, make height * 1.2
+        """
+        if len([i for i in self.images if i.vertical]) > 1:
+            return int(self.flow.flow_height * 1.2)
+        return self.flow.flow_height
+
+    def update_size(self, row):
+        height = self.flow_height
+        while self.flow.width_sum(height, row) > self.flow.flow_width:
+            height -= 1
+        for image in row:
+            image.update(height)
+        return row
+
+    def has_items(self):
+        return bool(self.images)
+
+    def __iter__(self):
+        return iter(self.update_size(self.images))
+
+    def __repr__(self):
+        args = ', '.join(str(i) for i in self.update_size(self.images))
+        return 'FlowRow[{0}]'.format(args)
 
 
 class FlowCollection(object):
@@ -41,29 +70,32 @@ class FlowCollection(object):
         self.flow_width = flow_width
         self.flow_height = flow_height
         self.margin = margin
-        self.rows = []
-        self.buf = []
+        self.images = []
+        self._rows = []
 
-    def add(self, image, width, height):
-        self.buf.append(FlowImage(image, width, height))
-        if self.check_sum(self.flow_height, self.buf) > self.flow_width:
-            self.rows.append(tuple(self.buf))
-            self.buf = []
+    def add(self, images):
+        self.images = [FlowImage(i) for i in images]
+        self.images = self.pre_sort(self.images)
+        self.split()
 
-    def check_sum(self, height, row):
+    def pre_sort(self, images):
+        return images
+
+    def split(self):
+        row = FlowRow(self)
+        for image in self.images:
+            if not row.add(image):
+                self._rows.append(row)
+                row = FlowRow(self)
+                row.add(image)
+        if row.has_items():
+            self._rows.append(row)
+
+    def width_sum(self, height, row):
         return sum(i.width_for(height) + self.margin for i in row)
 
-    def optimise_row_height(self, row):
-        height = self.flow_height
-        while self.check_sum(height, row) > self.flow_width:
-            height -= 1
-        for image in row:
-            image.update(height)
-        return row
-
     def __iter__(self):
-        if self.buf:
-            self.rows.append(tuple(self.buf))
-        for row in self.rows:
-            for image in self.optimise_row_height(row):
+        print(self._rows)
+        for row in self._rows:
+            for image in row:
                 yield image

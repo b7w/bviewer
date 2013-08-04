@@ -54,10 +54,13 @@ def flow_view(request, uid):
 
     width = int(request.GET.get('width'))
     margin = int(request.GET.get('margin').replace('px', ''))
-    flow = FlowCollection(width, 400, margin * 2)
+    #TODO: patch Image, need pre save it to db
     for image in images:
         exif = storage.exif(image.path)
-        flow.add(image, exif.width, exif.height)
+        image.width = exif.width
+        image.height = exif.height
+    flow = FlowCollection(width, 400, margin * 2)
+    flow.add(images)
 
     return render(request, 'flow/flow.html', {
         'flow': flow,
