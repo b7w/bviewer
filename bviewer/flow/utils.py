@@ -62,6 +62,8 @@ class FlowCollection(object):
         return row
 
     def __iter__(self):
+        if self.buf:
+            self.rows.append(tuple(self.buf))
         for row in self.rows:
             for image in self.optimise_row_height(row):
                 yield image
