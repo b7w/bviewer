@@ -29,9 +29,10 @@
 
         function get_margin() {
             var tmp = jQuery('<span></span>').hide().addClass('preview').appendTo('.flow');
-            var margin = tmp.css('margin');
+            var marginLeft = tmp.css('margin-left').replace('px', '');
+            var marginRight = tmp.css('margin-right').replace('px', '');
             tmp.remove();
-            return margin;
+            return Number(marginLeft) + Number(marginRight);
         }
 
         jQuery.get('/flow/{{ main.id }}/images/', {width: width, margin: get_margin()}, function (data) {
