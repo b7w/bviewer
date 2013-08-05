@@ -18,7 +18,7 @@ class FlowImage(object):
         self.height = height
 
     def __repr__(self):
-        return 'FlowImage({id},{w},{h})' \
+        return 'FlowImage({id}, {w}, {h})' \
             .format(id=self.id, w=self.width, h=self.height)
 
 
@@ -75,13 +75,9 @@ class FlowCollection(object):
 
     def add(self, images):
         self.images = [FlowImage(i) for i in images]
-        self.images = self.pre_sort(self.images)
-        self.split()
+        self.split_for_rows()
 
-    def pre_sort(self, images):
-        return images
-
-    def split(self):
+    def split_for_rows(self):
         row = FlowRow(self)
         for image in self.images:
             if not row.add(image):
@@ -95,7 +91,9 @@ class FlowCollection(object):
         return sum(i.width_for(height) + self.margin for i in row)
 
     def __iter__(self):
-        print(self._rows)
         for row in self._rows:
             for image in row:
                 yield image
+
+    def __repr__(self):
+        return 'FlowCollection[{0}]'.format(list(self))
