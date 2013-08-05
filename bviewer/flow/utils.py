@@ -5,15 +5,15 @@ class FlowImage(object):
     def __init__(self, entity):
         self.id = entity.id
         self.entity = entity
-        self.width = entity.width
-        self.height = entity.height
+        self.width = entity.exif.width
+        self.height = entity.exif.height
         self.vertical = self.height > self.width
 
     def width_for(self, height):
         scale = height / float(self.height)
         return int(self.width * scale)
 
-    def update(self, height):
+    def update_size(self, height):
         self.width = self.width_for(height)
         self.height = height
 
@@ -46,22 +46,22 @@ class FlowRow(object):
             return int(self.flow.flow_height * 1.2)
         return self.flow.flow_height
 
-    def update_size(self, row):
+    def scale_size(self, row):
         height = self.flow_height
         while self.flow.width_sum(height, row) > self.flow.flow_width:
             height -= 1
         for image in row:
-            image.update(height)
+            image.update_size(height)
         return row
 
     def has_items(self):
         return bool(self.images)
 
     def __iter__(self):
-        return iter(self.update_size(self.images))
+        return iter(self.scale_size(self.images))
 
     def __repr__(self):
-        args = ', '.join(str(i) for i in self.update_size(self.images))
+        args = ', '.join(str(i) for i in self.scale_size(self.images))
         return 'FlowRow[{0}]'.format(args)
 
 
