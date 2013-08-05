@@ -383,7 +383,7 @@ button {
 .album .preview .caption {
     position: absolute;
     opacity: 0;
-    bottom: 4px;
+    bottom: 5px;
     right: 6px;
     -webkit-transition: all 1s ease;
     -moz-transition: all 1s ease;
@@ -434,10 +434,7 @@ button {
 .flow .preview {
     float: left;
     position: relative;
-    margin: 8px 8px;
-}
-
-.flow .preview-body {
+    margin: 8px;
 }
 
 .flow .preview-body img {
@@ -448,11 +445,15 @@ button {
     -o-transition: opacity 2s;
 }
 
+.flow .preview:hover .caption {
+    opacity: 0.48;
+}
+
 .flow .preview .caption {
     position: absolute;
     opacity: 0;
-    bottom: 4px;
-    right: 6px;
+    bottom: 1px;
+    right: 2px;
     -webkit-transition: all 1s ease;
     -moz-transition: all 1s ease;
     -o-transition: all 1s ease;
