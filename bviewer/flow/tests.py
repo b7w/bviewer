@@ -3,7 +3,7 @@ from mock import Mock
 
 from django.test import TestCase
 
-from bviewer.flow.controllers import FlowImage, FlowRow
+from bviewer.flow.controllers import FlowImage, FlowRow, FlowController
 
 
 class FlowImageTest(TestCase):
@@ -75,5 +75,9 @@ class FlowRowTest(TestCase):
 
 
 class FlowControllerTest(TestCase):
-    def test_flow_image(self):
-        pass
+    def test_flow(self):
+        exif = Mock(width=600, height=300)
+        images = [Mock(id=str(i), exif=exif) for i in range(7)]
+        flow = FlowController(images, 1000, 400, 10)
+        self.assertEqual(len(flow._rows), 3)
+        self.assertEqual(len(list(flow)), 7)
