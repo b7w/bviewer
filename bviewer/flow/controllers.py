@@ -25,7 +25,7 @@ class FlowImage(object):
 class FlowRow(object):
     def __init__(self, flow):
         """
-        :type flow: FlowCollection
+        :type flow: FlowController
         """
         self.flow = flow
         self.images = []
@@ -65,16 +65,13 @@ class FlowRow(object):
         return 'FlowRow[{0}]'.format(args)
 
 
-class FlowCollection(object):
-    def __init__(self, flow_width, flow_height, margin):
+class FlowController(object):
+    def __init__(self, images, flow_width, flow_height, margin):
         self.flow_width = flow_width
         self.flow_height = flow_height
         self.margin = margin
-        self.images = []
-        self._rows = []
-
-    def add(self, images):
         self.images = [FlowImage(i) for i in images]
+        self._rows = []
         self.split_for_rows()
 
     def split_for_rows(self):
