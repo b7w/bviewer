@@ -7,7 +7,7 @@ from django.views.decorators.vary import vary_on_cookie
 from bviewer.core.controllers import get_gallery_user, GalleryController
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.views import message_view
-from bviewer.flow.utils import FlowCollection
+from bviewer.flow.controllers import FlowController
 
 
 @cache_page(60 * 60)
@@ -50,12 +50,10 @@ def flow_view(request, uid):
     if not main:
         raise Http404('No such gallery')
     images = controller.get_images()
-    storage = ImageStorage(holder)
 
     width = int(request.GET.get('width'))
     margin = int(request.GET.get('margin').replace('px', ''))
-    flow = FlowCollection(width, 400, margin * 2)
-    flow.add(images)
+    flow = FlowController(images, width, 400, margin * 2)
 
     return render(request, 'flow/flow.html', {
         'flow': flow,
