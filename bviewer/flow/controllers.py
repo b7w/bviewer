@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 
 
 class FlowImage(object):
@@ -43,7 +44,7 @@ class FlowRow(object):
         If more than 1 vertical image, make height * 1.2
         """
         if len([i for i in self.images if i.vertical]) > 1:
-            return int(self.flow.flow_height * 1.2)
+            return self.flow.flow_height_extra
         return self.flow.flow_height
 
     def scale_size(self, row):
@@ -69,9 +70,10 @@ class FlowRow(object):
 
 
 class FlowController(object):
-    def __init__(self, images, flow_width, flow_height, margin):
+    def __init__(self, images, flow_width, margin, flow_height=None, flow_height_extra=None):
         self.flow_width = flow_width
-        self.flow_height = flow_height
+        self.flow_height = flow_height or settings.FLOW_HEIGHT
+        self.flow_height_extra = flow_height_extra or settings.FLOW_HEIGHT_EXTRA
         self.margin = margin
         self.images = [FlowImage(i) for i in images]
         self._rows = []
