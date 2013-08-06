@@ -1,10 +1,10 @@
 {% load staticfiles %}
 
 {% for item in flow %}
-    <li id="{{ item.id }}" class="preview" style="width: {{ item.width }}px; height: {{ item.height }}px;">
-        <div class="preview-body">
+    <li id="{{ item.id }}" class="preview">
+        <div class="preview-body" style="width: {{ item.width }}px; height: {{ item.height }}px;">
             <a class="shadowbox" href="{% url 'core.download' 'big' item.id %}" rel="shadowbox[images]">
-                <img data-src="{% url 'core.download' 'flow' item.id %}" style="width: {{ item.width }}px; height: {{ item.height }}px;">
+                <img data-src="{% url 'core.download' 'flow' item.id %}">
             </a>
 
             <div class="caption">
