@@ -31,7 +31,7 @@ class FlowRow(object):
         self.images = []
 
     def add(self, image):
-        width = self.flow.width_sum(self.flow_height, self.images)
+        width = self.width_sum(self.flow_height, self.images)
         if width < self.flow.flow_width or len(self.images) < 3:
             self.images.append(image)
             return True
@@ -48,11 +48,14 @@ class FlowRow(object):
 
     def scale_size(self, row):
         height = self.flow_height
-        while self.flow.width_sum(height, row) > self.flow.flow_width:
+        while self.width_sum(height, row) > self.flow.flow_width:
             height -= 1
         for image in row:
             image.update_size(height)
         return row
+
+    def width_sum(self, height, row):
+        return sum(i.width_for(height) + self.flow.margin for i in row)
 
     def has_items(self):
         return bool(self.images)
@@ -83,9 +86,6 @@ class FlowController(object):
                 row.add(image)
         if row.has_items():
             self._rows.append(row)
-
-    def width_sum(self, height, row):
-        return sum(i.width_for(height) + self.margin for i in row)
 
     def __iter__(self):
         for row in self._rows:
