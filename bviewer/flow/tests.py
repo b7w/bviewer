@@ -3,7 +3,7 @@ from mock import Mock
 
 from django.test import TestCase
 
-from bviewer.flow.controllers import FlowImage, FlowRow, FlowController
+from bviewer.flow.controllers import FlowImage, FlowRow
 
 
 class FlowImageTest(TestCase):
@@ -29,22 +29,20 @@ class FlowImageTest(TestCase):
 
 class FlowRowTest(TestCase):
     def test_flow_row_add(self):
-        flow = Mock(flow_width=1000)
-        row = FlowRow(flow)
+        row = FlowRow(flow=Mock(flow_width=1000))
         image = Mock(vertical=False)
 
-        flow.width_sum = lambda f, s: 600
+        row.width_sum = lambda f, s: 600
         self.assertTrue(row.add(image))
 
-        flow.width_sum = lambda f, s: 1200
+        row.width_sum = lambda f, s: 1200
         self.assertTrue(row.add(image))
         self.assertTrue(row.add(image))
 
         self.assertFalse(row.add(image))
 
     def test_flow_row_height(self):
-        flow = Mock(flow_height=100)
-        row = FlowRow(flow)
+        row = FlowRow(flow=Mock(flow_height=100))
 
         row.images = [Mock(vertical=True), Mock(vertical=False), Mock(vertical=False)]
         self.assertEqual(row.flow_height, 100)
@@ -66,7 +64,7 @@ class FlowRowTest(TestCase):
         image3 = FlowImage(entity)
         images = [image1, image2, image3]
 
-        flow = FlowController([], 1200, 400, 0)
+        flow = Mock(flow_width=1200, flow_height=400, margin=0)
         row = FlowRow(flow)
 
         width_sum = sum(i.width for i in row.scale_size(images))
