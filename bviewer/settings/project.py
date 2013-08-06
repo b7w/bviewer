@@ -61,6 +61,12 @@ VIEWER_IMAGE_SIZE = {
     },
 }
 
+# Default flow image height
+FLOW_HEIGHT = 400
+
+# Flow height for some extra rows
+# For example if row have more than 2 vertical images
+FLOW_HEIGHT_EXTRA = 500
 
 # X-Accel-Redirect for web server to improve file serving, highly recommended!
 # Set cache true to activate redirect response caching, it save 2 queries per image.

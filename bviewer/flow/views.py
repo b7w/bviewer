@@ -52,7 +52,7 @@ def flow_view(request, uid):
 
     width = int(request.GET.get('width'))
     margin = int(request.GET.get('margin').replace('px', ''))
-    flow = FlowController(images, width, 400, margin * 2)
+    flow = FlowController(images, width, margin)
 
     return render(request, 'flow/flow.html', {
         'flow': flow,

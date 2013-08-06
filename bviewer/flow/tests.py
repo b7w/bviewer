@@ -42,7 +42,7 @@ class FlowRowTest(TestCase):
         self.assertFalse(row.add(image))
 
     def test_flow_row_height(self):
-        row = FlowRow(flow=Mock(flow_height=100))
+        row = FlowRow(flow=Mock(flow_height=100, flow_height_extra=120))
 
         row.images = [Mock(vertical=True), Mock(vertical=False), Mock(vertical=False)]
         self.assertEqual(row.flow_height, 100)
@@ -69,8 +69,11 @@ class FlowRowTest(TestCase):
 
         width_sum = sum(i.width for i in row.scale_size(images))
         self.assertEqual(width_sum, 1200)
+        self.assertEqual(image1.width, 400)
         self.assertEqual(image1.height, 200)
+        self.assertEqual(image2.width, 400)
         self.assertEqual(image2.height, 200)
+        self.assertEqual(image2.width, 400)
         self.assertEqual(image3.height, 200)
 
 
