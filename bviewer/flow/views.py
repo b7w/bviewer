@@ -5,7 +5,6 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 
 from bviewer.core.controllers import get_gallery_user, GalleryController
-from bviewer.core.files.storage import ImageStorage
 from bviewer.core.views import message_view
 from bviewer.flow.controllers import FlowController
 
