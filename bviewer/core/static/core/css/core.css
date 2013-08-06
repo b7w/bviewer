@@ -443,6 +443,11 @@ button {
     -moz-transition: opacity 2s;
     -webkit-transition: opacity 2s;
     -o-transition: opacity 2s;
+    box-shadow: 0 0 16px 2px rgba(255, 255, 255, 0.15);
+}
+
+.flow .preview:hover img {
+    box-shadow: 0 0 16px 2px rgba(255, 255, 255, 0.25);
 }
 
 .flow .preview:hover .caption {
