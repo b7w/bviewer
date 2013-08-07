@@ -7,6 +7,7 @@ Release notes
 | **v1.0.3 dev**
 | Some clean up
 
+* Add image count in gallery profile
 * Clear and rewrite a little css
 * Remove link from preview to separate image view
 

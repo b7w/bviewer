@@ -54,8 +54,9 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
     fields = ('parent', 'title', 'visibility', 'gallery_sorting', 'images', 'description', 'time', 'thumbnails', )
 
     def images(self, obj):
-        return '<b><a href="{0}">Select images on disk</a></b>' \
-            .format(reverse('profile.gallery', kwargs=dict(uid=obj.id)))
+        gl_count = Image.objects.filter(gallery=obj).count()
+        return '<b><a href="{0}">Select images on disk ({1})</a></b>' \
+            .format(reverse('profile.gallery', kwargs=dict(uid=obj.id)), gl_count)
 
     images.allow_tags = True
 
