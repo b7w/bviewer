@@ -22,7 +22,6 @@ Release notes
   Need database scheme update. Need update local.py setting file, change import statement.
 
 | ``ALTER TABLE core_gallery ADD COLUMN gallery_sorting smallint NOT NULL DEFAULT 1;``
-  (v194:4b54f1ac9c78)
 
 * Fix not playing video from js gallery
 * Add RQ_DEBUG settings
