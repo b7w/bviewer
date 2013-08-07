@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+from collections import Counter
 import os
 
 from django.contrib.admin import AdminSite
 from django.contrib.auth.admin import UserAdmin
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
+from django.utils.encoding import smart_text
 
 from bviewer.core.admin import ModelAdmin, ProxyUserForm
 from bviewer.core.models import Gallery, Image, ProxyUser, Video
@@ -54,11 +56,27 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
     fields = ('parent', 'title', 'visibility', 'gallery_sorting', 'images', 'description', 'time', 'thumbnails', )
 
     def images(self, obj):
-        gl_count = Image.objects.filter(gallery=obj).count()
-        return '<b><a href="{0}">Select images on disk ({1})</a></b>' \
-            .format(reverse('profile.gallery', kwargs=dict(uid=obj.id)), gl_count)
+        url = reverse('profile.gallery', kwargs=dict(uid=obj.id))
+        path = self.images_expected_path(obj)
+        count = Image.objects.filter(gallery=obj).count()
+        return smart_text('<b><a href="{url}?p={p}">Select images on disk ({count})</a></b>') \
+            .format(url=url, p=path, count=count)
 
     images.allow_tags = True
+
+    def images_expected_path(self, gallery):
+        """
+        Get some gallery images
+        and detect most popular directory where they stored.
+        If will save some clicks in UI.
+        """
+        images = Image.objects.filter(gallery=gallery)[:8]
+        dir_paths = [os.path.dirname(i.path) for i in images]
+        most_common = Counter(dir_paths).most_common(1)
+        if most_common:
+            path, count = most_common[0]
+            return path
+        return ''
 
     def thumbnails(self, obj):
         context = dict(images=Image.objects.filter(gallery=obj.id), obj=obj)
