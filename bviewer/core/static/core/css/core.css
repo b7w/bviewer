@@ -321,29 +321,6 @@ button {
 
 /* START PREVIEW */
 
-.carousel-caption {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    padding: 15px;
-    background: #333;
-    background: rgba(0, 0, 0, 0.75)
-}
-
-.carousel-caption h4, .carousel-caption p {
-    line-height: 20px;
-    color: #EEE;
-}
-
-.carousel-caption h4 {
-    margin: 0 0 5px
-}
-
-.carousel-caption p {
-    margin-bottom: 0
-}
-
 .preview {
     float: left;
     position: relative;
@@ -358,12 +335,8 @@ button {
     right: 10px;
     top: 10px;
     bottom: 10px;
-    /*overflow: hidden;*/
     border: 1px solid #222;
     padding: 6px;
-    /*max real image size*/
-    /*max-width: 320px;*/
-    /*max-height: 320px;*/
 }
 
 .preview-body:hover {
@@ -400,6 +373,8 @@ button {
     opacity: 0.9;
 }
 
+/* PREVIEW CAPTION */
+
 .preview .caption {
     position: absolute;
     opacity: 0;
@@ -414,16 +389,37 @@ button {
     margin-left: 2px;
 }
 
-.preview .caption .url-core-image {
-    opacity: 0.32;
-}
-
 .preview:hover .caption {
     opacity: 0.48;
 }
 
 .preview .caption:hover {
     opacity: 1;
+}
+
+/* PREVIEW CAROUSEL */
+
+.carousel-caption {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 15px;
+    background: #333;
+    background: rgba(0, 0, 0, 0.75)
+}
+
+.carousel-caption h4, .carousel-caption p {
+    line-height: 20px;
+    color: #EEE;
+}
+
+.carousel-caption h4 {
+    margin: 0 0 5px
+}
+
+.carousel-caption p {
+    margin-bottom: 0
 }
 
 .preview .carousel-description {
