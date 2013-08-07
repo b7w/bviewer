@@ -88,5 +88,27 @@ var core = {
         jQuery('.preview img').bind('load', function () {
             jQuery(this).css({opacity: 1});
         });
+    },
+
+    loadFlow: function (galleryId) {
+        var width = jQuery('.album-title').width();
+
+        function get_margin() {
+            var tmp = jQuery('<span></span>').hide().addClass('preview').appendTo('.flow');
+            var marginLeft = tmp.css('margin-left').replace('px', '');
+            var marginRight = tmp.css('margin-right').replace('px', '');
+            tmp.remove();
+            return Number(marginLeft) + Number(marginRight);
+        }
+
+        function load_flow() {
+            jQuery.get('/flow/' + galleryId + '/images/', {width: width, margin: get_margin()}, function (data) {
+                jQuery('.flow').html(data);
+                core.imageLoading();
+                core.shadowbox();
+            });
+        }
+
+        load_flow();
     }
 };

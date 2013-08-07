@@ -25,20 +25,6 @@
     <script id="shadowbox.js" src="{% static 'core/js/shadowbox.min.js' %}" type="text/javascript"></script>
     <script id="shadowbox.js" src="{% static 'core/js/core.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
-        var width = jQuery('.album-title').width();
-
-        function get_margin() {
-            var tmp = jQuery('<span></span>').hide().addClass('preview').appendTo('.flow');
-            var marginLeft = tmp.css('margin-left').replace('px', '');
-            var marginRight = tmp.css('margin-right').replace('px', '');
-            tmp.remove();
-            return Number(marginLeft) + Number(marginRight);
-        }
-
-        jQuery.get('/flow/{{ main.id }}/images/', {width: width, margin: get_margin()}, function (data) {
-            jQuery('.flow').append(data);
-            core.imageLoading();
-            core.shadowbox();
-        });
+        core.loadFlow('{{ main.id }}');
     </script>
 {% endblock %}
