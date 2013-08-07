@@ -12,7 +12,7 @@ class FlowImage(object):
 
     def width_for(self, height):
         scale = height / float(self.height)
-        return int(self.width * scale)
+        return int(round(self.width * scale))
 
     def update_size(self, height):
         self.width = self.width_for(height)
