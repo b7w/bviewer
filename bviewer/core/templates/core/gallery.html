@@ -10,13 +10,13 @@
 {% endblock %}
 
 {% block main %}
-    <div class="album-title">
+    <div class="gallery-title">
         <h2>{{ main.title }}</h2>
 
         <p class="description">{{ main.description|linebreaksbr }}</p>
     </div>
 
-    <ul class="album">
+    <ul class="gallery">
         {% for item in videos %}
             <li id="{{ item.id }}" class="preview" data-ref-touch="{% url 'core.video' item.id %}">
                 <div class="preview-body">
