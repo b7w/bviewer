@@ -111,21 +111,21 @@ class GalleryController(BaseController):
         """
         return not bool(self.get_galleries())
 
-    def get_images(self):
+    def get_images(self, force=False):
         """
         Filter images by uid, no any visibility check.
-        If `is_album` else return []
+        If `is_album` or force else return []
         """
-        if self.is_album():
+        if self.is_album() or force:
             return Image.objects.filter(gallery=self.uid)
         return []
 
-    def get_videos(self):
+    def get_videos(self, force=False):
         """
         Filter videos by uid, no any visibility check.
-        If `is_album` else return []
+        If `is_album` and not force else return []
         """
-        if self.is_album():
+        if self.is_album() or force:
             return Video.objects.filter(gallery=self.uid)
         return []
 

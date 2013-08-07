@@ -31,11 +31,11 @@ def images_view(request, uid):
     if not main:
         return message_view(request, message='No such gallery')
 
-    images = set(i.path for i in controller.get_images())
+    image_paths = set(i.path for i in controller.get_images(force=True))
     storage = ImageStorage(holder)
     path = request.GET.get('p', '')
     try:
-        folder = ImageFolder(path, storage.list(path, images))
+        folder = ImageFolder(path, storage.list(path, image_paths))
     except FileError as e:
         logger.exception(e)
         return message_view(request, message=smart_text(e))
