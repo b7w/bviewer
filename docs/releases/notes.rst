@@ -5,8 +5,10 @@ Release notes
 .. index:: Release notes
 
 | **v1.0.3 dev**
-| Some clean up
+| Improve profile site, fix some bugs.
 
+* Fix bug when new image allowed to add to not user gallery
+* Simplified admin and profile code
 * Add auto detect image path in profile
 * Add image count in gallery profile
 * Clear and rewrite a little css

@@ -2,13 +2,13 @@
 from collections import Counter
 import os
 
-from django.contrib.admin import AdminSite
+from django.contrib.admin import AdminSite, ModelAdmin
 from django.contrib.auth.admin import UserAdmin
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
 from django.utils.encoding import smart_text
 
-from bviewer.core.admin import ModelAdmin, ProxyUserForm
+from bviewer.core.admin import ProxyUserForm
 from bviewer.core.models import Gallery, Image, ProxyUser, Video
 
 
@@ -98,8 +98,11 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
         obj.save()
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
-        if db_field.name == 'parent' and self.object:
-            kwargs['queryset'] = Gallery.objects.filter(user__id=self.object.user.id)
+        """
+        Show in drop down menu only user galleries
+        """
+        if db_field.name == 'parent':
+            kwargs['queryset'] = Gallery.objects.filter(user=request.user)
         return super(ProfileGalleryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     class Media(object):
@@ -130,8 +133,11 @@ class ProfileImageAdmin(ProfileModelAdmin):
         return super(ProfileImageAdmin, self).queryset(request).filter(gallery__user=request.user)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
-        if db_field.name == 'gallery' and self.object:
-            kwargs['queryset'] = Gallery.objects.filter(user__id=self.object.gallery.user.id)
+        """
+        Show in drop down menu only user galleries
+        """
+        if db_field.name == 'gallery':
+            kwargs['queryset'] = Gallery.objects.filter(user=request.user)
         return super(ProfileImageAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
@@ -155,10 +161,10 @@ class ProfileVideoAdmin(ProfileModelAdmin):
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """
-        Show in drop down menu only user galleries and images
+        Show in drop down menu only user galleries
         """
-        if db_field.name == 'gallery' and self.object:
-            kwargs['queryset'] = Gallery.objects.filter(user__id=self.object.gallery.user.id)
+        if db_field.name == 'gallery':
+            kwargs['queryset'] = Gallery.objects.filter(user=request.user)
         return super(ProfileVideoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
@@ -189,10 +195,10 @@ class ProfileUserAdmin(ProfileModelAdmin, UserAdmin):
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """
-        Show in drop down menu only user galleries and images
+        Show in drop down menu only user galleries
         """
-        if db_field.name == 'top_gallery' and self.object:
-            kwargs['queryset'] = Gallery.objects.filter(user__id=self.object.id)
+        if db_field.name == 'top_gallery':
+            kwargs['queryset'] = Gallery.objects.filter(use=request.user)
         return super(ProfileUserAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
