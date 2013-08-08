@@ -4,7 +4,7 @@ Release notes
 
 .. index:: Release notes
 
-| **v1.0.3 dev**
+| **v1.0.3** - *8.08.1013*
 | Improve profile site, fix some bugs. Remove link from preview to separate image view.
 
 * Fix bug when new image allowed to add to not user gallery
