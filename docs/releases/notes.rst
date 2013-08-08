@@ -5,7 +5,7 @@ Release notes
 .. index:: Release notes
 
 | **v1.0.3 dev**
-| Improve profile site, fix some bugs.
+| Improve profile site, fix some bugs. Remove link from preview to separate image view.
 
 * Fix bug when new image allowed to add to not user gallery
 * Simplified admin and profile code

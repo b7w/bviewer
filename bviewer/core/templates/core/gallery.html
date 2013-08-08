@@ -18,7 +18,7 @@
 
     <ul class="gallery">
         {% for item in videos %}
-            <li id="{{ item.id }}" class="preview" data-ref-touch="{% url 'core.video' item.id %}">
+            <li id="{{ item.id }}" class="preview">
                 <div class="preview-body">
                     <a class="shadowbox" href="{{ item.url }}" rel="shadowbox[videos];width=960;height=540;title={{ item.title }}">
                         <img data-src="{% url 'core.video.thumbnail' item.id %}">
@@ -37,7 +37,7 @@
             </li>
         {% endfor %}
         {% for item in images %}
-            <li id="{{ item.id }}" class="preview" data-ref-touch="{% url 'core.image' item.id %}">
+            <li id="{{ item.id }}" class="preview">
                 <div class="preview-body">
                     <a class="shadowbox" href="{% url 'core.download' 'big' item.id %}" rel="shadowbox[images]">
                         <img data-src="{% url 'core.download' 'small' item.id %}">
