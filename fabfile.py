@@ -2,93 +2,56 @@
 #
 # Simple fab file to help start, run and test application
 #
-import os
-import sys
-import shutil
 
-from bviewer import settings
-from bviewer.settings import test as settings_test
+from fabric.api import run
+from fabric.context_managers import cd, hide
+from fabric.utils import puts
 
 
-__all__ = ['syncdb', 'test', 'clear', 'static']
-
-MANAGE_PY = os.path.join(getattr(settings, 'PROJECT_PATH'), 'manage.py')
+__all__ = ['test', 'clear', 'static']
 
 
-def list_files(path, ends=None):
-    """
-    Return list with full path paths to all files under ``path`` directory.
-    if ``ends`` contains list of file extensions only this files will be included.
-    """
-
-    def _list_files(path, array):
-        for name in os.listdir(path):
-            full_path = os.path.join(path, name)
-            if os.path.isdir(full_path):
-                array = _list_files(full_path, array)
-            if os.path.isfile(full_path):
-                if ends is not None:
-                    for ext in ends:
-                        if full_path.endswith('.' + ext):
-                            array.append(full_path)
-        return array
-
-    return _list_files(path, [])
-
-
-def syncdb():
-    """
-    Sync database, just a proxy command
-    """
-    print('[ INFO ] Sync database')
-    os.system('python {0} -- syncdb'.format(MANAGE_PY))
-
-
-def test():
+def test(path):
     """
     Runs app tests, just a proxy command
     """
-    print('[ INFO ] Run core module tests ')
-    os.system('python {0} test core --settings=bviewer.settings.test'.format(MANAGE_PY))
-    print('[ INFO ] Run api module tests ')
-    os.system('python {0} test api --settings=bviewer.settings.test'.format(MANAGE_PY))
-    print('[ INFO ] Run archive module tests ')
-    os.system('python {0} test archive --settings=bviewer.settings.test'.format(MANAGE_PY))
+    puts('Runs app tests')
+    with cd(path):
+        puts('Core module tests ')
+        run('python manage.py test core --settings=bviewer.settings.test')
+        puts('API module tests ')
+        run('python manage.py test api --settings=bviewer.settings.test')
+        puts('Archive module tests ')
+        run('python manage.py test archive --settings=bviewer.settings.test')
 
 
-def clear():
+def clear(path):
     """
     Delete cache, just a proxy command
     """
-    print('[ INFO ] Delete all cache')
-    if os.path.exists(settings.VIEWER_CACHE_PATH):
-        shutil.rmtree(settings.VIEWER_CACHE_PATH)
+    puts('Delete all cache')
+    with cd(path):
+        puts('Core module tests ')
+        run('rm -rf cache')
+        run('rm -rf tests')
 
-    if os.path.exists(settings_test.VIEWER_TESTS_PATH):
-        shutil.rmtree(settings_test.VIEWER_TESTS_PATH)
 
-
-def static():
+def static(path):
     """
     Collect and gzip static files.
     """
+    puts('Collect and gzip static files')
+    with cd(path):
+        run('python manage.py collectstatic --noinput')
 
-    print('[ INFO ] Collect and gzip static')
-    os.system('python {manage} collectstatic --noinput'.format(manage=MANAGE_PY))
+        with hide('running', 'stdout'):
+            puts('run: gzip -6 -c ...')
 
-    files = list_files(settings.STATIC_ROOT, ('css', 'js',))
-    for item in files:
-        os.system('gzip -6 -c {0} > {0}.gz'.format(item))
-    os.system('find {0} -type f -exec chmod {1} {{}} \;'.format(settings.STATIC_ROOT, 644))
+            paths = run('find static -name "*.js" -type f')
+            for js_path in paths.split():
+                run('gzip -6 -c {0} > {0}.gz'.format(js_path))
+            paths = run('find static -name "*.css" -type f')
+            for css_path in paths.split():
+                run('gzip -6 -c {0} > {0}.gz'.format(css_path))
 
-
-def help():
-    """
-    Print help for commands
-    """
-    print('Usage: fab command[:arg,arg2] command ..')
-    print('')
-    module = sys.modules[__name__]
-    for item in __all__:
-        attr = module.__dict__[item]
-        print( '{name} {doc}'.format(name=item, doc=attr.__doc__) )
+            run('find static -type f -exec chmod 644 {} \;')
