@@ -112,7 +112,7 @@ Models
 
 .. index:: Gallery model
 
-| Model to store tree galleries.
+| *Gallery model*
   **Parent** - for example ``ProxyUser.top_gallery`` to show on home page.
   **User** - not show on user profile, editable only by admin.
   **Visibility** - Type of visibility.
@@ -120,6 +120,8 @@ Models
   HIDDEN - not visible in gallery tree but can be access if you know url,
   PRIVATE - visible and accessible only for gallery holder.
   *If parent is None it will be hidden from gallery tree for holder too.*
+  **Gallery sorting** - Sort order of the nested galleries on time.
+  ASK - Ascending, DESK - Descending.
   **Thumbnail** - image of gallery tile.
 
 .. code-block:: python
@@ -130,13 +132,15 @@ Models
         title = models.CharField(max_length=256)
         user = models.ForeignKey(ProxyUser)
         visibility = models.SmallIntegerField(max_length=1, choices=VISIBILITY_CHOICE, default=VISIBLE)
+        gallery_sorting = models.SmallIntegerField(max_length=1, choices=SORT_CHOICE, default=ASK)
         description = models.TextField(max_length=512, null=True)
         thumbnail = models.ForeignKey('Image', null=True)
         time = models.DateTimeField(default=datetime.now)
 
 .. index:: Image model
 
-| Model to store path to images.
+| **Image model**. Store path to files. Do not store exif in database,
+  images can be changed so this will to redundant file reads.
   **Gallery** - gallery FK.
   **Path** - relative path fom user home. For example: ``[/home/bviewer/data/[user]]/gallery1/img1.jpg``.
   **Time** - default time will be taken from image exif.
@@ -151,7 +155,7 @@ Models
 
 .. index:: Video model
 
-| Model to store Vimio or YouTube links.
+| **Video model**. Store Vimio or YouTube links.
   **UID** - vimio or YouTube video id.
   **Type** - VIMIO or YOUTUBE.
   **Gallery** - gallery FK.
