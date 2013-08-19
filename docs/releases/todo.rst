@@ -15,3 +15,7 @@ ToDo plan
     It is normal but not the best choice. 3 columns with max fit thumbnails looks very cool.
     To take maximum from that style it is better to mix landscapes and portraits.
     I'm not really understand how to implement this, but I want.
+
+* | **Exif**
+  | Sometimes it is necessary to get some exif info. Best ways to show it in right mouse click menu.
+    Also there we can display links to download images in different sizes.
