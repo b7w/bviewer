@@ -4,6 +4,13 @@ Release notes
 
 .. index:: Release notes
 
+| **v1.0.4 dev**
+| Fix some bugs.
+
+* Update documentation to last changes
+
+
+
 | **v1.0.3** - *8.08.1013*
 | Improve profile site, fix some bugs. Remove link from preview to separate image view.
 
