@@ -8,7 +8,7 @@ from fabric.operations import sudo
 from fabric.utils import puts
 
 
-__all__ = ['test', 'clear', 'static', 'update', ]
+__all__ = ['test', 'clear', 'static', 'requirements', 'update', ]
 
 
 def test(path, user='believe'):
@@ -57,6 +57,14 @@ def static(path, user='believe'):
             sudo('find static -type f -exec chmod 644 {} \;', user=user)
 
 
+def requirements(path):
+    """
+    Run pip install -r requirements.txt
+    """
+    with cd(path):
+        sudo('pip install -r requirements.txt')
+
+
 def update(path, rev='default', user='believe'):
     """
     Update hg to rev='default'
@@ -67,4 +75,5 @@ def update(path, rev='default', user='believe'):
         sudo('hg update -r {0}'.format(rev), user=user)
 
     static(path, user=user)
+    requirements(path)
     sudo('service uwsgi restart')
