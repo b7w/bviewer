@@ -42,7 +42,7 @@ From packages
 .. code-block:: bash
 
     sudo apt-get install python-pip python-psycopg2 python-imaging
-    sudo pip install -r requirements.txt
+    sudo pip install django-rq django-tastypie==0.9.15 django>=1.5 fabric pytz redis
 
 From source
 -----------
@@ -53,7 +53,6 @@ From source
     sudo apt-get install libpq-dev
     sudo pip install psycopg2
     sudo apt-get install libjpeg-dev libfreetype6-dev zlib1g-dev
-    sudo pip install pillow
     sudo pip install -r requirements.txt
 
 

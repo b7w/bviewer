@@ -1,4 +1,4 @@
-#pillow
+pillow
 django-debug-toolbar
 django-rq
 django-tastypie==0.9.15
