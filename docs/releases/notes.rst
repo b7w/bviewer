@@ -8,7 +8,8 @@ Release notes
 | Fix some bugs.
 
 * Update documentation to last changes
-
+* Remake fabfile, add some features
+* Fix bug when with ctrl key gallery not open in new tab
 
 
 | **v1.0.3** - *8.08.1013*
