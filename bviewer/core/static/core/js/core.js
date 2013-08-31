@@ -103,6 +103,7 @@ var core = {
 
         function load_flow() {
             jQuery.get('/flow/' + galleryId + '/images/', {width: width, margin: get_margin()}, function (data) {
+                jQuery('.flow').removeClass('loading');
                 jQuery('.flow').html(data);
                 core.imageLoading();
                 core.shadowbox();

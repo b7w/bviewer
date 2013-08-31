@@ -257,7 +257,10 @@ button {
 
 /* START GALLERY */
 
-.tile {
+.loading {
+    padding-top: 96px;
+    height: 96px;
+    background: url("../img/loading2.gif") center no-repeat;
 }
 
 .flow {
