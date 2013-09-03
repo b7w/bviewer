@@ -198,7 +198,7 @@ class ProfileUserAdmin(ProfileModelAdmin, UserAdmin):
         Show in drop down menu only user galleries
         """
         if db_field.name == 'top_gallery':
-            kwargs['queryset'] = Gallery.objects.filter(use=request.user)
+            kwargs['queryset'] = Gallery.objects.filter(user=request.user)
         return super(ProfileUserAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 

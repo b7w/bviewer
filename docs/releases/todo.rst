@@ -6,7 +6,7 @@ ToDo plan
 
 
 * | **Any ideas?**
-  | You can write me email to isudoblog@gmail.com or use issue tracker
+  | You can write me email to bviewer@isudo.ru or use issue tracker
     `bitbucket.org <https://bitbucket.org/B7W/believeviewer/issues?status=new&status=open>`__.
   | But do not wait that I will implement all proposals. I do not want one more CMS monster.
 

@@ -32,6 +32,7 @@ def index_view(request):
     galleries = controller.get_galleries()
 
     return render(request, 'core/galleries.html', {
+        'holder': holder,
         'main': main,
         'galleries': galleries,
     })
@@ -58,6 +59,7 @@ def gallery_view(request, uid):
     images = controller.get_images()
 
     return render(request, template, {
+        'holder': holder,
         'main': main,
         'galleries': galleries,
         'videos': videos,
@@ -82,6 +84,7 @@ def image_view(request, uid):
         return message_view(request, message='No such image')
 
     return render(request, 'core/image.html', {
+        'holder': holder,
         'gallery': image.gallery,
         'image': image,
         'back': dict(gallery_id=image.gallery_id),
@@ -104,6 +107,7 @@ def video_view(request, uid):
         return message_view(request, message='No such video')
 
     return render(request, 'core/video.html', {
+        'holder': holder,
         'gallery': video.gallery,
         'video': video,
         'back': dict(gallery_id=video.gallery_id),
@@ -181,6 +185,7 @@ def about_view(request):
         return message_view(request, message='No user defined')
 
     return render(request, 'core/about.html', {
+        'holder': holder,
         'title': holder.about_title,
         'text': holder.about_text,
     })

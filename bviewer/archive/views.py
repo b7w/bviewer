@@ -46,6 +46,7 @@ def index_view(request, gid):
 
     z.add_job()
     return render(request, 'archive/download.html', {
+        'holder': holder,
         'path': request.path,
         'link': link,
         'redirect': redirect,
