@@ -174,10 +174,11 @@ profile.register(Video, ProfileVideoAdmin)
 class ProfileUserAdmin(ProfileModelAdmin, UserAdmin):
     list_select_related = True
 
-    list_display = ('username', 'email', 'top_gallery', 'is_staff', )
+    list_display = ('username', 'url', 'email', 'top_gallery', 'is_staff', )
     list_filter = ()
 
     extra_fieldsets = (
+        ('Personal info', {'fields': ('username', 'first_name', 'last_name', 'email')}),
         ('Viewer info', {'fields': ('url', 'top_gallery', 'cache_size', 'cache_archive_size', )}),
         ('Additional info', {'fields': ('about_title', 'about_text',)}),
     )
