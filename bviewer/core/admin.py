@@ -4,7 +4,7 @@ import os
 from django.contrib.admin import site, ModelAdmin
 from django.contrib.auth.admin import UserAdmin
 from django import forms
-from django.forms import models
+from django.contrib.auth.forms import UserChangeForm
 
 from bviewer.core.utils import RaisingRange
 from bviewer.core.models import ProxyUser, Gallery, Image, Video
@@ -64,7 +64,7 @@ class VideoAdmin(ModelAdmin):
 site.register(Video, VideoAdmin)
 
 
-class ProxyUserForm(models.ModelForm):
+class ProxyUserForm(UserChangeForm):
     """
     Set for UserAdmin ProxyUser model except User.
     Add choice field for cache size filed.
@@ -73,14 +73,14 @@ class ProxyUserForm(models.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProxyUserForm, self).__init__(*args, **kwargs)
         self._set_choice('cache_size',
-                         cache_max=ProxyUser.CACHE_SIZE_MAX,
-                         cache_min=ProxyUser.CACHE_SIZE_MIN,
-                         base=16
+            cache_max=ProxyUser.CACHE_SIZE_MAX,
+            cache_min=ProxyUser.CACHE_SIZE_MIN,
+            base=16
         )
         self._set_choice('cache_archive_size',
-                         cache_max=ProxyUser.CACHE_ARCHIVE_SIZE_MAX,
-                         cache_min=ProxyUser.CACHE_ARCHIVE_SIZE_MIN,
-                         base=64
+            cache_max=ProxyUser.CACHE_ARCHIVE_SIZE_MAX,
+            cache_min=ProxyUser.CACHE_ARCHIVE_SIZE_MIN,
+            base=64
         )
 
     def _set_choice(self, field_name, cache_max, cache_min, base):
@@ -98,12 +98,14 @@ class ProxyUserAdmin(UserAdmin, ModelAdmin):
     list_display = ('username', 'email', 'is_staff', 'home', 'top_gallery', )
 
     extra_fieldsets = (
+        ('Account info', {'fields': ('username', 'password', )}),
+        ('Personal info', {'fields': ('email', 'first_name', 'last_name', )}),
         ('Viewer info', {'fields': ('url', 'home', 'top_gallery', 'cache_size', 'cache_archive_size', )}),
         ('Additional info', {'fields': ('about_title', 'about_text',)}),
     )
-    fieldsets = UserAdmin.fieldsets[:2] + extra_fieldsets + UserAdmin.fieldsets[2:]
+    fieldsets = extra_fieldsets + UserAdmin.fieldsets[2:]
+    readonly_fields = ('is_active', 'is_staff', 'last_login', 'date_joined', )
 
-    readonly_fields = ('password', 'is_active', 'is_staff', 'last_login', 'date_joined', )
     form = ProxyUserForm
 
 
