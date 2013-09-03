@@ -5,6 +5,8 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns('',
     url(r'^$', 'bviewer.core.views.index_view', name='core.home'),
     url(r'^about/$', 'bviewer.core.views.about_view', name='core.about'),
+    url(r'^login/$', 'bviewer.core.views.login_view', name='core.login'),
+    url(r'^logout/$', 'bviewer.core.views.logout_view', name='core.logout'),
     url(r'^gallery/(?P<uid>[\w]+)/$', 'bviewer.core.views.gallery_view', name='core.gallery'),
     url(r'^image/(?P<uid>\w+)/$', 'bviewer.core.views.image_view', name='core.image'),
     url(r'^video/(?P<uid>\w+)/$', 'bviewer.core.views.video_view', name='core.video'),

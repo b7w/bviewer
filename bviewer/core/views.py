@@ -2,6 +2,7 @@
 import logging
 
 from django.conf import settings
+from django.contrib.auth.views import login, logout
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.decorators.cache import cache_page
@@ -189,3 +190,23 @@ def about_view(request):
         'title': holder.about_title,
         'text': holder.about_text,
     })
+
+
+def login_view(request):
+    """
+    Proxy for `django.contrib.auth.views.login` + holder check
+    """
+    holder = get_gallery_user(request)
+    if not holder:
+        return message_view(request, message='No user defined')
+    return login(request, template_name='core/login.html', extra_context=dict(holder=holder))
+
+
+def logout_view(request):
+    """
+    Proxy for `django.contrib.auth.views.logout` + holder check
+    """
+    holder = get_gallery_user(request)
+    if not holder:
+        return message_view(request, message='No user defined')
+    return logout(request, next_page='/')
