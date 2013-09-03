@@ -10,6 +10,7 @@ Release notes
 * Update documentation to last changes
 * Remake fabfile, add some features
 * Fix bug when with ctrl key gallery not open in new tab
+* Refactor requirements, update tastypie to v0.10.0
 
 
 | **v1.0.3** - *8.08.1013*

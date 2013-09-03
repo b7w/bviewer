@@ -1,9 +1,16 @@
-pillow
-django-debug-toolbar
-django-rq
-django-tastypie==0.9.15
+# base
 django>=1.5
+django-rq
+django-tastypie==0.10.0
+redis
+pytz
+
+# build
+pillow
+psycopg2
+
+# develop
+django-debug-toolbar
 fabric
 mock
-pytz
-redis
+sphinx

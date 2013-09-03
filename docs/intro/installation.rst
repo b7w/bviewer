@@ -15,8 +15,8 @@ Requirements
   Also it is need Redis database for cache and tasks.
 
 | Application need these libraries to run:
-  ``django``, ``django-rq``, ``django-tastypie``, ``redis``, ``fabric``, ``pillow or PIL``.
-  And for development ``django-debug-toolbar``, ``mock``.
+  ``django``, ``django-rq``, ``django-tastypie``, ``redis``, ``pillow or PIL``, ``psycopg2``.
+  And for development ``django-debug-toolbar``, ``fabric``, ``mock``, ``sphinx``.
   For more details look ``requirements.txt``.
 
 | You can use any django supported database server.
@@ -25,7 +25,7 @@ Requirements
 
 .. note::
 
-    App tested only with ubuntu 12.04, python 2.7, postgres 9.1 and nginx 1.2.
+    App tested only with ubuntu 12.04, python 2.7, postgres 9 and uwsgi & nginx.
 
 
 Database driver and image library
@@ -50,9 +50,8 @@ From source
 .. code-block:: bash
 
     sudo apt-get install python-dev python-pip
-    sudo apt-get install libpq-dev
-    sudo pip install psycopg2
     sudo apt-get install libjpeg-dev libfreetype6-dev zlib1g-dev
+    sudo apt-get install libpq-dev
     sudo pip install -r requirements.txt
 
 
