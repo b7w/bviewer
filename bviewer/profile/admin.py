@@ -177,14 +177,14 @@ class ProfileUserAdmin(ProfileModelAdmin, UserAdmin):
     list_display = ('username', 'url', 'email', 'top_gallery', 'is_staff', )
     list_filter = ()
 
-    extra_fieldsets = (
-        ('Personal info', {'fields': ('username', 'first_name', 'last_name', 'email')}),
+    fieldsets = (
+        ('Account info', {'fields': ('username', 'password', )}),
+        ('Personal info', {'fields': ('email', 'first_name', 'last_name', )}),
         ('Viewer info', {'fields': ('url', 'top_gallery', 'cache_size', 'cache_archive_size', )}),
-        ('Additional info', {'fields': ('about_title', 'about_text',)}),
+        ('Additional info', {'fields': ('about_title', 'about_text', )}),
+        ('Important dates', {'fields': ('last_login', 'date_joined', )}),
     )
-    # Model field + important dates
-    fieldsets = extra_fieldsets + UserAdmin.fieldsets[-1:]
-    readonly_fields = ('password', 'last_login', 'date_joined', )
+    readonly_fields = ('last_login', 'date_joined', )
 
     form = ProxyUserForm
 
