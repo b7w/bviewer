@@ -4,14 +4,16 @@ Release notes
 
 .. index:: Release notes
 
-| **v1.0.4 dev**
-| Fix some bugs.
+| **v1.0.4** - *10.09.1013*
+| Change copyright view. Add deployment with new fabfile. Improve profile app.
+  Fix some bugs and documentation.
 
 * Update documentation to last changes
 * Remake fabfile, add some features
 * Fix bug when with ctrl key gallery not open in new tab
 * Refactor requirements, update tastypie to v0.10.0
 * Change copyright display
+* Add some account fields to user profile
 
 
 | **v1.0.3** - *8.08.1013*
