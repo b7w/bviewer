@@ -56,11 +56,13 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
     fields = ('parent', 'title', 'visibility', 'gallery_sorting', 'images', 'description', 'time', 'thumbnails', )
 
     def images(self, obj):
-        url = reverse('profile.gallery', kwargs=dict(uid=obj.id))
-        path = self.images_expected_path(obj)
-        count = Image.objects.filter(gallery=obj).count()
-        return smart_text('<b><a href="{url}?p={p}">Select images on disk ({count})</a></b>') \
-            .format(url=url, p=path, count=count)
+        if Gallery.objects.safe_get(id=obj.id):
+            url = reverse('profile.gallery', kwargs=dict(uid=obj.id))
+            path = self.images_expected_path(obj)
+            count = Image.objects.filter(gallery=obj).count()
+            return smart_text('<b><a href="{url}?p={p}">Select images on disk ({count})</a></b>') \
+                .format(url=url, p=path, count=count)
+        return smart_text('<b>Save gallery first to select images</b>')
 
     images.allow_tags = True
 
