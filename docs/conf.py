@@ -94,8 +94,8 @@ pygments_style = 'sphinx'
 # -- User options --------------------------------------------------------------
 
 link_sidebar_items = [
-    ('https://bitbucket.org/b7w/believeviewer/overview', 'Project on Bitbucket'),
-    ('https://bitbucket.org/b7w/believeviewer/issues?status=new&status=open', 'Issue tracker'),
+    ('https://bitbucket.org/b7w/bviewer/overview', 'Project on Bitbucket'),
+    ('https://bitbucket.org/b7w/bviewer/issues?status=new&status=open', 'Issue tracker'),
 ]
 
 html_context = {'link_sidebar_items': link_sidebar_items}
