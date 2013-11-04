@@ -51,19 +51,19 @@ h1, h2, h3 {
 }
 
 h1 {
-    font-size: 38.5px;
+    font-size: 38px;
 }
 
 h2 {
-    font-size: 31.5px;
+    font-size: 32px;
 }
 
 h3 {
-    font-size: 24.5px;
+    font-size: 24px;
 }
 
 h4 {
-    font-size: 17.5px;
+    font-size: 18px;
 }
 
 h5 {
@@ -71,10 +71,25 @@ h5 {
 }
 
 h6 {
-    font-size: 11.9px;
+    font-size: 12px;
 }
 
 .view-full {
+}
+
+/* START SCROLLBAR */
+::-webkit-scrollbar {
+    width: 8px;
+    background-color: #000;
+}
+
+::-webkit-scrollbar-track {
+    background: none;
+}
+
+::-webkit-scrollbar-thumb {
+    background: -webkit-linear-gradient(right, #555, #777);
+    border-radius: 1px;
 }
 
 /* START NAVIGATION BAR */
@@ -441,7 +456,7 @@ button {
 
 /* START MEDIA */
 
-@media only screen and (max-width : 480px) {
+@media only screen and (max-width: 480px) {
     /* Smartphone view: 1 tile */
     body {
         padding-top: 30px;
@@ -466,7 +481,7 @@ button {
     }
 }
 
-@media only screen and (max-width : 650px) and (min-width : 481px) {
+@media only screen and (max-width: 650px) and (min-width: 481px) {
     /* Tablet view: 2 tiles */
     .view-full {
         display: none !important;
@@ -482,7 +497,7 @@ button {
     }
 }
 
-@media only screen and (max-width : 1050px) and (min-width : 651px) {
+@media only screen and (max-width: 1050px) and (min-width: 651px) {
     /* Small desktop / ipad view: 3 tiles */
     .preview {
         width: 33.3%;
