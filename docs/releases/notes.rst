@@ -4,6 +4,13 @@ Release notes
 
 .. index:: Release notes
 
+| **v1.0.5 dev**
+| Move project to new short address.
+
+* Move project from https://bitbucket.org/b7w/believeviewer to https://bitbucket.org/b7w/bviewer
+* Fix image resize feature
+
+
 | **v1.0.4** - *10.09.1013*
 | Change copyright view. Add deployment with new fabfile. Improve profile app.
   Fix some bugs and documentation.
