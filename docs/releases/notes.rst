@@ -9,6 +9,7 @@ Release notes
 
 * Move project from https://bitbucket.org/b7w/believeviewer to https://bitbucket.org/b7w/bviewer
 * Fix image resize feature
+* Add custom scrollbar for webkit
 
 
 | **v1.0.4** - *10.09.1013*
