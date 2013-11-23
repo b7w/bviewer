@@ -198,7 +198,7 @@ def update_time_from_exif(sender, instance, created, **kwargs):
     if created:
         storage = ImageStorage(instance.gallery.user)
         image_path = storage.get_path(instance.path)
-        if image_path.exists and image_path.exif.ctime:
+        if image_path.is_image and image_path.exif.ctime:
             instance.time = image_path.exif.ctime
             instance.save()
 

@@ -6,6 +6,7 @@
 {% block extrahead %}
     {{ block.super }}
     <script src="{% static 'core/js/jquery.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'core/js/core.js' %}" type="text/javascript"></script>
 {% endblock %}
 
 
@@ -81,7 +82,10 @@
                     {% for file in folder.files %}
                         <li>
                             <a class="thumbnail image">
-                                <input type='checkbox' class="caption-checkbox" value="{{ file.path }}" {% if file.saved %}checked{% endif %}>
+                                <input type='checkbox' class="caption-checkbox"
+                                       data-id="{{ file.id }}"
+                                       data-value="{{ file.path }}"
+                                       {% if file.saved %}checked{% endif %}>
                                 <img src="{% url 'profile.download' %}?p={{ file.path }}">
 
                                 <p class="caption">{{ file.name }}</p>
@@ -104,6 +108,8 @@
 
 
     <script type="text/javascript">
+        core.initCSRF();
+
         // Set image count to box
         function image_count() {
             var checked = jQuery('.thumbnails input[type=checkbox]:checked').length;
@@ -116,7 +122,7 @@
                 url: '/api/v1/image/',
                 dataType: 'application/json',
                 contentType: 'application/json',
-                data: '{"path": "' + path + '", "gallery": "/api/v1/gallery/{{ gallery.id }}/"}',
+                data: '{"path": "' + path + '", "gallery": "{{ gallery.id }}"}',
                 complete: function (data) {
                     if (data.status != 201) {
                         jQuery('.messagelist').append('<li class="error">Error on saving</li>');
@@ -128,10 +134,10 @@
             });
         }
 
-        function image_delete(path) {
+        function image_delete(id) {
             jQuery.ajax({
                 type: 'DELETE',
-                url: '/api/v1/image/?path__exact=' + path,
+                url: '/api/v1/image/' + id,
                 dataType: 'application/json',
                 contentType: 'application/json',
                 complete: function (data) {
@@ -149,12 +155,13 @@
 
         // On checkbox click insert or delete image
         jQuery('.image input').click(function (e) {
-            var path = jQuery(this).attr('value');
+            var id = jQuery(this).attr('data-id');
+            var path = jQuery(this).attr('data-value');
             image_count();
             if (jQuery(this).is(':checked')) {
                 image_create(path);
             } else {
-                image_delete(path);
+                image_delete(id);
             }
         });
 

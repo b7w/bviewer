@@ -18,7 +18,7 @@ class SlideShowController(object):
 
     @staticmethod
     def new_key():
-        return uuid.uuid1()
+        return uuid.uuid1().hex
 
     def __init__(self, slideshow_id):
         self.key = slideshow_id

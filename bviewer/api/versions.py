@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-
-from tastypie.api import Api
+from rest_framework import routers
 
 from bviewer.api.resources import UserResource, GalleryResource, ImageResource, VideoResource
 
 
-version1 = Api(api_name='v1')
-version1.register(UserResource())
-version1.register(GalleryResource())
-version1.register(ImageResource())
-version1.register(VideoResource())
+version1 = routers.DefaultRouter()
+version1.register(r'user', UserResource)
+version1.register(r'gallery', GalleryResource)
+version1.register(r'image', ImageResource)
+version1.register(r'video', VideoResource)
