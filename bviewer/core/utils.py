@@ -153,6 +153,6 @@ def method_call_str(func_name, self, *args, **kwargs):
     """
     func_format = '{o}.{n}({a}, {kw})' if kwargs else '{o}.{n}({a})'
     str_args = smart_text(', ').join(map(smart_text, args))
-    str_kwargs_pairs = [smart_text('{0}={1}').format(k, v) for k, v in kwargs.items()]
+    str_kwargs_pairs = [smart_text('{0}={1}').format(k, smart_text(v)) for k, v in kwargs.items()]
     str_kwargs = smart_text(', ').join(str_kwargs_pairs)
     return smart_text(func_format).format(o=self, n=func_name, a=str_args, kw=str_kwargs)
