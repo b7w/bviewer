@@ -1,21 +1,17 @@
 # -*- coding: utf-8 -*-
-import json
 import logging
-from django.core.urlresolvers import reverse
 
-from django.http import Http404, HttpResponse
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
 
-from bviewer.core.controllers import get_gallery_user
+from bviewer.core.controllers import get_gallery_user, GalleryController
 from bviewer.core.views import message_view
-from bviewer.slideshow.controllers import SlideShowController
-from bviewer.core.models import Image
 
 
 logger = logging.getLogger(__name__)
 
 
-def index_view(request):
+def index_view(request, gallery_id):
     """
     Slideshow, create new for each session
     """
@@ -23,36 +19,19 @@ def index_view(request):
     if not holder:
         return message_view(request, message='No user defined')
 
-    uid = request.session.get('slideshow-id')
-    controller = SlideShowController(uid)
-    if controller.is_empty():
-        request.session['slideshow-id'] = controller.generate_new()
+    controller = GalleryController(holder, request.user, gallery_id)
+    main = controller.get_object()
+    if not main:
+        return message_view(request, message='No such gallery')
 
-    link = reverse('slideshow.next')
+    link = dict(
+        root=reverse('slideshow-list'),
+        detail=reverse('slideshow-detail', kwargs=dict(pk=gallery_id)),
+        next=reverse('slideshow-next', kwargs=dict(pk=gallery_id)),
+    )
     return render(request, 'slideshow/index.html', {
         'holder': holder,
+        'main': main,
         'link': link,
         'back': dict(gallery_id=holder.top_gallery_id),
     })
-
-
-def next_image_view(request):
-    """
-    Next image, return json with link to image and title of gallery.
-    If no slideshow create new for each session.
-    """
-    holder = get_gallery_user(request)
-    if not holder:
-        raise Http404('No user defined')
-
-    uid = request.session.get('slideshow-id')
-    controller = SlideShowController(uid)
-    if controller.is_empty():
-        controller.generate_new()
-        request.session['slideshow-id'] = controller.generate_new()
-
-    image_id = controller.next_image_id()
-    image = Image.objects.select_related().get(id=image_id)
-    link = reverse('core.download', args=('big', image_id,))
-    data = dict(next=link, title=image.gallery.title)
-    return HttpResponse(json.dumps(data))
