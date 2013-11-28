@@ -3,6 +3,10 @@
 
 {% block title %}{{ main.title }}{% endblock %}
 
+{% block navigation %}
+    <li><a href="{% url 'slideshow.index' main.id %}">Slideshow</a></li>
+{% endblock %}
+
 {% block main %}
     <div class="gallery-title">
         <h2>{{ main.title }}</h2>
