@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-from rest_framework import routers
-
 from bviewer.api.resources import UserResource, GalleryResource, ImageResource, VideoResource
+from bviewer.api.router import ExtraRouter
 from bviewer.slideshow.resources import SlideShowResource
 
 
-version1 = routers.DefaultRouter()
+version1 = ExtraRouter()
 version1.register(r'user', UserResource)
 version1.register(r'gallery', GalleryResource)
 version1.register(r'image', ImageResource)
