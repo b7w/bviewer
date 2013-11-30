@@ -22,72 +22,68 @@
     <script type="text/javascript">
         core.initCSRF();
 
-        var link = {{ link|safe }};
+        var LINK = "{{ link }}";
+        var INTERVAL = null;
 
         function start() {
-            var START = true;
             var settings = {
                 overlayOpacity: 0.95,
                 viewportPadding: 32,
                 displayNav: false,
-                //enableKeys: false,
                 fadeDuration: 1.0,
                 resizeDuration: 0.4,
                 onClose: function () {
-                    START = false;
+                    clearInterval(INTERVAL);
                 }
             };
             Shadowbox.init(settings);
 
             function initSlideShow(callback) {
                 jQuery.ajax({
-                    url: link.detail,
-                    complete: function (data) {
-                        if (data.status == 200) {
-                            callback();
-                        }
-                        if (data.status == 404) {
-                            jQuery.ajax({
-                                type: 'POST',
-                                url: link.root,
-                                contentType: 'application/json',
-                                data: '{"gallery_id": "{{ main.id }}"}',
-                                complete: function (data) {
-                                    callback();
-                                }
-                            });
-                        }
-                    }
-                });
-            }
-
-            function loadImage() {
-                jQuery.ajax({
-                    url: link.next,
+                    url: LINK,
                     complete: function (response) {
-                        var data = response.responseJSON;
-                        var a = document.createElement('a');
-                        a.href = data.link;
-                        a.rel = 'shadowbox[videos]';
-                        a.title = data.title;
-                        var obj = Shadowbox.makeObject(a);
-                        Shadowbox.gallery = [obj];
-                        if (Shadowbox.isOpen()) {
-                            Shadowbox.change(0);
-                        } else {
-                            Shadowbox.open(obj);
+                        if (response.status == 200) {
+                            var data = response.responseJSON;
+
+                            jQuery('body').delegate('#sb-body', 'click', function (e) {
+                                callback(data.detail + 'next/');
+                            });
+
+                            callback(data.detail + 'next/');
+
+                            clearInterval(INTERVAL);
+                            INTERVAL = window.setInterval(function () {
+                                callback(data.detail + 'next/');
+                            }, data.timer * 1000);
                         }
                     }
                 });
             }
 
-            var interval = window.setInterval(function () {
-                if (START == true) loadImage();
-            }, 10000);
-
-            jQuery('body').delegate('#sb-body', 'click', function (e) {
-                loadImage();
-            });
+            function loadImage(url_next) {
+                jQuery.ajax({
+                    url: url_next,
+                    complete: function (response) {
+                        if (response.status == 200) {
+                            var data = response.responseJSON;
+                            var a = document.createElement('a');
+                            a.href = data.link;
+                            a.rel = 'shadowbox[videos]';
+                            a.title = data.title;
+                            var obj = Shadowbox.makeObject(a);
+                            Shadowbox.gallery = [obj];
+                            if (Shadowbox.isOpen()) {
+                                Shadowbox.change(0);
+                            } else {
+                                Shadowbox.open(obj);
+                            }
+                        } else if (response.status == 204) {
+                            clearInterval(INTERVAL);
+                            Shadowbox.close();
+                        }
+                    }
+                });
+            }
 
             initSlideShow(loadImage);
         }

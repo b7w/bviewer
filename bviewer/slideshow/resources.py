@@ -1,78 +1,65 @@
 # -*- coding: utf-8 -*-
 from django.core.urlresolvers import reverse
-from django.http import Http404
 from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.fields import IntegerField, BooleanField, CharField
+from rest_framework.decorators import link
+from rest_framework.filters import OrderingFilter, DjangoFilterBackend
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.relations import HyperlinkedIdentityField
 from rest_framework.response import Response
-from rest_framework.serializers import Serializer
-from rest_framework.viewsets import ViewSet
+from rest_framework.serializers import ModelSerializer
+from rest_framework.viewsets import ModelViewSet
 
-from bviewer.core.models import Image
+from bviewer.api.resources import ITEMS_PER_PAGE
 from bviewer.slideshow.controllers import SlideShowController
 from bviewer.slideshow.models import SlideShow
 
 
-class SlideShowSerializer(Serializer):
-    gallery_id = CharField(required=True)
-    timer = IntegerField(required=False)
-    repeat = BooleanField(required=False)
+class SlideShowSerializer(ModelSerializer):
+    detail = HyperlinkedIdentityField(view_name='slideshow-detail')
 
-    def restore_object(self, attrs, instance=None):
-        if instance is not None:
-            instance.timer = attrs.get('gallery_id', instance.gallery_id)
-            instance.timer = attrs.get('timer', instance.timer)
-            instance.repeat = attrs.get('repeat', instance.repeat)
-            return instance
-        return SlideShow(**attrs)
+    class Meta:
+        model = SlideShow
+        exclude = ('session_key', )
+        read_only_fields = ('status', 'image_count', )
 
 
-class SlideShowResource(ViewSet):
+class SlideShowResource(ModelViewSet):
+    queryset = SlideShow.objects.all().select_related()
+
+    http_method_names = ('get', 'post', 'delete', )
     serializer_class = SlideShowSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, )
 
-    def list(self, request):
-        controller = SlideShowController(request.session)
-        if controller:
-            serializer = SlideShowSerializer(controller.list(), many=True)
-            return Response(serializer.data)
-        return Response()
+    filter_backends = (OrderingFilter, DjangoFilterBackend, )
+    filter_fields = ('id', 'gallery', 'status', )
+    ordering = ('gallery', 'time',)
 
-    def create(self, request):
-        serializer = SlideShowSerializer(data=request.DATA)
-        if serializer.is_valid():
-            controller = SlideShowController(request.session)
-            controller.add(serializer.object)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    paginate_by = ITEMS_PER_PAGE
 
-    def retrieve(self, request, pk=None):
-        controller = SlideShowController(request.session)
-        slideshow = controller.get(gallery_id=pk)
-        if slideshow:
-            serializer = SlideShowSerializer(slideshow)
-            return Response(serializer.data)
-        raise Http404("No slideshow")
+    def get_queryset(self):
+        return self.queryset.filter(session_key=self.request.session.session_key)
 
-    @action(methods=('GET',))
+    @link()
+    def get_or_create(self, request, pk=None):
+        session_key = request.session.session_key
+        gallery_id = request.GET.get('gallery_id')
+        if not gallery_id:
+            return Response(dict(error='No "gallery_id" parameter'), status=status.HTTP_400_BAD_REQUEST)
+        controller = SlideShowController(session_key, gallery_id=gallery_id)
+        serializer = self.get_serializer(controller.get_or_create())
+        return Response(serializer.data)
+
+    @link()
     def next(self, request, pk=None):
-        controller = SlideShowController(request.session)
-        image_id = controller.next_image_id(gallery_id=pk)
-
-        try:
-            image = Image.objects.select_related().get(id=image_id)
-            link = reverse('core.download', args=('big', image_id,))
-            return Response(dict(image_id=image_id, link=link, title=image.gallery.title))
-        except Image.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-
-    def update(self, request, pk=None):
-        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
-
-    def partial_update(self, request, pk=None):
-        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
-
-    def destroy(self, request, pk=None):
-        controller = SlideShowController(request.session)
-        controller.delete(gallery_id=pk)
-        return Response()
+        if not pk:
+            return Response(dict(error='No "pk" parameter'), status=status.HTTP_400_BAD_REQUEST)
+        session_key = request.session.session_key
+        controller = SlideShowController(session_key, slideshow_id=pk)
+        if controller.is_exists():
+            image = controller.next_image()
+            if image:
+                link = reverse('core.download', args=('big', image.id,))
+                return Response(dict(image_id=image.id, link=link, title=image.gallery.title))
+            controller.finish()
+            return Response(dict(error='No more images'), status=status.HTTP_204_NO_CONTENT)
+        return Response(dict(error='No slideshow with id "{0}'.format(pk)), status=status.HTTP_404_NOT_FOUND)

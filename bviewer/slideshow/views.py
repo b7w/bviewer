@@ -24,11 +24,7 @@ def index_view(request, gallery_id):
     if not main:
         return message_view(request, message='No such gallery')
 
-    link = dict(
-        root=reverse('slideshow-list'),
-        detail=reverse('slideshow-detail', kwargs=dict(pk=gallery_id)),
-        next=reverse('slideshow-next', kwargs=dict(pk=gallery_id)),
-    )
+    link = reverse('actions-slideshow-get-or-create') + '?gallery_id={0}'.format(gallery_id)
     return render(request, 'slideshow/index.html', {
         'holder': holder,
         'main': main,
