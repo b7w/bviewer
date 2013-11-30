@@ -113,7 +113,10 @@ def add_top_gallery(sender, instance, created, **kwargs):
             Q(codename='delete_image') |
             Q(codename='add_video') |
             Q(codename='change_video') |
-            Q(codename='delete_video')
+            Q(codename='delete_video') |
+            Q(codename='add_slideshow') |
+            Q(codename='change_slideshow') |
+            Q(codename='delete_slideshow')
         )
         instance.user_permissions = list(perms)
         instance.save()
