@@ -118,7 +118,7 @@ def cache_method(func):
 
     @wraps(func)
     def wrapped(self):
-        name = '_' + func.__name__
+        name = '_cache_' + func.__name__
         if hasattr(self, name):
             return getattr(self, name, None)
         cached = func(self)
