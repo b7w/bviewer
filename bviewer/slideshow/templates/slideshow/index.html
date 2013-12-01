@@ -1,15 +1,17 @@
 {% extends 'core/base.html' %}
 {% load staticfiles %}
 
-{% block title %}Slideshow{% endblock %}
+{% block title %}{{ main.title }}{% endblock %}
 
 {% block main %}
-    <div class="message">
-        <h1>Slideshow</h1>
+    <div class="slideshow message">
+        <h1>{{ main.title }}</h1>
 
-        <p>Click to start slide show</p>
+        <p class="description">{{ main.description|linebreaksbr }}</p>
 
-        <button onclick="start();">Start</button>
+        <button onclick="start();">Slideshow</button>
+
+        <p class="small">Click to start</p>
     </div>
 {% endblock %}
 
