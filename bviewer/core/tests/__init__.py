@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from bviewer.core.tests.controllers import *
 from bviewer.core.tests.utils import *
 from bviewer.core.tests.files import *
 from bviewer.core.tests.images import *

@@ -93,16 +93,40 @@ class GalleryController(BaseController):
             return Gallery.objects.safe_get(pk=self.uid, user_id=self.holder.id)
         return Gallery.objects.safe_get(Q(pk=self.uid), Q(user_id=self.holder.id), self.OPEN)
 
+    def _get_galleries(self, parent_id):
+        """
+        Get galleries where parent `parent_id` with special visibility
+
+        :rtype: django.db.models.query.QuerySet
+        """
+        if self.is_owner():
+            return Gallery.objects.filter(parent_id=parent_id)
+        return Gallery.objects.filter(parent_id=parent_id, visibility=Gallery.VISIBLE)
+
     @cache_method
     def get_galleries(self):
         """
-        Get sub galleries `parent=uid` with special visibility
+        Get sub galleries `parent=uid` with special visibility and ordering
 
         :rtype: list of bviewer.core.models.Gallery
         """
-        if self.is_owner():
-            return list(self._ordering(Gallery.objects.filter(parent=self.uid)))
-        return list(self._ordering(Gallery.objects.filter(parent=self.uid, visibility=Gallery.VISIBLE)))
+        return list(self._ordering(self._get_galleries(self.uid)))
+
+    def get_all_sub_galleries(self, parents=True):
+        """
+        Get all sub galleries `parent=uid` with special visibility
+
+        :rtype: list of bviewer.core.models.Gallery
+        """
+        queue = list(self._get_galleries(self.uid))
+        result = []
+        while queue:
+            gallery = queue.pop()
+            childes = list(self._get_galleries(gallery.id))
+            queue.extend(childes)
+            if not (childes and parents is False):
+                result.append(gallery)
+        return result
 
     def is_album(self):
         """
