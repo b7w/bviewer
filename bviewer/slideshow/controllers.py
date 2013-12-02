@@ -32,7 +32,7 @@ class SlideShowGenerator(object):
             x = math.pi / pages_count * page_number
             return 3.0 / 4 * math.sin(x + math.pi / 2) + 1
 
-        queryset = Image.objects.filter(gallery=self.slideshow.gallery)
+        queryset = Image.objects.all()
         paginator = Paginator(queryset, self.PER_PAGE)
         for i in paginator.page_range:
             items = paginator.page(i).object_list
@@ -40,7 +40,9 @@ class SlideShowGenerator(object):
             random_per_page = int(self.PER_PAGE * ratio * popularity)
             random_per_page = random_per_page if random_per_page <= len(items) else len(items)
             images = random.sample(items, random_per_page)
-            self._redis.sadd(self.get_key(), *[i.id for i in images])
+            images_ids = [i.id for i in images]
+            if images_ids:
+                self._redis.sadd(self.get_key(), *images_ids)
 
         self.slideshow.status = SlideShow.BUILD
         self.slideshow.image_count = self._redis.scard(self.get_key())
