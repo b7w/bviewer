@@ -25,7 +25,8 @@
         core.initCSRF();
 
         var LINK = "{{ link }}";
-        var INTERVAL = null;
+        var INTERVAL_GALLERY = null;
+        var INTERVAL_IMAGES = null;
 
         function start() {
             var settings = {
@@ -35,7 +36,7 @@
                 fadeDuration: 1.0,
                 resizeDuration: 0.4,
                 onClose: function () {
-                    clearInterval(INTERVAL);
+                    clearInterval(INTERVAL_IMAGES);
                 }
             };
             Shadowbox.init(settings);
@@ -46,17 +47,26 @@
                     complete: function (response) {
                         if (response.status == 200) {
                             var data = response.responseJSON;
+                            if (data.status == 1 && INTERVAL_GALLERY == null) {
+                                INTERVAL_GALLERY = window.setInterval(function () {
+                                    initSlideShow(callback);
+                                }, 256);
+                            }
+                            if (data.status == 2) {
+                                clearInterval(INTERVAL_GALLERY);
+                                clearInterval(INTERVAL_IMAGES);
 
-                            jQuery('body').delegate('#sb-body', 'click', function (e) {
+                                jQuery('body').delegate('#sb-body', 'click', function (e) {
+                                    callback(data.detail + 'next/');
+                                });
+
                                 callback(data.detail + 'next/');
-                            });
 
-                            callback(data.detail + 'next/');
+                                INTERVAL_IMAGES = window.setInterval(function () {
+                                    callback(data.detail + 'next/');
+                                }, data.timer * 1000);
+                            }
 
-                            clearInterval(INTERVAL);
-                            INTERVAL = window.setInterval(function () {
-                                callback(data.detail + 'next/');
-                            }, data.timer * 1000);
                         }
                     }
                 });
@@ -80,7 +90,7 @@
                                 Shadowbox.open(obj);
                             }
                         } else if (response.status == 204) {
-                            clearInterval(INTERVAL);
+                            clearInterval(INTERVAL_IMAGES);
                             Shadowbox.close();
                         }
                     }
