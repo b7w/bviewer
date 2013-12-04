@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.utils import timezone
@@ -15,6 +16,7 @@ class SlideShow(models.Model):
 
     id = models.CharField(max_length=32, default=uuid_pk(length=8), primary_key=True)
     gallery = models.ForeignKey(Gallery, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.DO_NOTHING)
     session_key = models.CharField(max_length=32)
     timer = models.SmallIntegerField(max_length=4, default=10)
     status = models.SmallIntegerField(max_length=1, choices=STATUS_CHOICE, default=NEW)

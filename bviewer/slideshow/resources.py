@@ -10,6 +10,7 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.viewsets import ModelViewSet
 
 from bviewer.api.resources import ITEMS_PER_PAGE
+from bviewer.core.controllers import get_gallery_user, GalleryController
 from bviewer.slideshow.controllers import SlideShowController
 from bviewer.slideshow.models import SlideShow
 
@@ -20,7 +21,7 @@ class SlideShowSerializer(ModelSerializer):
     class Meta:
         model = SlideShow
         exclude = ('session_key', )
-        read_only_fields = ('status', 'image_count', )
+        read_only_fields = ('user', 'status', 'image_count', )
 
 
 class SlideShowResource(ModelViewSet):
@@ -41,21 +42,34 @@ class SlideShowResource(ModelViewSet):
 
     @link()
     def get_or_create(self, request, pk=None):
+        holder = get_gallery_user(request)
+        if not holder:
+            return Response(dict(error='No user defined'), status=status.HTTP_404_NOT_FOUND)
+
         session_key = request.session.session_key
         gallery_id = request.GET.get('gallery_id')
         if not gallery_id:
             return Response(dict(error='No "gallery_id" parameter'), status=status.HTTP_400_BAD_REQUEST)
-        controller = SlideShowController(session_key, gallery_id=gallery_id)
+
+        controller = GalleryController(holder, request.user, gallery_id)
+        if not controller.get_object():
+            return Response(dict(error='No main gallery'), status=status.HTTP_404_NOT_FOUND)
+
+        controller = SlideShowController(request.user, session_key, gallery_id=gallery_id)
         serializer = self.get_serializer(controller.get_or_create())
         return Response(serializer.data)
 
     @link()
     def next(self, request, pk=None):
+        holder = get_gallery_user(request)
+        if not holder:
+            return Response(dict(error='No user defined'), status=status.HTTP_404_NOT_FOUND)
         if not pk:
             return Response(dict(error='No "pk" parameter'), status=status.HTTP_400_BAD_REQUEST)
         session_key = request.session.session_key
-        controller = SlideShowController(session_key, slideshow_id=pk)
-        if controller.is_exists():
+
+        controller = SlideShowController(request.user, session_key, slideshow_id=pk)
+        if controller.get_object():
             image = controller.next_image()
             if image:
                 link = reverse('core.download', args=('big', image.id,))

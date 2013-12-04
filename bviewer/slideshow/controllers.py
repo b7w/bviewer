@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 import logging
 import random
-import math
 
 from django.db.models import Q
-from django.core.paginator import Paginator
 import django_rq
 
+from bviewer.core.controllers import GalleryController
 from bviewer.core.models import Image
-from bviewer.core.utils import as_job
+from bviewer.core.utils import as_job, cache_method
 from bviewer.slideshow.models import SlideShow
 
 
@@ -21,6 +20,9 @@ class SlideShowGenerator(object):
     def __init__(self, slideshow):
         self._redis = django_rq.get_connection()
         self.slideshow = slideshow
+        self.holder = slideshow.gallery.user
+        self.user = slideshow.user
+        self.gallery_ctrl = GalleryController(self.holder, self.user, slideshow.gallery_id)
 
     def get_key(self):
         return 'slideshow-id:' + self.slideshow.id
@@ -28,19 +30,10 @@ class SlideShowGenerator(object):
     def generate(self, ratio=0.5):
         assert 0 < ratio < 1
 
-        def mapper(pages_count, page_number):
-            x = math.pi / pages_count * page_number
-            return 3.0 / 4 * math.sin(x + math.pi / 2) + 1
-
-        queryset = Image.objects.all()
-        paginator = Paginator(queryset, self.PER_PAGE)
-        for i in paginator.page_range:
-            items = paginator.page(i).object_list
-            popularity = mapper(paginator.num_pages, i - 1)
-            random_per_page = int(self.PER_PAGE * ratio * popularity)
-            random_per_page = random_per_page if random_per_page <= len(items) else len(items)
-            images = random.sample(items, random_per_page)
-            images_ids = [i.id for i in images]
+        for gallery in self.gallery_ctrl.get_all_sub_galleries(parents=False):
+            images_ids = Image.objects.filter(gallery=gallery).values_list('id', flat=True)
+            count = int(len(images_ids) * ratio)
+            images_ids = random.sample(images_ids, count)
             if images_ids:
                 self._redis.sadd(self.get_key(), *images_ids)
 
@@ -53,24 +46,26 @@ class SlideShowGenerator(object):
 
 
 class SlideShowController(object):
-    def __init__(self, session_key, slideshow_id=None, gallery_id=None):
+    def __init__(self, user, session_key, slideshow_id=None, gallery_id=None):
+        self.user = user if user.is_authenticated() else None
         self.session_key = session_key
         self.gallery_id = gallery_id
         self.slideshow_id = slideshow_id
         args = (slideshow_id, gallery_id,)
         assert any(args) and not all(args), 'Need one of slideshow_id/gallery_id kwargs'
-        if slideshow_id:
-            self.slideshow = SlideShow.objects.safe_get(id=slideshow_id)
         self._redis = django_rq.get_connection()
 
     def get_key(self):
-        return 'slideshow-id:' + self.slideshow.id
+        return 'slideshow-id:' + self.slideshow_id
 
-    def is_exists(self):
+    @cache_method
+    def get_object(self):
         """
         Work only if `slideshow_id` parameter specified
         """
-        return bool(self.slideshow)
+        if self.slideshow_id:
+            # session_key grants permissions
+            return SlideShow.objects.safe_get(id=self.slideshow_id, session_key=self.session_key)
 
     def get_or_create(self):
         status = Q(status=SlideShow.NEW) | Q(status=SlideShow.BUILD)
@@ -81,7 +76,11 @@ class SlideShowController(object):
         for slideshow in items:
             if slideshow.status == SlideShow.NEW:
                 return slideshow
-        return SlideShow.objects.create(session_key=self.session_key, gallery_id=self.gallery_id)
+        return SlideShow.objects.create(
+            session_key=self.session_key,
+            gallery_id=self.gallery_id,
+            user=self.user
+        )
 
     def next_image(self):
         image_id = self._redis.spop(self.get_key())
@@ -96,5 +95,5 @@ class SlideShowController(object):
         """
         Set FINISHED status for slideshow
         """
-        self.slideshow.status = SlideShow.FINISHED
-        self.slideshow.save()
+        self.get_object().status = SlideShow.FINISHED
+        self.get_object().save()
