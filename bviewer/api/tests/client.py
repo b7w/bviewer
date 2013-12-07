@@ -14,16 +14,22 @@ class ResourceClient(Client):
     def rest_get(self, path, data=None, **kwargs):
         """
         Deserialize result to `response.objects` if many else `response.object`.
+        If check_status=False, no status code check perform and error saved in response.error.
         """
+        check_status = kwargs.pop('check_status', True)
         kwargs['HTTP_ACCEPT'] = self.content_type
         if data is not None:
             kwargs['data'] = data
 
         response = self.get(path, **kwargs)
-        assert response.status_code == status.HTTP_200_OK, 'Client.read response.status_code = {0}'.format(response.status_code)
+        if check_status:
+            assert_message = 'response.status_code = {0}'.format(response.status_code)
+            assert response.status_code == status.HTTP_200_OK, assert_message
         result = json.loads(response.content)
         if 'results' in result:
             response.objects = result['results']
+        elif 'error' in result:
+            response.error = result['error']
         else:
             response.object = result
 
