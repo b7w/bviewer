@@ -10,7 +10,6 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.viewsets import ModelViewSet
 
 from bviewer.api.resources import ITEMS_PER_PAGE
-from bviewer.core.controllers import get_gallery_user, GalleryController
 from bviewer.slideshow.controllers import SlideShowController
 from bviewer.slideshow.models import SlideShow
 
@@ -42,28 +41,22 @@ class SlideShowResource(ModelViewSet):
 
     @link()
     def get_or_create(self, request, pk=None):
-        holder = get_gallery_user(request)
-        if not holder:
-            return Response(dict(error='No user defined'), status=status.HTTP_404_NOT_FOUND)
-
+        if pk:
+            return Response(dict(error='No "pk" parameter needed'), status=status.HTTP_400_BAD_REQUEST)
         session_key = request.session.session_key
-        gallery_id = request.GET.get('gallery_id')
+        gallery_id = request.GET.get('gallery')
         if not gallery_id:
-            return Response(dict(error='No "gallery_id" parameter'), status=status.HTTP_400_BAD_REQUEST)
-
-        controller = GalleryController(holder, request.user, gallery_id)
-        if not controller.get_object():
-            return Response(dict(error='No main gallery'), status=status.HTTP_404_NOT_FOUND)
+            return Response(dict(error='No "gallery" parameter'), status=status.HTTP_400_BAD_REQUEST)
 
         controller = SlideShowController(request.user, session_key, gallery_id=gallery_id)
+        if not controller.get_gallery():
+            return Response(dict(error='No gallery'), status=status.HTTP_404_NOT_FOUND)
+
         serializer = self.get_serializer(controller.get_or_create())
         return Response(serializer.data)
 
     @link()
     def next(self, request, pk=None):
-        holder = get_gallery_user(request)
-        if not holder:
-            return Response(dict(error='No user defined'), status=status.HTTP_404_NOT_FOUND)
         if not pk:
             return Response(dict(error='No "pk" parameter'), status=status.HTTP_400_BAD_REQUEST)
         session_key = request.session.session_key
