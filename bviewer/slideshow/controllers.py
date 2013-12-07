@@ -6,7 +6,7 @@ from django.db.models import Q
 import django_rq
 
 from bviewer.core.controllers import GalleryController
-from bviewer.core.models import Image
+from bviewer.core.models import Image, Gallery
 from bviewer.core.utils import as_job, cache_method
 from bviewer.slideshow.models import SlideShow
 
@@ -66,6 +66,18 @@ class SlideShowController(object):
         if self.slideshow_id:
             # session_key grants permissions
             return SlideShow.objects.safe_get(id=self.slideshow_id, session_key=self.session_key)
+
+    @cache_method
+    def get_gallery(self):
+        obj = None
+        if self.user:  # if holder == user
+            obj = Gallery.objects.safe_get(id=self.gallery_id, user=self.user)
+        if not obj:
+            obj = Gallery.objects.safe_get(
+                Q(pk=self.gallery_id),
+                Q(visibility=Gallery.VISIBLE) | Q(visibility=Gallery.HIDDEN)
+            )
+        return obj
 
     def get_or_create(self):
         status = Q(status=SlideShow.NEW) | Q(status=SlideShow.BUILD)
