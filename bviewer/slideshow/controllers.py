@@ -2,6 +2,7 @@
 import logging
 import random
 
+from django.conf import settings
 from django.db.models import Q
 import django_rq
 
@@ -18,7 +19,8 @@ class SlideShowGenerator(object):
     PER_PAGE = 64
 
     def __init__(self, slideshow):
-        self._redis = django_rq.get_connection()
+        if not settings.RQ_DEBUG:
+            self._redis = django_rq.get_connection()
         self.slideshow = slideshow
         self.holder = slideshow.gallery.user
         self.user = slideshow.user
@@ -30,15 +32,17 @@ class SlideShowGenerator(object):
     def generate(self, ratio=0.5):
         assert 0 < ratio < 1
 
+        saved_images_count = 0
         for gallery in self.gallery_ctrl.get_all_sub_galleries(parents=False):
             images_ids = Image.objects.filter(gallery=gallery).values_list('id', flat=True)
             count = int(len(images_ids) * ratio)
             images_ids = random.sample(images_ids, count)
-            if images_ids:
+            saved_images_count += len(images_ids)
+            if images_ids and not settings.RQ_DEBUG:
                 self._redis.sadd(self.get_key(), *images_ids)
 
         self.slideshow.status = SlideShow.BUILD
-        self.slideshow.image_count = self._redis.scard(self.get_key())
+        self.slideshow.image_count = saved_images_count
         self.slideshow.save()
 
     def generate_async(self):
@@ -53,7 +57,8 @@ class SlideShowController(object):
         self.slideshow_id = slideshow_id
         args = (slideshow_id, gallery_id,)
         assert any(args) and not all(args), 'Need one of slideshow_id/gallery_id kwargs'
-        self._redis = django_rq.get_connection()
+        if not settings.RQ_DEBUG:
+            self._redis = django_rq.get_connection()
 
     def get_key(self):
         return 'slideshow-id:' + self.slideshow_id
@@ -95,7 +100,7 @@ class SlideShowController(object):
         )
 
     def next_image(self):
-        image_id = self._redis.spop(self.get_key())
+        image_id = self._redis.spop(self.get_key()) if not settings.RQ_DEBUG else None
         if not image_id:
             return None
         try:
