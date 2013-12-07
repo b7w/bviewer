@@ -19,7 +19,7 @@ class SlideShowGenerator(object):
     PER_PAGE = 64
 
     def __init__(self, slideshow):
-        if not settings.RQ_DEBUG:
+        if not settings.TEST:
             self._redis = django_rq.get_connection()
         self.slideshow = slideshow
         self.holder = slideshow.gallery.user
@@ -38,7 +38,7 @@ class SlideShowGenerator(object):
             count = int(len(images_ids) * ratio)
             images_ids = random.sample(images_ids, count)
             saved_images_count += len(images_ids)
-            if images_ids and not settings.RQ_DEBUG:
+            if images_ids and not settings.TEST:
                 self._redis.sadd(self.get_key(), *images_ids)
 
         self.slideshow.status = SlideShow.BUILD
@@ -57,7 +57,7 @@ class SlideShowController(object):
         self.slideshow_id = slideshow_id
         args = (slideshow_id, gallery_id,)
         assert any(args) and not all(args), 'Need one of slideshow_id/gallery_id kwargs'
-        if not settings.RQ_DEBUG:
+        if not settings.TEST:
             self._redis = django_rq.get_connection()
 
     def get_key(self):
@@ -100,7 +100,7 @@ class SlideShowController(object):
         )
 
     def next_image(self):
-        image_id = self._redis.spop(self.get_key()) if not settings.RQ_DEBUG else None
+        image_id = self._redis.spop(self.get_key()) if not settings.TEST else None
         if not image_id:
             return None
         try:
