@@ -24,7 +24,7 @@ def index_view(request):
     if not main:
         return message_view(request, message='No such gallery')
 
-    link = reverse('actions-slideshow-get-or-create') + '?gallery_id={0}'.format(holder.top_gallery_id)
+    link = reverse('actions-slideshow-get-or-create') + '?gallery={0}'.format(holder.top_gallery_id)
     return render(request, 'slideshow/index.html', {
         'holder': holder,
         'main': main,
