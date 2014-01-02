@@ -38,7 +38,7 @@ class SlideShow(models.Model):
 def generate_slideshow_async(sender, instance, created, **kwargs):
     from bviewer.slideshow.controllers import SlideShowGenerator
 
-    if created:
+    if instance.status == SlideShow.NEW:
         controller = SlideShowGenerator(instance)
         controller.generate_async()
 

@@ -10,7 +10,9 @@ from bviewer.slideshow.models import SlideShow
 class SlideShowAdmin(ProfileModelAdmin):
     list_select_related = True
 
-    list_display = ('id', 'gallery_title', 'user', 'session_key', 'status', 'image_count', 'time', )
+    fields = ('id', 'gallery', 'user', 'status', 'image_count', 'time',)
+
+    list_display = ('id', 'gallery_title', 'user', 'status', 'image_count', 'time', )
     list_filter = ('gallery__title', 'time',)
     ordering = ('-time', )
 
@@ -24,7 +26,17 @@ site.register(SlideShow, SlideShowAdmin)
 
 
 class SlideShowProfile(SlideShowAdmin):
-    list_display = ('gallery_title', 'user', 'session_key', 'status', 'image_count', 'time', )
+
+    fields = ('id', 'gallery', 'status', 'image_count', 'time',)
+
+    list_display = ('id', 'gallery_title', 'status', 'image_count', 'time', )
+    list_filter = ('gallery__title', 'time',)
+    ordering = ('-time', )
+
+    readonly_fields = ('id', 'image_count',)
+
+    def has_add_permission(self, request):
+        return False
 
     def queryset(self, request):
         return super(SlideShowProfile, self).queryset(request).filter(gallery__user=request.user)
@@ -37,10 +49,10 @@ class SlideShowProfile(SlideShowAdmin):
             kwargs['queryset'] = Gallery.objects.filter(user=request.user)
         return super(SlideShowProfile, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(SlideShowProfile, self).get_form(request, obj, **kwargs)
-        form.base_fields['session_key'].initial = request.session.session_key
-        return form
+    def save_model(self, request, obj, form, change):
+        obj.user = request.user
+        obj.session_key = request.session.session_key
+        super(SlideShowProfile, self).save_model(request, obj, form, change)
 
 
 profile.register(SlideShow, SlideShowProfile)
