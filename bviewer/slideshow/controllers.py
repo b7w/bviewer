@@ -2,13 +2,11 @@
 import logging
 import random
 
-from django.conf import settings
 from django.db.models import Q
-import django_rq
 
 from bviewer.core.controllers import GalleryController
 from bviewer.core.models import Image, Gallery
-from bviewer.core.utils import as_job, cache_method
+from bviewer.core.utils import as_job, cache_method, get_redis_connection
 from bviewer.slideshow.models import SlideShow
 
 
@@ -18,10 +16,9 @@ logger = logging.getLogger(__name__)
 class SlideShowGenerator(object):
     PER_PAGE = 64
 
-    def __init__(self, slideshow):
-        if not settings.TEST:
-            self._redis = django_rq.get_connection()
+    def __init__(self, slideshow, redis=None):
         self.slideshow = slideshow
+        self.redis = redis or get_redis_connection()
         self.holder = slideshow.gallery.user
         self.user = slideshow.user
         self.gallery_ctrl = GalleryController(self.holder, self.user, slideshow.gallery_id)
@@ -38,8 +35,8 @@ class SlideShowGenerator(object):
             count = int(len(images_ids) * ratio)
             images_ids = random.sample(images_ids, count)
             saved_images_count += len(images_ids)
-            if images_ids and not settings.TEST:
-                self._redis.sadd(self.get_key(), *images_ids)
+            if images_ids:
+                self.redis.sadd(self.get_key(), *images_ids)
 
         self.slideshow.status = SlideShow.BUILD
         self.slideshow.image_count = saved_images_count
@@ -50,15 +47,14 @@ class SlideShowGenerator(object):
 
 
 class SlideShowController(object):
-    def __init__(self, user, session_key, slideshow_id=None, gallery_id=None):
+    def __init__(self, user, session_key, slideshow_id=None, gallery_id=None, redis=None):
         self.user = user if user.is_authenticated() else None
         self.session_key = session_key
         self.gallery_id = gallery_id
+        self.redis = redis or get_redis_connection()
         self.slideshow_id = slideshow_id
         args = (slideshow_id, gallery_id,)
         assert any(args) and not all(args), 'Need one of slideshow_id/gallery_id kwargs'
-        if not settings.TEST:
-            self._redis = django_rq.get_connection()
 
     def get_key(self):
         return 'slideshow-id:' + self.slideshow_id
@@ -100,7 +96,7 @@ class SlideShowController(object):
         )
 
     def next_image(self):
-        image_id = self._redis.spop(self.get_key()) if not settings.TEST else None
+        image_id = self.redis.spop(self.get_key())
         if not image_id:
             return None
         try:

@@ -51,3 +51,6 @@ class SlideShowTestCase(BaseResourceTestCase):
     def test_get_or_create_login(self):
         self.login_user(self.data.user_b7w)
         self.test_get_or_create()
+
+    def test_next(self):
+        return
