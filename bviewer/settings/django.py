@@ -181,6 +181,8 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
 
+SESSION_SAVE_EVERY_REQUEST = True
+
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.CachedStaticFilesStorage'
 
 REST_FRAMEWORK = {
