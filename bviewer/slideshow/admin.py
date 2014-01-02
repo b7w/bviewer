@@ -10,9 +10,9 @@ from bviewer.slideshow.models import SlideShow
 class SlideShowAdmin(ProfileModelAdmin):
     list_select_related = True
 
-    fields = ('id', 'gallery', 'user', 'status', 'image_count', 'time',)
+    fields = ('id', 'gallery', 'user', 'timer', 'status', 'image_count', 'time',)
 
-    list_display = ('id', 'gallery_title', 'user', 'status', 'image_count', 'time', )
+    list_display = ('id', 'gallery_title', 'user', 'timer', 'status', 'image_count', 'time', )
     list_filter = ('gallery__title', 'time',)
     ordering = ('-time', )
 
@@ -26,10 +26,9 @@ site.register(SlideShow, SlideShowAdmin)
 
 
 class SlideShowProfile(SlideShowAdmin):
+    fields = ('id', 'gallery', 'timer', 'status', 'image_count', 'time',)
 
-    fields = ('id', 'gallery', 'status', 'image_count', 'time',)
-
-    list_display = ('id', 'gallery_title', 'status', 'image_count', 'time', )
+    list_display = ('id', 'gallery_title', 'timer', 'status', 'image_count', 'time', )
     list_filter = ('gallery__title', 'time',)
     ordering = ('-time', )
 
