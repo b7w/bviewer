@@ -69,4 +69,4 @@ class SlideShowResource(ModelViewSet):
                 return Response(dict(image_id=image.id, link=link, title=image.gallery.title))
             controller.finish()
             return Response(dict(error='No more images'), status=status.HTTP_204_NO_CONTENT)
-        return Response(dict(error='No slideshow with id "{0}'.format(pk)), status=status.HTTP_404_NOT_FOUND)
+        return Response(dict(error='No slideshow with id "{0}"'.format(pk)), status=status.HTTP_404_NOT_FOUND)

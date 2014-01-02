@@ -53,4 +53,26 @@ class SlideShowTestCase(BaseResourceTestCase):
         self.test_get_or_create()
 
     def test_next(self):
-        return
+        response = self.client.rest_get('/api/v1/slideshow/None/next/', check_status=False)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.error, 'No slideshow with id "None"')
+
+        obj = SlideShow.objects.create(
+            gallery=self.data.user_b7w.top_gallery,
+            user=self.data.user_b7w,
+            session_key=self.client.session.session_key,
+        )
+
+        url = '/api/v1/slideshow/{0}/next/'.format(obj.id)
+        response = self.client.rest_get(url)
+        self.assertIsNotNone(response.object['title'])
+        self.assertIsNotNone(response.object['image_id'])
+        self.assertIsNotNone(response.object['link'])
+
+        response = self.client.rest_get(url)
+        self.assertIsNotNone(response.object['title'])
+
+        response = self.client.rest_get(url, check_status=False)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        obj = SlideShow.objects.get(id=obj.id)
+        self.assertEqual(obj.status, SlideShow.FINISHED)
