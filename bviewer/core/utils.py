@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+import django_rq
+import mockredis
 import time
 import logging
 
 from django.conf import settings
 from django.utils.encoding import smart_text, smart_bytes
 from django.utils.functional import wraps
-from django_rq import get_queue
 
 from bviewer.core.exceptions import ResizeOptionsError
 
@@ -128,6 +129,14 @@ def cache_method(func):
     return wrapped
 
 
+def get_redis_connection():
+    if settings.TEST:
+        if not getattr(get_redis_connection, 'redis_mock', None):
+            setattr(get_redis_connection, 'redis_mock', mockredis.MockRedis())
+        return get_redis_connection.redis_mock
+    return django_rq.get_connection()
+
+
 def as_job(func, queue='default', timeout=None, waite=True, args=None, kwargs=None):
     """
     Add `func(*args, **kwargs)` to RQ. And waite for result, if `waite`.
@@ -136,7 +145,7 @@ def as_job(func, queue='default', timeout=None, waite=True, args=None, kwargs=No
         args = args or tuple()
         kwargs = kwargs or dict()
         return func(*args, **kwargs)
-    rq = get_queue(name=queue)
+    rq = django_rq.get_queue(name=queue)
     task = rq.enqueue(func, timeout=timeout, args=args, kwargs=kwargs)
     if waite:
         while not task.is_finished:
