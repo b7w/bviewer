@@ -33,6 +33,9 @@ class ModelTest(TestCase):
             'core.add_video',
             'core.change_video',
             'core.delete_video',
+            'slideshow.add_slideshow',
+            'slideshow.change_slideshow',
+            'slideshow.delete_slideshow',
         ]
         self.assertEqual(set(need), user.get_all_permissions())
 

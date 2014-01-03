@@ -67,6 +67,8 @@ class TestData(object):
         Or user `force=True` to override.
         """
         path = os.path.join(settings.VIEWER_STORAGE_PATH, home, name)
+        if not os.path.exists(os.path.dirname(path)):
+            os.makedirs(os.path.dirname(path))
         if not os.path.exists(path) or force:
             image = RandomImage(2048)
             image.draw(name)

@@ -74,6 +74,11 @@ h6 {
     font-size: 12px;
 }
 
+.small {
+    font-size: 85%;
+    font-style: italic;
+}
+
 .view-full {
 }
 
@@ -326,6 +331,13 @@ footer p {
 
 .gallery-title .description {
     width: 80%;
+}
+
+/* START SLIDESHOW */
+
+.slideshow .description {
+    margin: auto auto 2em;
+    width: 64%;
 }
 
 /* START PREVIEW */

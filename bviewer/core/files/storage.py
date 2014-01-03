@@ -85,11 +85,12 @@ class ImageStorage(object):
         Return list of sorted ImagePath. If path is not - list `self.root_path`.
         If `saved_images` declared with paths, saved=True will be check on equal paths.
 
-        :type saved_images: set of str
+        :type saved_images: list of Image
         :rtype: list of ImagePath
         """
         out = []
         path = path or ''
+        saved_images = saved_images or []
         if not self._is_valid_path(path):
             raise FileError(smart_text('Invalid "{p}" path').format(p=path))
         abs_path = os.path.join(self._abs_root_path, path) if path else self._abs_root_path
@@ -101,8 +102,11 @@ class ImageStorage(object):
             relative_path = os.path.join(path, file_name)
             image_path = ImagePath(self, relative_path)
             if image_path.is_image or image_path.is_dir:
-                if saved_images and image_path.path in saved_images:
-                    image_path.saved = True
+                for obj in saved_images:
+                    if obj.path == image_path.path:
+                        image_path.saved = True
+                        image_path.id = obj.id
+                        break
                 out.append(image_path)
 
         return sorted(out)

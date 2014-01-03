@@ -4,7 +4,7 @@ var core = {
 
         link2id = function (item) {
             return jQuery(item).parent().parent().attr('id')
-        }
+        };
 
         if (isMobile) {
             jQuery('.shadowbox').bind('click', function (e) {
@@ -30,7 +30,7 @@ var core = {
                 onClose: function (item) {
                     window.location.hash = '#!';
                 }
-            }
+            };
             Shadowbox.init(settings);
 
             var show_image = function () {
@@ -47,7 +47,7 @@ var core = {
                         }
                     }
                 }
-            }
+            };
             // Fucking Shadowbox.init callback doesn't work
             setTimeout(show_image, 1000);
 
@@ -87,6 +87,39 @@ var core = {
 
         jQuery('.preview img').bind('load', function () {
             jQuery(this).css({opacity: 1});
+        });
+    },
+
+    initCSRF: function () {
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        jQuery.ajaxSetup({
+            crossDomain: false, // obviates need for sameOrigin test
+            beforeSend: function (xhr, settings) {
+                var csrftoken = getCookie('csrftoken');
+                if (!csrfSafeMethod(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
         });
     }
 };
