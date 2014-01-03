@@ -22,7 +22,9 @@ There are a lot of services, why one more?
 
 | I do not want one more trash photo storage as a part of some service.
   I want service where photo is the key feature.
-  Where I can get pluses while watching it.
+
+| Also services like to add new features.
+  And in most cases make it worse. I want stability.
 
 
 Are there any comments?

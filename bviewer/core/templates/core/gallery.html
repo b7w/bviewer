@@ -5,6 +5,9 @@
 
 {% block navigation %}
     <li class="view-full">
+        <a href="#" onclick="playSlideshow()">Slideshow</a>
+    </li>
+    <li class="view-full">
         <a href="{% url 'archive.archive' main.id %}" title="Download all images in archive">Download</a>
     </li>
 {% endblock %}
@@ -20,7 +23,8 @@
         {% for item in videos %}
             <li id="{{ item.id }}" class="preview">
                 <div class="preview-body">
-                    <a class="shadowbox" href="{{ item.url }}" rel="shadowbox[videos];width=960;height=540;title={{ item.title }}">
+                    <a class="shadowbox" href="{{ item.url }}"
+                       rel="shadowbox[videos];width=960;height=540;title={{ item.title }}">
                         <img data-src="{% url 'core.video.thumbnail' item.id %}">
                     </a>
 
@@ -59,9 +63,20 @@
     {{ block.super }}
     <link id="shadowbox.css" href="{% static 'core/css/shadowbox.css' %}" rel="stylesheet" type="text/css">
     <script id="shadowbox.js" src="{% static 'core/js/shadowbox.min.js' %}" type="text/javascript"></script>
-    <script id="shadowbox.js" src="{% static 'core/js/core.js' %}" type="text/javascript"></script>
+    <script id="core.js" src="{% static 'core/js/core.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         core.imageLoading();
         core.shadowbox();
+
+        function playSlideshow() {
+            for (var i in Shadowbox.cache) {
+                var cache = Shadowbox.cache[i];
+                if (cache.gallery == 'images') {
+                    Shadowbox.open(cache);
+                    break;
+                }
+            }
+            Shadowbox.play();
+        }
     </script>
 {% endblock %}

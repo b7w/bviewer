@@ -36,6 +36,7 @@ Project structure
     * **exceptions** - All main exception classes.
     * **images** - Resizing and Image caching, Exif data.
 * **profile** - Provide subclass of *AdminSite* for gallery owners with limited access.
+* **slideshow** - Module for slideshow that cat run on many galleries.
 * **settings** - Django and project settings. Split and pack into python packages.
     * **django** - Default django settings setup for this project.
     * **project** - Settings used by application. Import django settings.
@@ -55,6 +56,19 @@ Holder profile
 | Profile was made for gallery owners, where he can edit only his galleries and images.
   Technically it is sub class of django *AdminSite*.
   Plus some separate views to provide extra image managing.
+
+
+SlideShow
+=========
+
+.. index:: SlideShow
+
+| It is separate view. It can be call on group on galleries.
+  Slideshow settings and status stored in relational database, image ids in Redis set.
+  Slideshow attached to user via session_key.
+  On slideshow creating each gallery put half random images to redis set.
+  On next call from set selected and deleted random image.
+  If no image in set, slideshow status is installed to Finish. And you need to create another one.
 
 
 Image storage
@@ -170,6 +184,29 @@ Models
         title = models.CharField(max_length=256)
         description = models.TextField(max_length=512, null=True)
         time = models.DateTimeField(default=datetime.now)
+
+.. index:: Slideshow model
+
+| **Slideshow model**. Store slideshow settings and status.
+  **user** - Need to check permissions.
+  **session_key** - To identify user.
+  **timer** - Time between image switching.
+  **status** - SlideShow status.
+  NEW - Task added to queue.
+  BUILD = Task done, slideshow can be viewed.
+  FINISHED = All images shown.
+
+.. code-block:: python
+
+    class SlideShow(models.Model):
+        id = models.CharField(max_length=32, default=uuid_pk(length=8), primary_key=True)
+        gallery = models.ForeignKey(Gallery)
+        user = models.ForeignKey(User, null=True)
+        session_key = models.CharField(max_length=32)
+        timer = models.SmallIntegerField(max_length=4, default=10)
+        status = models.SmallIntegerField(max_length=1, choices=STATUS_CHOICE, default=NEW)
+        image_count = models.IntegerField(max_length=8, default=0)
+        time = models.DateTimeField(default=timezone.now)
 
 
 Image processing

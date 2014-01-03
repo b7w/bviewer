@@ -113,7 +113,10 @@ def add_top_gallery(sender, instance, created, **kwargs):
             Q(codename='delete_image') |
             Q(codename='add_video') |
             Q(codename='change_video') |
-            Q(codename='delete_video')
+            Q(codename='delete_video') |
+            Q(codename='add_slideshow') |
+            Q(codename='change_slideshow') |
+            Q(codename='delete_slideshow')
         )
         instance.user_permissions = list(perms)
         instance.save()
@@ -198,7 +201,7 @@ def update_time_from_exif(sender, instance, created, **kwargs):
     if created:
         storage = ImageStorage(instance.gallery.user)
         image_path = storage.get_path(instance.path)
-        if image_path.exists and image_path.exif.ctime:
+        if image_path.is_image and image_path.exif.ctime:
             instance.time = image_path.exif.ctime
             instance.save()
 

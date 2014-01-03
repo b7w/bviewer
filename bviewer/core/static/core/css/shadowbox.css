@@ -69,6 +69,7 @@
     margin-top: -12px;
     width: 100%;
     text-align: center;
+    opacity: 0.64;
 }
 
 #sb-loading-inner span {

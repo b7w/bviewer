@@ -74,11 +74,11 @@ class ResizeImage(object):
 
     def is_bigger(self, width, height):
         """
-        Is this image bigger that `width` and `height`
+        Is this image bigger that `width` or `height`
         """
-        return self.width > width and self.height > height
+        return self.width > width or self.height > height
 
-    def min_size(self, value):
+    def scale_min_size(self, value):
         """
         Scale images size where the min size len will be `value`
         """
@@ -91,18 +91,18 @@ class ResizeImage(object):
             height = int(self.height / scale)
             return value, height
 
-    def max_size(self, value):
+    def scale_to(self, width, height):
         """
-        Scale images size where the max size len will be `value`
+        Scale images size where `width` and `height` will be max values
         """
         if self.is_portrait():
-            scale = float(self.height) / value
+            scale = float(self.height) / height
             width = int(self.width / scale)
-            return width, value
+            return width, height
         else:
-            scale = float(self.width) / value
+            scale = float(self.width) / width
             height = int(self.height / scale)
-            return value, height
+            return width, height
 
     def save_to(self, fout, quality):
         """
@@ -137,11 +137,11 @@ class CacheImage(object):
                 bigger = resize_image.is_bigger(self.options.width, self.options.height)
                 if bigger:
                     if self.options.crop:
-                        w, h = resize_image.min_size(self.options.size)
+                        w, h = resize_image.scale_min_size(self.options.size)
                         resize_image.resize(w, h)
                         resize_image.crop_center(self.options.width, self.options.height)
                     else:
-                        w, h = resize_image.max_size(self.options.size)
+                        w, h = resize_image.scale_to(self.options.width, self.options.height)
                         resize_image.resize(w, h)
                     with self.image.cache_open() as fout:
                         resize_image.save_to(fout, self.options.quality)
@@ -163,7 +163,7 @@ class CacheImage(object):
                 resize_image = ResizeImage(fin)
                 bigger = resize_image.is_bigger(self.options.width, self.options.height)
                 if bigger:
-                    w, h = resize_image.min_size(self.options.size)
+                    w, h = resize_image.scale_min_size(self.options.size)
                     resize_image.resize(w, h)
                     resize_image.crop_center(self.options.width, self.options.height)
                     with self.image.cache_open() as fout:

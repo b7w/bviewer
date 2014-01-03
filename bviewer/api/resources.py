@@ -1,140 +1,89 @@
 # -*- coding: utf-8 -*-
-from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.db.models import Q
 
-from tastypie import fields
-from tastypie.authentication import Authentication, MultiAuthentication, SessionAuthentication
-from tastypie.constants import ALL, ALL_WITH_RELATIONS
-from tastypie.resources import ModelResource
+from rest_framework.filters import OrderingFilter, DjangoFilterBackend
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.viewsets import ModelViewSet
+from bviewer.api.filters import UserSelfFilter, ItemUserSelfFilter
 
-from bviewer.api.authorization import GalleryAuthorization, GalleryItemAuthorization
+from bviewer.api.serializers import UserSerializer, GallerySerializer, ImageSerializer, VideoSerializer
 from bviewer.core.models import Gallery, ProxyUser, Image, Video
 
-EXACT = ['exact', ]
+
+ITEMS_PER_PAGE = 16
 
 
-class UserResource(ModelResource):
-    class Meta(object):
-        queryset = ProxyUser.objects.all()
-        resource_name = 'user'
-        allowed_methods = ['get', ]
-        excludes = ['email', 'password', 'is_active', 'is_staff', 'is_superuser', ]
-        filtering = {
-            'id': EXACT,
-            'username': ALL,
-        }
+class UserResource(ModelViewSet):
+    queryset = ProxyUser.objects.all().select_related()
+    serializer_class = UserSerializer
+    http_method_names = ('get',)
+    permission_classes = (IsAuthenticated,)
+
+    filter_backends = (OrderingFilter, DjangoFilterBackend,)
+    filter_fields = ('id', 'username')
+    ordering = ('username',)
+
+    paginate_by = ITEMS_PER_PAGE
 
 
-class GalleryResource(ModelResource):
-    user = fields.ForeignKey(UserResource, 'user')
+class GalleryResource(ModelViewSet):
+    queryset = Gallery.objects.all().select_related()
 
-    def dehydrate(self, bundle):
-        bundle.data['id'] = bundle.obj.id  # make ID integer
-        bundle.data['user_id'] = bundle.obj.user_id
-        bundle.data['parent_id'] = bundle.obj.parent_id
-        return bundle
+    http_method_names = ('get', 'post', 'delete',)
+    serializer_class = GallerySerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    def apply_filters(self, request, filters):
-        """
-        If filter `user=self` and is authenticated, replace it with his id
-        """
-        query = 'user__exact'
-        if request.user.is_authenticated():
-            if (query in filters and filters[query] == 'self') or request.method in ('POST', 'DELETE',):
-                filters[query] = request.user.id
-        return super(GalleryResource, self).apply_filters(request, filters)
+    filter_backends = (UserSelfFilter, OrderingFilter, DjangoFilterBackend)
+    filter_fields = ('id', 'user', 'title')
+    ordering = ('title', 'time',)
 
-    class Meta(object):
-        queryset = Gallery.objects.all().select_related()
-        resource_name = 'gallery'
-        allowed_methods = ['get', 'post', 'delete', ]
-        excludes = ['visibility', ]
-        authentication = MultiAuthentication(SessionAuthentication(), Authentication())
-        authorization = GalleryAuthorization()
-        filtering = {
-            'id': EXACT,
-            'user': ALL_WITH_RELATIONS,
-            'title': ALL,
-            'visibility': EXACT,
-            'time': ALL,
-        }
+    paginate_by = ITEMS_PER_PAGE
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_authenticated():
+            return self.queryset.filter(Q(visibility=Gallery.VISIBLE) | Q(user=user))
+        else:
+            return self.queryset.filter(visibility=Gallery.VISIBLE)
 
 
-class GalleryItemResource(ModelResource):
-    """
-    Abstract class for Models that have Gallery FK.
-    Need to implement Meta.queryset.
-    """
+class ImageResource(ModelViewSet):
+    queryset = Image.objects.all().select_related()
 
-    gallery = fields.ForeignKey(GalleryResource, 'gallery')
+    http_method_names = ('get', 'post', 'delete',)
+    serializer_class = ImageSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, )
 
-    def dehydrate(self, bundle):
-        bundle.data['id'] = bundle.obj.id  # make ID integer
-        bundle.data['gallery_id'] = bundle.obj.gallery_id
-        return bundle
+    filter_backends = (ItemUserSelfFilter, OrderingFilter, DjangoFilterBackend,)
+    filter_fields = ('id', 'gallery', 'path', )
+    ordering = ('time',)
 
-    def apply_filters(self, request, filters):
-        """
-        If filter `gallery__user=self` and is authenticated, replace it with his id
-        """
-        query = 'gallery__user__exact'
-        if request.user.is_authenticated():
-            if (query in filters and filters[query] == 'self') or request.method in ('POST', 'DELETE',):
-                filters[query] = request.user.id
-        return super(GalleryItemResource, self).apply_filters(request, filters)
+    paginate_by = ITEMS_PER_PAGE
 
-    class Meta(object):
-        allowed_methods = ['get', 'post', 'delete', ]
-        authentication = MultiAuthentication(SessionAuthentication(), Authentication())
-        authorization = GalleryItemAuthorization()
-        filtering = {
-            'id': EXACT,
-            'gallery': ALL_WITH_RELATIONS,
-        }
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_authenticated():
+            return self.queryset.filter(Q(gallery__visibility=Gallery.VISIBLE) | Q(gallery__user=user))
+        else:
+            return self.queryset.filter(gallery__visibility=Gallery.VISIBLE)
 
 
-class ImageResource(GalleryItemResource):
-    def dehydrate(self, bundle):
-        """
-        Add links to images. Show path field only for owner.
-        """
-        obj_id = bundle.obj.id
-        bundle.data['url'] = reverse('core.image', kwargs=dict(uid=obj_id))
-        links = {}
-        for size in settings.VIEWER_IMAGE_SIZE:
-            links[size] = reverse('core.download', kwargs=dict(size=size, uid=obj_id))
-        bundle.data['image'] = links
+class VideoResource(ModelViewSet):
+    queryset = Video.objects.all().select_related()
 
-        user = bundle.request.user
-        if not (user.is_authenticated() and user.id == bundle.obj.gallery.user_id):
-            del bundle.data['path']
-        return super(ImageResource, self).dehydrate(bundle)
+    http_method_names = ('get', 'post', 'delete',)
+    serializer_class = VideoSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, )
 
-    class Meta(GalleryItemResource.Meta):
-        queryset = Image.objects.all().select_related()
-        resource_name = 'image'
-        filtering = dict(
-            path=ALL,
-            **GalleryItemResource.Meta.filtering
-        )
+    filter_backends = (ItemUserSelfFilter, OrderingFilter, DjangoFilterBackend,)
+    filter_fields = ('id', 'gallery',)
+    ordering = ('time',)
 
+    paginate_by = ITEMS_PER_PAGE
 
-class VideoResource(GalleryItemResource):
-    def dehydrate(self, bundle):
-        """
-        Add links to videos
-        """
-        obj_id = bundle.obj.id
-        bundle.data['url'] = reverse('core.video', kwargs=dict(uid=obj_id))
-        bundle.data['thumbnail'] = reverse('core.video.thumbnail', kwargs=dict(uid=obj_id))
-        return super(VideoResource, self).dehydrate(bundle)
-
-    class Meta(GalleryItemResource.Meta):
-        queryset = Video.objects.all().select_related()
-        resource_name = 'video'
-        filtering = dict(
-            uid=EXACT,
-            type=ALL,
-            title=ALL,
-            **GalleryItemResource.Meta.filtering
-        )
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_authenticated():
+            return self.queryset.filter(Q(gallery__visibility=Gallery.VISIBLE) | Q(gallery__user=user))
+        else:
+            return self.queryset.filter(gallery__visibility=Gallery.VISIBLE)
