@@ -83,6 +83,7 @@ class BasePath(object):
         :type options: bviewer.core.utils.ImageOptions
         """
         self.storage = storage
+        self.id = None
         self.path = path
         self.options = options
         self.name = os.path.basename(path)

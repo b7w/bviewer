@@ -1,0 +1,103 @@
+{% extends 'core/base.html' %}
+{% load staticfiles %}
+
+{% block title %}{{ main.title }}{% endblock %}
+
+{% block main %}
+    <div class="slideshow message">
+        <h1>{{ main.title }}</h1>
+
+        <p class="description">{{ main.description|linebreaksbr }}</p>
+
+        <button onclick="start();">Slideshow</button>
+
+        <p class="small">Click to start</p>
+    </div>
+{% endblock %}
+
+{% block media %}
+    {{ block.super }}
+    <link id="shadowbox.css" href="{% static 'core/css/shadowbox.css' %}" rel="stylesheet" type="text/css">
+    <script id="shadowbox.js" src="{% static 'core/js/shadowbox.min.js' %}" type="text/javascript"></script>
+    <script id="shadowbox.js" src="{% static 'core/js/core.js' %}" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        core.initCSRF();
+
+        var LINK = "{{ link }}";
+        var INTERVAL_GALLERY = null;
+        var INTERVAL_IMAGES = null;
+
+        function start() {
+            var settings = {
+                overlayOpacity: 0.95,
+                viewportPadding: 32,
+                displayNav: false,
+                fadeDuration: 1.0,
+                resizeDuration: 0.4,
+                onClose: function () {
+                    clearInterval(INTERVAL_IMAGES);
+                }
+            };
+            Shadowbox.init(settings);
+
+            function initSlideShow(callback) {
+                jQuery.ajax({
+                    url: LINK,
+                    complete: function (response) {
+                        if (response.status == 200) {
+                            var data = response.responseJSON;
+                            if (data.status == 1 && INTERVAL_GALLERY == null) {
+                                INTERVAL_GALLERY = window.setInterval(function () {
+                                    initSlideShow(callback);
+                                }, 256);
+                            }
+                            if (data.status == 2) {
+                                clearInterval(INTERVAL_GALLERY);
+                                clearInterval(INTERVAL_IMAGES);
+
+                                jQuery('body').delegate('#sb-body', 'click', function (e) {
+                                    callback(data.detail + 'next/');
+                                });
+
+                                callback(data.detail + 'next/');
+
+                                INTERVAL_IMAGES = window.setInterval(function () {
+                                    callback(data.detail + 'next/');
+                                }, data.timer * 1000);
+                            }
+
+                        }
+                    }
+                });
+            }
+
+            function loadImage(url_next) {
+                jQuery.ajax({
+                    url: url_next,
+                    complete: function (response) {
+                        if (response.status == 200) {
+                            var data = response.responseJSON;
+                            var a = document.createElement('a');
+                            a.href = data.link;
+                            a.rel = 'shadowbox[images]';
+                            a.title = data.title;
+                            var obj = Shadowbox.makeObject(a);
+                            Shadowbox.gallery = [obj];
+                            if (Shadowbox.isOpen()) {
+                                Shadowbox.change(0);
+                            } else {
+                                Shadowbox.open(obj);
+                            }
+                        } else if (response.status == 204) {
+                            clearInterval(INTERVAL_IMAGES);
+                            Shadowbox.close();
+                        }
+                    }
+                });
+            }
+
+            initSlideShow(loadImage);
+        }
+    </script>
+{% endblock %}

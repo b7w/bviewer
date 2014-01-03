@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 import logging
 
-import django_rq
-from django.conf import settings as django_settings
-
 from bviewer.core.files.storage import ImageStorage
-from bviewer.core.utils import ImageOptions, cache_method, as_job
+from bviewer.core.utils import ImageOptions, cache_method, as_job, get_redis_connection
 
 
 logger = logging.getLogger(__name__)
@@ -60,9 +57,7 @@ class ZipArchiveController(object):
 
         :rtype: int
         """
-        if django_settings.TEST:
-            return -1
-        redis = django_rq.get_connection()
+        redis = get_redis_connection()
         value = redis.get(self._redis_uid)
         return int(value) if value is not None else -1
 
@@ -71,9 +66,8 @@ class ZipArchiveController(object):
         Process if `self.status` == NONE
         Update redis progress each file.
         """
-        lenght = len(self.image_paths)
         # local otherwise not pickle
-        redis = django_rq.get_connection()
+        redis = get_redis_connection()
 
         if self.status == 'NONE':
             with self.archive.open(mode='w') as z:
@@ -81,9 +75,8 @@ class ZipArchiveController(object):
                     with image_path.open(mode='rb') as f:
                         z.writestr(image_path.name, f.read())
 
-                    if not django_settings.TEST:
-                        percent = int(float(i) / lenght * 100)
-                        redis.setex(self._redis_uid, percent, time=self.STATUS_KEY_TIMOUT)
+                    percent = int(float(i) / len(self.image_paths) * 100)
+                    redis.setex(self._redis_uid, percent, time=self.STATUS_KEY_TIMOUT)
 
             self.archive.rename_temp_cache()
 

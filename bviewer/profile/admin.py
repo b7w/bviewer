@@ -56,11 +56,13 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
     fields = ('parent', 'title', 'visibility', 'gallery_sorting', 'images', 'description', 'time', 'thumbnails', )
 
     def images(self, obj):
-        url = reverse('profile.gallery', kwargs=dict(uid=obj.id))
-        path = self.images_expected_path(obj)
-        count = Image.objects.filter(gallery=obj).count()
-        return smart_text('<b><a href="{url}?p={p}">Select images on disk ({count})</a></b>') \
-            .format(url=url, p=path, count=count)
+        if Gallery.objects.safe_get(id=obj.id):
+            url = reverse('profile.gallery', kwargs=dict(uid=obj.id))
+            path = self.images_expected_path(obj)
+            count = Image.objects.filter(gallery=obj).count()
+            return smart_text('<b><a href="{url}?p={p}">Select images on disk ({count})</a></b>') \
+                .format(url=url, p=path, count=count)
+        return smart_text('<b>Save gallery first to select images</b>')
 
     images.allow_tags = True
 
@@ -90,12 +92,21 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
 
     def save_model(self, request, obj, form, change):
         obj.user = ProxyUser.objects.get(pk=request.user.pk)
+        if not obj.parent:
+            obj.parent = obj.user.top_gallery
         thumbnail_id = form.data['thumbnail_id']
         if thumbnail_id != 'None':
             obj.thumbnail_id = thumbnail_id
         else:
             obj.thumbnail = None
         obj.save()
+
+    def add_view(self, request, form_url='', extra_context=None):
+        # Add default parent Welcome gallery
+        data = request.GET.copy()
+        data['parent'] = ProxyUser.objects.get(pk=request.user.pk).top_gallery_id
+        request.GET = data
+        return super(ProfileGalleryAdmin, self).add_view(request, form_url, extra_context)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """

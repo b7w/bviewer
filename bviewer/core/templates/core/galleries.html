@@ -3,6 +3,16 @@
 
 {% block title %}{{ main.title }}{% endblock %}
 
+{% block navigation %}
+    <li class="view-full">
+        {% if holder.top_gallery_id == main.id %}
+            <a href="{% url 'slideshow.index' %}">Slideshow</a>
+        {% else %}
+            <a href="{% url 'slideshow.gallery' main.id %}">Slideshow</a>
+        {% endif %}
+    </li>
+{% endblock %}
+
 {% block main %}
     <div class="gallery-title">
         <h2>{{ main.title }}</h2>
@@ -22,7 +32,8 @@
 
                     <div class="carousel-caption">
                         {% if item.visibility == item.PRIVATE or item.visibility == item.HIDDEN %}
-                            <i class="icon-white icon-eye-open pull-right" title="{{ item.get_visibility_display }} gallery"></i>
+                            <i class="icon-white icon-eye-open pull-right"
+                               title="{{ item.get_visibility_display }} gallery"></i>
                         {% endif %}
                         <h4>{{ item.title }}</h4>
 

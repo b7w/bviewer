@@ -48,8 +48,8 @@ VIEWER_IMAGE_SIZE = {
         'CROP': True,
     },
     'big': {
-        'WIDTH': 1280,
-        'HEIGHT': 720,
+        'WIDTH': 1920,
+        'HEIGHT': 1080,
     },
     'full': {
         'WIDTH': 10 ** 6,

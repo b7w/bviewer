@@ -51,19 +51,19 @@ h1, h2, h3 {
 }
 
 h1 {
-    font-size: 38.5px;
+    font-size: 38px;
 }
 
 h2 {
-    font-size: 31.5px;
+    font-size: 32px;
 }
 
 h3 {
-    font-size: 24.5px;
+    font-size: 24px;
 }
 
 h4 {
-    font-size: 17.5px;
+    font-size: 18px;
 }
 
 h5 {
@@ -71,10 +71,30 @@ h5 {
 }
 
 h6 {
-    font-size: 11.9px;
+    font-size: 12px;
+}
+
+.small {
+    font-size: 85%;
+    font-style: italic;
 }
 
 .view-full {
+}
+
+/* START SCROLLBAR */
+::-webkit-scrollbar {
+    width: 8px;
+    background-color: #000;
+}
+
+::-webkit-scrollbar-track {
+    background: none;
+}
+
+::-webkit-scrollbar-thumb {
+    background: -webkit-linear-gradient(right, #555, #777);
+    border-radius: 1px;
 }
 
 /* START NAVIGATION BAR */
@@ -200,7 +220,7 @@ footer p {
     float: left;
 }
 
-ul.unstyled, ol.unstyled {
+.container ul.unstyled, .container ol.unstyled {
     margin-left: 0;
     padding: 0;
     list-style: none;
@@ -208,23 +228,23 @@ ul.unstyled, ol.unstyled {
 
 /* START FORMS */
 
-fieldset {
+.container fieldset {
     padding: 0;
     margin: 0;
     border: 0
 }
 
-input, button {
+.container input, .container button {
     font-size: 14px;
     font-weight: normal;
     line-height: 20px
 }
 
-input, button {
+.container input, .container button {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-input {
+.container input {
     display: inline-block;
     height: 20px;
     width: 206px;
@@ -239,7 +259,7 @@ input {
     outline: none;
 }
 
-button {
+.container button {
     display: inline-block;
     padding: 4px 12px;
     margin-bottom: 0;
@@ -311,6 +331,13 @@ button {
 
 .gallery-title .description {
     width: 80%;
+}
+
+/* START SLIDESHOW */
+
+.slideshow .description {
+    margin: auto auto 2em;
+    width: 64%;
 }
 
 /* START PREVIEW */
@@ -441,7 +468,7 @@ button {
 
 /* START MEDIA */
 
-@media only screen and (max-width : 480px) {
+@media only screen and (max-width: 480px) {
     /* Smartphone view: 1 tile */
     body {
         padding-top: 30px;
@@ -466,7 +493,7 @@ button {
     }
 }
 
-@media only screen and (max-width : 650px) and (min-width : 481px) {
+@media only screen and (max-width: 650px) and (min-width: 481px) {
     /* Tablet view: 2 tiles */
     .view-full {
         display: none !important;
@@ -482,7 +509,7 @@ button {
     }
 }
 
-@media only screen and (max-width : 1050px) and (min-width : 651px) {
+@media only screen and (max-width: 1050px) and (min-width: 651px) {
     /* Small desktop / ipad view: 3 tiles */
     .preview {
         width: 33.3%;
