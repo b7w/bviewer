@@ -14,11 +14,9 @@ logger = logging.getLogger(__name__)
 
 
 class SlideShowGenerator(object):
-    PER_PAGE = 64
-
     def __init__(self, slideshow, redis=None):
         self.slideshow = slideshow
-        self.redis = redis or get_redis_connection()
+        self.redis = redis
         self.holder = slideshow.gallery.user
         self.user = slideshow.user
         self.gallery_ctrl = GalleryController(self.holder, self.user, slideshow.gallery_id)
@@ -28,6 +26,8 @@ class SlideShowGenerator(object):
 
     def generate(self, ratio=0.5):
         assert 0 < ratio < 1
+        # safe for pickle
+        redis = self.redis or get_redis_connection()
 
         saved_images_count = 0
         for gallery in self.gallery_ctrl.get_all_sub_galleries(parents=False):
@@ -36,14 +36,14 @@ class SlideShowGenerator(object):
             images_ids = random.sample(images_ids, count)
             saved_images_count += len(images_ids)
             if images_ids:
-                self.redis.sadd(self.get_key(), *images_ids)
+                redis.sadd(self.get_key(), *images_ids)
 
         self.slideshow.status = SlideShow.BUILD
         self.slideshow.image_count = saved_images_count
         self.slideshow.save()
 
     def generate_async(self):
-        as_job(self.generate, waite=False)
+        as_job(self.generate, queue='low', waite=False)
 
 
 class SlideShowController(object):
