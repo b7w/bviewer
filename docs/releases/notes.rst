@@ -4,11 +4,19 @@ Release notes
 
 .. index:: Release notes
 
+| **v1.0.6** - *3.01.1013*
+| Hot critical bug fix.
+
+* Fix bug with worker redis connection serialization
+
+
 | **v1.0.5** - *3.01.1013*
 | Move project to new short address. Add slideshow module. Fix too big size vertical image.
   The basis for the transition to the new rest module was more simple and clear api.
 
-| Need to run manage.py syncdb
+| Deployment: Run manage.py syncdb.
+  Add slideshow permissions to holders to allow it in profile.
+  Update requirements.
 
 * Move project from https://bitbucket.org/b7w/believeviewer to https://bitbucket.org/b7w/bviewer
 * Fix image resize feature
