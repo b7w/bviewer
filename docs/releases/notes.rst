@@ -4,12 +4,18 @@ Release notes
 
 .. index:: Release notes
 
-| **v1.0.5 dev**
-| Move project to new short address.
+| **v1.0.5** - *3.01.1013*
+| Move project to new short address. Add slideshow module. Fix too big size vertical image.
+  The basis for the transition to the new rest module was more simple and clear api.
+
+| Need to run manage.py syncdb
 
 * Move project from https://bitbucket.org/b7w/believeviewer to https://bitbucket.org/b7w/bviewer
 * Fix image resize feature
 * Add custom scrollbar for webkit
+* Move project from Tastypie to Django REST framework
+* Add mock redis dependency for test purpose
+* Add slideshow app
 
 
 | **v1.0.4** - *10.09.1013*
