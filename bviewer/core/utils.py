@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+import django_rq
+import mockredis
 import time
 import logging
 
 from django.conf import settings
 from django.utils.encoding import smart_text, smart_bytes
 from django.utils.functional import wraps
-from django_rq import get_queue
 
 from bviewer.core.exceptions import ResizeOptionsError
 
@@ -118,7 +119,7 @@ def cache_method(func):
 
     @wraps(func)
     def wrapped(self):
-        name = '_' + func.__name__
+        name = '_cache_' + func.__name__
         if hasattr(self, name):
             return getattr(self, name, None)
         cached = func(self)
@@ -126,6 +127,14 @@ def cache_method(func):
         return cached
 
     return wrapped
+
+
+def get_redis_connection():
+    if settings.TEST:
+        if not getattr(get_redis_connection, 'redis_mock', None):
+            setattr(get_redis_connection, 'redis_mock', mockredis.MockRedis())
+        return get_redis_connection.redis_mock
+    return django_rq.get_connection()
 
 
 def as_job(func, queue='default', timeout=None, waite=True, args=None, kwargs=None):
@@ -136,7 +145,7 @@ def as_job(func, queue='default', timeout=None, waite=True, args=None, kwargs=No
         args = args or tuple()
         kwargs = kwargs or dict()
         return func(*args, **kwargs)
-    rq = get_queue(name=queue)
+    rq = django_rq.get_queue(name=queue)
     task = rq.enqueue(func, timeout=timeout, args=args, kwargs=kwargs)
     if waite:
         while not task.is_finished:
@@ -153,6 +162,6 @@ def method_call_str(func_name, self, *args, **kwargs):
     """
     func_format = '{o}.{n}({a}, {kw})' if kwargs else '{o}.{n}({a})'
     str_args = smart_text(', ').join(map(smart_text, args))
-    str_kwargs_pairs = [smart_text('{0}={1}').format(k, v) for k, v in kwargs.items()]
+    str_kwargs_pairs = [smart_text('{0}={1}').format(k, smart_text(v)) for k, v in kwargs.items()]
     str_kwargs = smart_text(', ').join(str_kwargs_pairs)
     return smart_text(func_format).format(o=self, n=func_name, a=str_args, kw=str_kwargs)

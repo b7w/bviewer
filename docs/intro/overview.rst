@@ -42,6 +42,8 @@ Features
 * | All real full size images in gallery can be download via zip archive.
     *Sub galleries not included.*
 
+* | Slideshow on gallery or random slideshow on group of galleries.
+
 * | Video can be add from Vimio or YouTube.
 
 * | Simple about page for information about owner.

@@ -12,5 +12,6 @@ urlpatterns = patterns('',
     url(r'^api/', include('bviewer.api.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^profile/', include('bviewer.profile.urls')),
+    url(r'^slideshow/', include('bviewer.slideshow.urls')),
     url(r'^rq/', include('django_rq.urls')),
 )
