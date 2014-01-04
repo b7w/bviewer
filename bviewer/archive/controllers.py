@@ -43,7 +43,8 @@ class ZipArchiveController(object):
     def uid(self):
         pack = [self.holder.home, ]
         for path in self.image_paths:
-            pack.append(path.cache_name)
+            if path.exists:
+                pack.append(path.cache_name)
         return self.storage.hash_for(tuple(pack))
 
     @property
@@ -72,8 +73,10 @@ class ZipArchiveController(object):
         if self.status == 'NONE':
             with self.archive.open(mode='w') as z:
                 for i, image_path in enumerate(self.image_paths, start=1):
-                    with image_path.open(mode='rb') as f:
-                        z.writestr(image_path.name, f.read())
+                    # if file not exists - ignore
+                    if image_path.exists:
+                        with image_path.open(mode='rb') as f:
+                            z.writestr(image_path.name, f.read())
 
                     percent = int(float(i) / len(self.image_paths) * 100)
                     redis.setex(self._redis_uid, percent, time=self.STATUS_KEY_TIMOUT)

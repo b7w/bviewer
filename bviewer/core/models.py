@@ -181,7 +181,7 @@ class Image(models.Model):
         """
         storage = ImageStorage(self.gallery.user)
         if not storage.exists(self.path):
-            raise ValidationError('No {0} path exists'.format(self.path))
+            raise ValidationError(smart_text('No {0} path exists').format(self.path))
 
     def __str__(self):
         return smart_text('{0}: {1}').format(self.gallery.title, self.path)
@@ -233,7 +233,7 @@ class Video(models.Model):
             return escape('http://player.vimeo.com/video/{0}?title=0'.format(self.uid))
         elif self.type == self.YOUTUBE:
             return escape('http://youtube.com/embed/{0}'.format(self.uid))
-        raise ValueError('unknown video type: {0}'.format(self.type))
+        raise ValueError(smart_text('unknown video type: {0}').format(self.type))
 
     @property
     def thumbnail_url(self):
@@ -251,7 +251,7 @@ class Video(models.Model):
                 raise HttpError(e)
         elif self.type == self.YOUTUBE:
             return 'http://img.youtube.com/vi/{0}/hqdefault.jpg'.format(self.uid)
-        raise ViewerError('Unknown video type: {0}'.format(self.type))
+        raise ViewerError(smart_text('Unknown video type: {0}').format(self.type))
 
     def __str__(self):
         return self.title
