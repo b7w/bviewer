@@ -11,11 +11,13 @@ Adding content
 .. index:: Adding content, Content
 
 | To add content login, and click profile link on a right side.
-  On django admin site add new gallery (Home › Galleries). After creating follow  *edit* link in *Images* field.
+  On django admin site add new gallery (Home › Galleries).
+  After creating follow *Select images on disk* link in *Images* field.
   In new window find in file system your directory with images and check them. Save.
 
 | To select gallery thumbnail, go to the gallery settings (Home › Galleries > Some gallery).
-  At the bottom select one from appeared image. Save.
+  At the bottom click *Click to see all image previews or select gallery thumbnail*.
+  Select one from appeared images. Save.
 
 | To add video, go to videos (Home › Videos). Add video, in *Gallery* field select required gallery.
 
@@ -35,7 +37,6 @@ Application cache
 
     python manage.py clearcache
     python manage.py clearcache full
-    fab clear
 
 | It is better to run first command every hour.
   Open crontab file and add line to the end.
