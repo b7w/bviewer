@@ -2,14 +2,14 @@
 from datetime import datetime
 
 from bviewer.core.images import CacheImage
-from bviewer.core.tests import ImageStorageTestCase
+from bviewer.core.tests.base import BaseImageStorageTestCase
 from bviewer.core.tests.data import TestData
 from bviewer.core.utils import ImageOptions
 
 
-class CacheImageTest(ImageStorageTestCase):
+class CacheImageTestCase(BaseImageStorageTestCase):
     def setUp(self):
-        super(CacheImageTest, self).setUp()
+        super(CacheImageTestCase, self).setUp()
         self.data = TestData()
         self.path = 'image1.jpg'
         self.data.generate_image(self.holder.home, self.path)
@@ -36,7 +36,7 @@ class CacheImageTest(ImageStorageTestCase):
         self.assertCacheImage(big_options, download=True)
 
 
-class ExifTest(ImageStorageTestCase):
+class ExifTest(BaseImageStorageTestCase):
     def setUp(self):
         super(ExifTest, self).setUp()
         self.data = TestData()

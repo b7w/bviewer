@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
+from mock import Mock
 import os
 import shutil
 
 from django.conf import settings
 from django.core import urlresolvers
 from django.test import TestCase
+from bviewer.core.files.storage import ImageStorage
 
 from bviewer.core.tests.data import TestData
 
 
-class BaseViewTest(TestCase):
+class BaseViewTestCase(TestCase):
     """
     Set up TestData, b7w user as holder.
     """
@@ -41,3 +43,23 @@ class BaseViewTest(TestCase):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertIn(content, resp.content)
+
+
+class BaseImageStorageTestCase(TestCase):
+    def setUp(self):
+        self.holder = Mock(home='holder_home', url='holder_url', cache_size=0)
+        self.storage = ImageStorage(self.holder)
+        self.remove_storage_folders()
+        self.create_storage_folders()
+
+    def create_storage_folders(self):
+        if not os.path.exists(self.storage._abs_root_path):
+            os.makedirs(self.storage._abs_root_path)
+        if not os.path.exists(self.storage._abs_cache_path):
+            os.makedirs(self.storage._abs_cache_path)
+
+    def remove_storage_folders(self):
+        if os.path.exists(self.storage._abs_root_path):
+            shutil.rmtree(self.storage._abs_root_path)
+        if os.path.exists(self.storage._abs_cache_path):
+            shutil.rmtree(self.storage._abs_cache_path)

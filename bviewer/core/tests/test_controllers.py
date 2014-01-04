@@ -6,7 +6,7 @@ from bviewer.core.models import Gallery
 from bviewer.core.tests.data import TestData
 
 
-class ControllersTest(TestCase):
+class ControllersTestCase(TestCase):
     def test_gallery_controller_all_sub_galleries(self):
         """
         Tests GalleryController.get_all_sub_galleries

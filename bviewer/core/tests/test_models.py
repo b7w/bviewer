@@ -9,7 +9,7 @@ from bviewer.core.models import ProxyUser, Gallery, Video
 from bviewer.core.tests.data import TestData
 
 
-class ModelTest(TestCase):
+class ModelTestCase(TestCase):
     def test_new_gallery_user(self):
         """
         Tests domain match

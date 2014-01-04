@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import shutil
 from mock import Mock, patch
 
 from django.test import TestCase
@@ -9,10 +8,11 @@ from bviewer.core.exceptions import FileError
 from bviewer.core.files.path import ImagePath
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.files.utils import ImageFolder
+from bviewer.core.tests.base import BaseImageStorageTestCase
 from bviewer.core.utils import ImageOptions
 
 
-class ImagePathTest(TestCase):
+class ImagePathTestCase(TestCase):
     def setUp(self):
         self.storage = Mock(hash_for=str)
         self.f1 = ImagePath(self.storage, 'path/1.jpg')
@@ -66,7 +66,7 @@ class ImagePathTest(TestCase):
         self.assertEqual(name1, name2)
 
 
-class ImageFolderTest(TestCase):
+class ImageFolderTestCase(TestCase):
     def test_back(self):
         folder = ImageFolder('root/p1', [])
         self.assertEqual(folder.back, 'root')
@@ -83,29 +83,9 @@ class ImageFolderTest(TestCase):
         self.assertEqual(res, ref)
 
 
-class ImageStorageTestCase(TestCase):
+class ImageStorageTestCase(BaseImageStorageTestCase):
     def setUp(self):
-        self.holder = Mock(home='holder_home', url='holder_url', cache_size=0)
-        self.storage = ImageStorage(self.holder)
-        self.remove_storage_folders()
-        self.create_storage_folders()
-
-    def create_storage_folders(self):
-        if not os.path.exists(self.storage._abs_root_path):
-            os.makedirs(self.storage._abs_root_path)
-        if not os.path.exists(self.storage._abs_cache_path):
-            os.makedirs(self.storage._abs_cache_path)
-
-    def remove_storage_folders(self):
-        if os.path.exists(self.storage._abs_root_path):
-            shutil.rmtree(self.storage._abs_root_path)
-        if os.path.exists(self.storage._abs_cache_path):
-            shutil.rmtree(self.storage._abs_cache_path)
-
-
-class ImageStorageTest(ImageStorageTestCase):
-    def setUp(self):
-        super(ImageStorageTest, self).setUp()
+        super(ImageStorageTestCase, self).setUp()
         self.data = ['1.jpg', '2.jpeg', '3.jpg', '4.jpg', '5.jpg']
         os.makedirs(os.path.join(self.storage._abs_root_path, 'folder'))
 
