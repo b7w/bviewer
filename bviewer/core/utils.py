@@ -165,3 +165,12 @@ def method_call_str(func_name, self, *args, **kwargs):
     str_kwargs_pairs = [smart_text('{0}={1}').format(k, smart_text(v)) for k, v in kwargs.items()]
     str_kwargs = smart_text(', ').join(str_kwargs_pairs)
     return smart_text(func_format).format(o=self, n=func_name, a=str_args, kw=str_kwargs)
+
+
+def show_toolbar(request):
+    """
+    For debug settings DEBUG_TOOLBAR_CONFIG.SHOW_TOOLBAR_CALLBACK
+    """
+    if hasattr(settings, 'DEBUG_TOOL_BAR'):
+        return settings.DEBUG_TOOL_BAR
+    return False

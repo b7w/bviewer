@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from bviewer.core.tests.base import BaseViewTest
+from bviewer.core.tests.base import BaseViewTestCase
 
 
-class PrivateGalleriesTest(BaseViewTest):
+class PrivateGalleriesTestCase(BaseViewTestCase):
     """
     Create private gallery and not.
     Test that only owner have access to private.

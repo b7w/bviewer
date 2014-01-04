@@ -2,7 +2,7 @@
 from django.conf import settings
 from rest_framework import status
 
-from bviewer.api.tests import BaseResourceTestCase
+from bviewer.api.tests.base import BaseResourceTestCase
 from bviewer.slideshow.models import SlideShow
 
 

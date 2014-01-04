@@ -15,7 +15,7 @@ def request_mock(host, user=None):
     return mock
 
 
-class UtilsTest(TestCase):
+class UtilsTestCase(TestCase):
     def test_re_domain(self):
         """
         Tests domain match
