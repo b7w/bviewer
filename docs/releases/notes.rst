@@ -4,13 +4,13 @@ Release notes
 
 .. index:: Release notes
 
-| **v1.0.6** - *3.01.1013*
+| **v1.0.6** - *3.01.1014*
 | Hot critical bug fix.
 
 * Fix bug with worker redis connection serialization
 
 
-| **v1.0.5** - *3.01.1013*
+| **v1.0.5** - *3.01.1014*
 | Move project to new short address. Add slideshow module. Fix too big size vertical image.
   The basis for the transition to the new rest module was more simple and clear api.
 
