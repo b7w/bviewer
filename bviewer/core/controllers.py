@@ -5,7 +5,9 @@ import re
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
+from django.utils.encoding import smart_text
 
+from bviewer.core.exceptions import FileError
 from bviewer.core.files.response import download_response
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.images import CacheImage
@@ -183,6 +185,8 @@ class ImageController(MediaController):
         storage = ImageStorage(self.holder)
         options = ImageOptions.from_settings(size)
         image_path = storage.get_path(image.path, options)
+        if not image_path.exists:
+            raise FileError(smart_text('Image {0} not found').format(image.path))
 
         if not image_path.cache_exists:
             image_async = CacheImage(image_path)

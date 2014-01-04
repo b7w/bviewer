@@ -4,6 +4,12 @@ Release notes
 
 .. index:: Release notes
 
+| **v1.0.7 dev**
+| Fix some bugs. Move project to django 1.6
+
+* Fix exception in getting image cache name on wrong file path
+
+
 | **v1.0.6** - *3.01.1014*
 | Hot critical bug fix.
 
