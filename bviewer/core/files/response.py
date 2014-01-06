@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
 from django.core.servers.basehttp import FileWrapper
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.utils.importlib import import_module
 
 
-class DjangoDownloadHttpResponse(HttpResponse):
+class DjangoDownloadHttpResponse(StreamingHttpResponse):
     def __init__(self, path, name=None):
         """
         :type path: bviewer.core.files.path.ImagePath
