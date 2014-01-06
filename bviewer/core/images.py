@@ -56,8 +56,8 @@ class ResizeImage(object):
         """
         Cut out an image with `width` and `height` of the center
         """
-        x_offset = (self.width - width) / 2
-        y_offset = (self.height - height) / 2
+        x_offset = int((self.width - width) / 2)
+        y_offset = int((self.height - height) / 2)
         self.crop(x_offset, y_offset, x_offset + width, y_offset + height)
 
     def is_portrait(self):
@@ -250,7 +250,7 @@ class RandomImage(object):
 
     def draw_background(self, tiles):
         self._draw.rectangle((0, 0, self.size, self.size), fill=self.random_color())
-        step = self.size / tiles
+        step = int(self.size / tiles)
         for y in range(0, self.size, step):
             for x in range(0, self.size, step):
                 self._draw.rectangle((x, y, x + step, y + step), fill=self.random_color())

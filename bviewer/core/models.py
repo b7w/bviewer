@@ -244,7 +244,7 @@ class Video(models.Model):
             try:
                 url = 'http://vimeo.com/api/v2/video/{0}.json'.format(self.uid)
                 raw = urlopen(url, timeout=4).read()
-                info = json.loads(raw, encoding='UTF-8').pop()
+                info = json.loads(smart_text(raw), encoding='UTF-8').pop()
                 return info['thumbnail_large']
             except URLError as e:
                 logger.exception('Error urlopen VIMIO api')

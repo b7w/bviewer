@@ -79,7 +79,7 @@ class ZipArchiveController(object):
                             z.writestr(image_path.name, f.read())
 
                     percent = int(float(i) / len(self.image_paths) * 100)
-                    redis.setex(key=self._redis_uid, value=percent, time=self.STATUS_KEY_TIMOUT)
+                    redis.setex(self._redis_uid, value=percent, time=self.STATUS_KEY_TIMOUT)
 
             self.archive.rename_temp_cache()
 

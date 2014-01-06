@@ -31,7 +31,7 @@ class SlideShowGenerator(object):
 
         saved_images_count = 0
         for gallery in self.gallery_ctrl.get_all_sub_galleries(parents=False):
-            images_ids = Image.objects.filter(gallery=gallery).values_list('id', flat=True)
+            images_ids = list(Image.objects.filter(gallery=gallery).values_list('id', flat=True))
             count = int(len(images_ids) * ratio)
             images_ids = random.sample(images_ids, count)
             saved_images_count += len(images_ids)
