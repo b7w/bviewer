@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 
+from django.utils.encoding import smart_text
 from django.test.client import Client
 from rest_framework import status
 
@@ -25,7 +26,7 @@ class ResourceClient(Client):
         if check_status:
             assert_message = 'response.status_code = {0}'.format(response.status_code)
             assert response.status_code == status.HTTP_200_OK, assert_message
-        result = json.loads(response.content) if response.content else {}
+        result = json.loads(smart_text(response.content)) if response.content else {}
         if 'results' in result:
             response.objects = result['results']
         elif 'error' in result:

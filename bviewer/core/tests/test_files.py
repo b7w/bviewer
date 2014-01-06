@@ -3,6 +3,7 @@ import os
 from mock import Mock, patch
 
 from django.test import TestCase
+from django.utils import six
 
 from bviewer.core.exceptions import FileError
 from bviewer.core.files.path import ImagePath
@@ -136,4 +137,5 @@ class ImageStorageTestCase(BaseImageStorageTestCase):
 
         assert_method_for_cache('os.path.getctime', storage.ctime, side_effect=str)
         assert_method_for_cache('os.path.exists', storage.exists, side_effect=str)
-        assert_method_for_cache('__builtin__.open', storage.open, side_effect=lambda path, mode: str(path))
+        open_module = 'builtins.open' if six.PY3 else '__builtin__.open'
+        assert_method_for_cache(open_module, storage.open, side_effect=lambda path, mode: str(path))

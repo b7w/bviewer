@@ -2,6 +2,7 @@
 from django.conf import settings
 from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse, StreamingHttpResponse
+from django.utils.encoding import smart_text, smart_bytes
 from django.utils.importlib import import_module
 
 
@@ -14,7 +15,7 @@ class DjangoDownloadHttpResponse(StreamingHttpResponse):
         super(DjangoDownloadHttpResponse, self).__init__(wrapper)
         name = name or path.name
         self['Content-Type'] = path.content_type
-        self['Content-Disposition'] = 'attachment; filename="%s"' % name.encode('utf-8')
+        self['Content-Disposition'] = smart_bytes(smart_text('attachment; filename="{0}"').format(name))
         self['Content-Length'] = path.cache_size
 
 
@@ -25,11 +26,11 @@ class NginxDownloadHttpResponse(HttpResponse):
         """
         super(NginxDownloadHttpResponse, self).__init__()
         name = name or path.name
-        url = settings.VIEWER_DOWNLOAD_RESPONSE['INTERNAL_URL'] + '/' + path.url.encode('utf-8')
+        url = settings.VIEWER_DOWNLOAD_RESPONSE['INTERNAL_URL'] + '/' + smart_text(path.url)
         self['X-Accel-Charset'] = 'utf-8'
-        self['X-Accel-Redirect'] = url
+        self['X-Accel-Redirect'] = smart_bytes(url)
         self['Content-Type'] = path.content_type
-        self['Content-Disposition'] = 'attachment; filename="%s"' % name.encode('utf-8')
+        self['Content-Disposition'] = smart_bytes(smart_text('attachment; filename="{0}"').format(name))
 
 
 django = DjangoDownloadHttpResponse

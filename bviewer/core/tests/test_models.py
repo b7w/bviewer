@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-from httplib import HTTPConnection
-from urlparse import urlsplit
+try:
+    from httplib import HTTPConnection
+    from urlparse import urlsplit
+except ImportError:
+    from http.client import HTTPConnection
+    from urllib.parse import urlsplit
 
 from django.contrib.auth.models import User
 from django.test import TestCase

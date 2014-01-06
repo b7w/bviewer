@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from django.utils.encoding import smart_text
+
 from bviewer.core.tests.base import BaseViewTestCase
 
 
@@ -12,9 +14,9 @@ class PrivateGalleriesTestCase(BaseViewTestCase):
         url = self.reverse('core.home')
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn('First', resp.content)
-        self.assertNotIn('Second', resp.content)
-        self.assertIn('Third', resp.content)
+        self.assertIn('First', smart_text(resp.content))
+        self.assertNotIn('Second', smart_text(resp.content))
+        self.assertIn('Third', smart_text(resp.content))
 
         self.login()
         self.assertContent(url, 'First')

@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
-from mock import Mock
 import os
 import shutil
+from mock import Mock
 
 from django.conf import settings
 from django.core import urlresolvers
 from django.test import TestCase
-from bviewer.core.files.storage import ImageStorage
+from django.utils.encoding import smart_text
 
+from bviewer.core.files.storage import ImageStorage
 from bviewer.core.tests.data import TestData
 
 
@@ -42,7 +43,7 @@ class BaseViewTestCase(TestCase):
     def assertContent(self, url, content):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn(content, resp.content)
+        self.assertIn(content, smart_text(resp.content))
 
 
 class BaseImageStorageTestCase(TestCase):
