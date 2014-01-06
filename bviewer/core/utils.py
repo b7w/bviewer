@@ -174,3 +174,10 @@ def show_toolbar(request):
     if hasattr(settings, 'DEBUG_TOOL_BAR'):
         return settings.DEBUG_TOOL_BAR
     return False
+
+
+def get_year_parameter(request, default=None):
+    value = request.GET.get('year', '')
+    if len(value) == 4 and value.isdigit():
+        return int(value)
+    return default

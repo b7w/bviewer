@@ -105,14 +105,16 @@ class GalleryController(BaseController):
             return Gallery.objects.filter(parent_id=parent_id)
         return Gallery.objects.filter(parent_id=parent_id, visibility=Gallery.VISIBLE)
 
-    @cache_method
-    def get_galleries(self):
+    def get_galleries(self, year=None):
         """
         Get sub galleries `parent=uid` with special visibility and ordering
 
         :rtype: list of bviewer.core.models.Gallery
         """
-        return list(self._ordering(self._get_galleries(self.uid)))
+        galleries = self._get_galleries(self.uid)
+        if year:
+            galleries = galleries.filter(time__year=year)
+        return list(self._ordering(galleries))
 
     def get_all_sub_galleries(self, parents=True):
         """
@@ -137,23 +139,20 @@ class GalleryController(BaseController):
         """
         return not bool(self.get_galleries())
 
-    def get_images(self, force=False):
+    def get_images(self):
         """
         Filter images by uid, no any visibility check.
-        If `is_album` or force else return []
         """
-        if self.is_album() or force:
-            return Image.objects.filter(gallery=self.uid)
-        return []
+        return Image.objects.filter(gallery=self.uid)
 
-    def get_videos(self, force=False):
+    def get_videos(self):
         """
         Filter videos by uid, no any visibility check.
-        If `is_album` and not force else return []
         """
-        if self.is_album() or force:
-            return Video.objects.filter(gallery=self.uid)
-        return []
+        return Video.objects.filter(gallery=self.uid)
+
+    def get_available_years(self):
+        return list(self._get_galleries(self.uid).datetimes('time', 'year', order='DESC'))
 
 
 class MediaController(BaseController):

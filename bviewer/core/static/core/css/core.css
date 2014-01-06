@@ -333,6 +333,25 @@ footer p {
     width: 80%;
 }
 
+.gallery-years {
+    margin: 10px;
+}
+
+.gallery-years a {
+    padding: 2px 4px;
+    margin-right: 4px;
+    color: #999;
+    font-style: italic;
+    background-color: #000000;
+    border-radius: 4px;
+    border: solid 1px #212930;
+}
+
+.gallery-years a:hover, .gallery-years .selected {
+    color: #CCC;
+    border: solid 1px #3A3A3A;
+}
+
 /* START SLIDESHOW */
 
 .slideshow .description {

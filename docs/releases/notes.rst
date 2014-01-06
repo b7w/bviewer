@@ -8,6 +8,7 @@ Release notes
 | Fix some bugs. Move project to django 1.6
 
 * Fix exception in getting image cache name on wrong file path
+* Add year filter on sub galleries pages
 
 
 | **v1.0.6** - *3.01.1014*

@@ -10,7 +10,7 @@ from django.views.decorators.vary import vary_on_cookie
 
 from bviewer.core.controllers import GalleryController, ImageController, VideoController, get_gallery_user
 from bviewer.core.exceptions import ResizeOptionsError, FileError
-from bviewer.core.utils import decor_on
+from bviewer.core.utils import decor_on, get_year_parameter
 
 
 logger = logging.getLogger(__name__)
@@ -30,12 +30,18 @@ def index_view(request):
     main = controller.get_object()
     if not main:
         return message_view(request, message='No main gallery')
-    galleries = controller.get_galleries()
+
+    year_filter = get_year_parameter(request)
+
+    galleries = controller.get_galleries(year=year_filter)
+    years = controller.get_available_years()
 
     return render(request, 'core/galleries.html', {
         'holder': holder,
         'main': main,
         'galleries': galleries,
+        'year_filter': year_filter,
+        'years': years,
     })
 
 
@@ -53,11 +59,17 @@ def gallery_view(request, uid):
     main = controller.get_object()
     if not main:
         return message_view(request, message='No such gallery')
-    galleries = controller.get_galleries()
 
-    template = 'core/gallery.html' if controller.is_album() else 'core/galleries.html'
-    videos = controller.get_videos()
-    images = controller.get_images()
+    galleries, images, videos, years = None, None, None, None
+    year_filter = get_year_parameter(request)
+    if controller.is_album():
+        template = 'core/gallery.html'
+        videos = controller.get_videos()
+        images = controller.get_images()
+    else:
+        template = 'core/galleries.html'
+        galleries = controller.get_galleries()
+        years = controller.get_available_years()
 
     return render(request, template, {
         'holder': holder,
@@ -65,6 +77,8 @@ def gallery_view(request, uid):
         'galleries': galleries,
         'videos': videos,
         'images': images,
+        'year_filter': year_filter,
+        'years': years,
         'back': dict(gallery_id=main.parent_id, home=holder.top_gallery_id == main.parent_id),
     })
 

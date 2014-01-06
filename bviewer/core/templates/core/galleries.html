@@ -46,6 +46,26 @@
             </li>
         {% endfor %}
     </ul>
+
+    <div class="gallery-years">
+        {% if holder.top_gallery_id == main.id %}
+            {% for item in years %}
+                <a href="{% url 'core.home' %}?year={{ item|date:"Y" }}"
+                   class="{% if year_filter == item.year %}selected{% endif %}">{{ item|date:"Y" }}</a>
+            {% endfor %}
+            {% if year_filter %}
+                <a href="{% url 'core.home' %}">Reset</a>
+            {% endif %}
+        {% else %}
+            {% for item in years %}
+                <a href="{% url 'core.gallery' main.id %}?year={{ item|date:"Y" }}"
+                   class="{% if year_filter == item.year %}selected{% endif %}">{{ item|date:"Y" }}</a>
+            {% endfor %}
+            {% if year_filter %}
+                <a href="{% url 'core.gallery' main.id %}">Reset</a>
+            {% endif %}
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block media %}
