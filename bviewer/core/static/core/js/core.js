@@ -17,7 +17,7 @@ var core = {
         } else {
             var settings = {
                 overlayOpacity: 0.95,
-                slideshowDelay: 3,
+                slideshowDelay: 4,
                 viewportPadding: 12,
                 onOpen: function (item) {
                     window.location.hash = '#!' + link2id(item.link);
