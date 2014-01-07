@@ -15,7 +15,9 @@
 {% block main %}
     <div class="gallery-title">
         <h2>{{ main.title }}</h2>
+
         <p class="time pull-right">{{ main.time|date:"d M Y" }}</p>
+
         <p class="description">{{ main.description|linebreaksbr }}</p>
     </div>
 
@@ -76,7 +78,9 @@
                     break;
                 }
             }
-            Shadowbox.play();
+            setTimeout(function () {
+                Shadowbox.play();
+            }, 2000);
         }
     </script>
 {% endblock %}
