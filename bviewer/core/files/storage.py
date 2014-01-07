@@ -34,6 +34,7 @@ def io_call(func):
             logger.debug(method_call_str(func.__name__, self, *args, **kwargs))
             return func(self, *args, **kwargs)
         except IOError as e:
+            print('1')
             logger.exception(e)
             raise FileError(e)
 
@@ -148,7 +149,7 @@ class ImageStorage(object):
         return Exif(os.path.join(self._abs_root_path, path))
 
     @io_call
-    def open(self, path, mode='r', for_cache=False):
+    def open(self, path, mode='rb', for_cache=False):
         root = self._abs_cache_path if for_cache else self._abs_root_path
         return open(os.path.join(root, path), mode=mode)
 

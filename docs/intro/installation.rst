@@ -15,9 +15,8 @@ Requirements
   Also it is need Redis database for cache and tasks.
 
 | Application need these libraries to run:
-  ``django``, ``django-rq``, ``django-tastypie``, ``redis``, ``pillow or PIL``, ``psycopg2``.
-  And for development ``django-debug-toolbar``, ``fabric``, ``mock``, ``sphinx``.
-  For more details look ``requirements.txt``.
+  ``django``, ``django-rq``, ``djangorestframework``, ``django-filter``, ``redis``, ``pytz``,
+  ``pillow or PIL``, ``psycopg2``. For more details look ``requirements.txt``.
 
 | You can use any django supported database server.
   It is officially works with PostgreSQL, MySQL, Oracle and SQLite.
@@ -25,7 +24,7 @@ Requirements
 
 .. note::
 
-    App tested only with ubuntu 12.04, python 2.7, postgres 9 and uwsgi & nginx.
+    App tested only with ubuntu 12.04, python 2.7 / 3.2, postgres 9 and uwsgi & nginx.
 
 
 Database driver and image library
@@ -131,6 +130,9 @@ WSGI server
     For background tasks, such as image processing by default starts 2 workers.
     With default and low queue.
 
+.. note::
+
+    For python 3 use ``uwsgi-plugin-python3`` and replace in ``uwsgi.ini`` ``python`` to ``python32``
 
 Web server
 ==========
