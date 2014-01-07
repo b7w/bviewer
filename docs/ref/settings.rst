@@ -107,6 +107,18 @@ Default:
   Be careful, cache can't work with ``django``! because it return hole file.
 
 
+EXTRA_HTML
+----------
+
+.. _CONF_EXTRA_HTML:
+
+Default: ``empty string``
+
+| A string that fit before the closing body tag.
+  For example some analytics HTML/JS code.
+
+
+
 Django configuration
 ====================
 

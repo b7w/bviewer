@@ -129,6 +129,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
     'django.contrib.messages.context_processors.messages',
     'django.core.context_processors.request',
+    'bviewer.core.context_processors.extra_html',
 )
 
 INSTALLED_APPS = (
