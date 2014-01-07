@@ -66,3 +66,7 @@ VIEWER_DOWNLOAD_RESPONSE = {
     'INTERNAL_URL': '/protected',
     'CACHE': False,
 }
+
+# A string that fit before the closing body tag.
+# For example some analytics HTML/JS code.
+EXTRA_HTML = ''

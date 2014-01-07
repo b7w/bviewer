@@ -10,6 +10,7 @@ Release notes
 * Fix exception in getting image cache name on wrong file path
 * Add year filter on sub galleries pages
 * Add python 3.2 support
+* Add EXTRA_HTML config variable to pass some html/js code to template
 
 
 | **v1.0.6** - *3.01.1014*
