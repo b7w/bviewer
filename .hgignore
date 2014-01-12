@@ -1,6 +1,7 @@
 syntax: regexp
 
 bviewer/settings/local\w*\.py
+bviewer/settings/dev/\w*\.py
 
 \.pyc
 \.pyo
