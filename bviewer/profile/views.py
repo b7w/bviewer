@@ -31,7 +31,7 @@ def images_view(request, uid):
     if not main:
         return message_view(request, message='No such gallery')
 
-    images = controller.get_images(force=True)
+    images = controller.get_images()
     storage = ImageStorage(holder)
     path = request.GET.get('p', '')
     try:
