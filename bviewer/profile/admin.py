@@ -9,6 +9,7 @@ from django.template.loader import render_to_string
 from django.utils.encoding import smart_text
 
 from bviewer.core.admin import ProxyUserForm
+from bviewer.core.files.storage import ImageStorage
 from bviewer.core.models import Gallery, Image, ProxyUser, Video
 
 
@@ -191,13 +192,20 @@ class ProfileUserAdmin(ProfileModelAdmin, UserAdmin):
     fieldsets = (
         ('Account info', {'fields': ('username', 'password', )}),
         ('Personal info', {'fields': ('email', 'first_name', 'last_name', )}),
-        ('Viewer info', {'fields': ('url', 'top_gallery', 'cache_size', 'cache_archive_size', )}),
+        ('Viewer info', {'fields': ('url', 'top_gallery', 'cache_size', 'cache_archive_size', 'cache_info', )}),
         ('Additional info', {'fields': ('about_title', 'about_text', )}),
         ('Important dates', {'fields': ('last_login', 'date_joined', )}),
     )
-    readonly_fields = ('last_login', 'date_joined', )
+    readonly_fields = ('last_login', 'date_joined', 'cache_info', )
 
     form = ProxyUserForm
+
+    def cache_info(self, user):
+        storage = ImageStorage(user)
+        images_size = storage.cache_size() / 2 ** 20
+        storage = ImageStorage(user, archive_cache=True)
+        archive_size = storage.cache_size() / 2 ** 20
+        return 'Images size: {0} MB, archives size: {1} MB'.format(images_size, archive_size)
 
     def has_add_permission(self, request):
         return False
