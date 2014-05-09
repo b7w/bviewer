@@ -4,7 +4,14 @@ Release notes
 
 .. index:: Release notes
 
-| **v1.0.7**
+| **v1.0.8 dev**
+| Add some small features
+
+* Add disk cache info in user profile
+* Fix bug with not safe HTML_EXTRA
+
+
+| **v1.0.7** - *26.01.1014*
 | Fix some bugs. Move project to django 1.6
 
 * Fix exception in getting image cache name on wrong file path
