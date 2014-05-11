@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from collections import Counter
 import os
-
 from django.contrib.admin import AdminSite, ModelAdmin
 from django.contrib.auth.admin import UserAdmin
 from django.core.urlresolvers import reverse
@@ -11,6 +10,7 @@ from django.utils.encoding import smart_text
 from bviewer.core.admin import ProxyUserForm
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.models import Gallery, Image, ProxyUser, Video
+from bviewer.profile.forms import AdminGalleryForm
 
 
 class ProfileSite(AdminSite):
@@ -46,6 +46,7 @@ class ProfileModelAdmin(ModelAdmin):
 
 class ProfileGalleryAdmin(ProfileModelAdmin):
     list_select_related = True
+    form = AdminGalleryForm
 
     list_display = ('title', 'parent', 'visibility', 'images', 'time',)
     list_filter = ('parent__title', 'time', )
@@ -100,13 +101,18 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
             obj.thumbnail_id = thumbnail_id
         else:
             obj.thumbnail = None
-        obj.save()
+        super(ProfileGalleryAdmin, self).save_model(request, obj, form, change)
 
     def add_view(self, request, form_url='', extra_context=None):
         # Add default parent Welcome gallery
+        user = ProxyUser.objects.get(pk=request.user.pk)
         data = request.GET.copy()
-        data['parent'] = ProxyUser.objects.get(pk=request.user.pk).top_gallery_id
+        data['parent'] = user.top_gallery_id
         request.GET = data
+        # Add default user
+        data = request.POST.copy()
+        data['user'] = user.id
+        request.POST = data
         return super(ProfileGalleryAdmin, self).add_view(request, form_url, extra_context)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
