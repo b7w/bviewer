@@ -7,8 +7,9 @@ Release notes
 | **v1.0.8 dev**
 | Add some small features
 
+* Fix bug admin gallery title unique integrity error
+* Fix bug not safe HTML_EXTRA
 * Add disk cache info in user profile
-* Fix bug with not safe HTML_EXTRA
 
 
 | **v1.0.7** - *26.01.1014*
