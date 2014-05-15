@@ -103,7 +103,7 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
             obj.thumbnail = None
         super(ProfileGalleryAdmin, self).save_model(request, obj, form, change)
 
-    def add_view(self, request, form_url='', extra_context=None):
+    def get_form(self, request, obj=None, **kwargs):
         # Add default parent Welcome gallery
         user = ProxyUser.objects.get(pk=request.user.pk)
         data = request.GET.copy()
@@ -113,7 +113,7 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
         data = request.POST.copy()
         data['user'] = user.id
         request.POST = data
-        return super(ProfileGalleryAdmin, self).add_view(request, form_url, extra_context)
+        return super(ProfileGalleryAdmin, self).get_form(request, obj=None, **kwargs)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """

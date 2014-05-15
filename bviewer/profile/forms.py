@@ -9,7 +9,7 @@ class AdminGalleryForm(ModelForm):
     def clean_title(self):
         title = self.cleaned_data['title']
         user_id = self.data['user']
-        if Gallery.objects.filter(title=title, user_id=user_id).count() > 0:
+        if Gallery.objects.filter(title=title, user_id=user_id).exclude(id=self.instance.id).count() > 0:
             raise ValidationError('Title must be unique')
         return title
 
