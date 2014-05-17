@@ -55,7 +55,8 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
     search_fields = ('title', 'description',)
 
     readonly_fields = ('images', 'thumbnails',)
-    fields = ('parent', 'title', 'visibility', 'gallery_sorting', 'images', 'description', 'time', 'thumbnails', )
+    fields = ('parent', 'title', 'visibility', 'gallery_sorting', 'allow_archiving',
+              'images', 'description', 'time', 'thumbnails', )
 
     def images(self, obj):
         if Gallery.objects.safe_get(id=obj.id):

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
 import re
-
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
@@ -131,6 +130,10 @@ class GalleryController(BaseController):
             if not (childes and parents is False):
                 result.append(gallery)
         return result
+
+    def is_archiving_allowed(self):
+        obj = self.get_object()
+        return obj and obj.allow_archiving
 
     def is_album(self):
         """
