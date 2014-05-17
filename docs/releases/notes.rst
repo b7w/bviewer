@@ -5,10 +5,13 @@ Release notes
 .. index:: Release notes
 
 | **v1.0.8 dev**
-| Add some small features
+| Add some small features. Need database scheme update.
 
-* Fix bug admin gallery title unique integrity error
+| ``ALTER TABLE core_gallery ADD COLUMN allow_archiving boolean NOT NULL DEFAULT true;``
+
 * Fix bug not safe HTML_EXTRA
+* Fix bug admin gallery title unique integrity error
+* Add option to allow/disallow gallery archiving
 * Add disk cache info in user profile
 
 

@@ -147,6 +147,7 @@ class Gallery(models.Model):
         help_text='HIDDEN - not shown on page for anonymous, PRIVATE - available only to the holder')
     gallery_sorting = models.SmallIntegerField(max_length=1, choices=SORT_CHOICE, default=ASK,
         help_text='How to sort galleries inside')
+    allow_archiving = models.BooleanField(default=True)
     description = models.TextField(max_length=512, null=True, blank=True)
     thumbnail = models.ForeignKey('Image', null=True, blank=True, related_name='thumbnail', on_delete=models.SET_NULL)
     time = models.DateTimeField(default=date_now)

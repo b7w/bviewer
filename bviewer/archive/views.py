@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
-
 import logging
-
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -16,6 +14,11 @@ from bviewer.core.views import message_view
 
 logger = logging.getLogger(__name__)
 
+NO_USER_DEFINED = 'No user defined'
+NO_GALLERY_FOUND = 'No gallery found'
+NOT_ALBUM = 'It is not album with images'
+NOT_ALLOW_ARCHIVING = 'Archiving is disabled for this gallery'
+
 
 def index_view(request, gid):
     """
@@ -24,15 +27,18 @@ def index_view(request, gid):
     """
     holder = get_gallery_user(request)
     if not holder:
-        return message_view(request, message='No user defined')
+        return message_view(request, message=NO_USER_DEFINED)
 
     controller = GalleryController(holder, request.user, gid)
     main = controller.get_object()
     if not main:
-        return message_view(request, message='No gallery found')
+        return message_view(request, message=NO_GALLERY_FOUND)
 
     if not controller.is_album():
-        return message_view(request, message='It is not album with images')
+        return message_view(request, message=NOT_ALBUM)
+
+    if not controller.is_archiving_allowed():
+        return message_view(request, message=NOT_ALLOW_ARCHIVING)
 
     image_paths = [i.path for i in controller.get_images()]
     z = ZipArchiveController(image_paths, holder)
@@ -61,15 +67,18 @@ def status_view(request, gid, uid):
     """
     holder = get_gallery_user(request)
     if not holder:
-        raise Http404('No user defined')
+        raise Http404(NO_USER_DEFINED)
 
     controller = GalleryController(holder, request.user, gid)
     main = controller.get_object()
     if not main:
-        return HttpResponse(json.dumps(dict(error='No gallery found')))
+        return HttpResponse(json.dumps(dict(error=NO_GALLERY_FOUND)))
 
     if not controller.is_album():
-        return HttpResponse(json.dumps(dict(error='It is not album with images')))
+        return HttpResponse(json.dumps(dict(error=NOT_ALBUM)))
+
+    if not controller.is_archiving_allowed():
+        return HttpResponse(json.dumps(dict(error=NOT_ALLOW_ARCHIVING)))
 
     image_paths = [i.path for i in controller.get_images()]
     z = ZipArchiveController(image_paths, holder, name=uid)
@@ -84,15 +93,18 @@ def download_view(request, gid, uid):
     """
     holder = get_gallery_user(request)
     if not holder:
-        raise Http404('No user defined')
+        raise Http404(NO_USER_DEFINED)
 
     controller = GalleryController(holder, request.user, gid)
     main = controller.get_object()
     if not main:
-        raise Http404('No gallery found')
+        raise Http404(NO_GALLERY_FOUND)
 
     if not controller.is_album():
-        return message_view(request, message='It is not album with images')
+        return message_view(request, message=NOT_ALBUM)
+
+    if not controller.is_archiving_allowed():
+        return message_view(request, message=NOT_ALLOW_ARCHIVING)
 
     image_paths = [i.path for i in controller.get_images()]
     z = ZipArchiveController(image_paths, holder, name=uid)
