@@ -4,7 +4,7 @@ from fractions import Fraction
 import os
 import random
 import logging
-
+from django.utils.timezone import utc
 from django.conf import settings
 from PIL import Image, ImageDraw, ImageFont
 from PIL.ExifTags import TAGS
@@ -215,7 +215,7 @@ class Exif(object):
         time = self._data.get('DateTimeOriginal', None)
         if time:
             try:
-                return datetime.strptime(time, '%Y:%m:%d %H:%M:%S')
+                return datetime.strptime(time, '%Y:%m:%d %H:%M:%S').replace(tzinfo=utc)
             except ValueError:
                 logger.warning('Wrong datetime "%s" in "%s" file', time, self.image_path)
 

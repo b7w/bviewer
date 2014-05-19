@@ -136,6 +136,7 @@ Models
   *If parent is None it will be hidden from gallery tree for holder too.*
   **Gallery sorting** - Sort order of the nested galleries on time.
   ASK - Ascending, DESK - Descending.
+  **allow_archiving** - Allow users to download images in archive
   **Thumbnail** - image of gallery tile.
 
 .. code-block:: python
@@ -147,6 +148,7 @@ Models
         user = models.ForeignKey(ProxyUser)
         visibility = models.SmallIntegerField(max_length=1, choices=VISIBILITY_CHOICE, default=VISIBLE)
         gallery_sorting = models.SmallIntegerField(max_length=1, choices=SORT_CHOICE, default=ASK)
+        allow_archiving = models.BooleanField(default=True)
         description = models.TextField(max_length=512, null=True)
         thumbnail = models.ForeignKey('Image', null=True)
         time = models.DateTimeField(default=datetime.now)

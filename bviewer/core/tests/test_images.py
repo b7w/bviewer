@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from django.utils.timezone import utc
 
 from bviewer.core.images import CacheImage
 from bviewer.core.tests.base import BaseImageStorageTestCase
@@ -49,4 +50,4 @@ class ExifTest(BaseImageStorageTestCase):
 
         exif = self.storage.exif(self.path)
         exif._data = dict(DateTimeOriginal='2013:04:14 12:00:01')
-        self.assertEqual(exif.ctime, datetime(2013, 4, 14, 12, 0, 1))
+        self.assertEqual(exif.ctime, datetime(2013, 4, 14, 12, 0, 1, tzinfo=utc))
