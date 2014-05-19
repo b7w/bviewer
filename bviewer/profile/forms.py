@@ -1,8 +1,35 @@
 # -*- coding: utf-8 -*-
+import re
+from datetime import timedelta
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm
+from django.forms import Form, ModelForm, ChoiceField, CharField, MultipleHiddenInput
 
 from bviewer.core.models import Gallery, Video
+
+
+class BulkTimeUpdateForm(Form):
+    ADD = 'add'
+    SUBTRACT = 'subtract'
+    CHOICES = (
+        (ADD, 'Add'),
+        (SUBTRACT, 'Subtract')
+    )
+    DIMENSIONS = ('days', 'seconds', 'minutes', 'hours', 'weeks')
+    _selected_action = CharField(widget=MultipleHiddenInput)
+    method = ChoiceField(choices=CHOICES)
+    interval = CharField()
+
+    def clean_interval(self):
+        interval = self.cleaned_data['interval']
+        dimensions_symbol = tuple(i[0] for i in self.DIMENSIONS)
+        if not re.match(r'[\d{0}]'.format(''.join(dimensions_symbol)), interval):
+            raise ValidationError('Wrong format, support only {0}'.format(self.DIMENSIONS))
+        kwargs = {}
+        for symbol, dimension in zip(dimensions_symbol, self.DIMENSIONS):
+            match = re.search(r'\d+{0}'.format(symbol), interval)
+            if match:
+                kwargs[dimension] = int(match.group()[:-1])
+        return timedelta(**kwargs)
 
 
 class AdminGalleryForm(ModelForm):
