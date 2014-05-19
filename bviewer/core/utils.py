@@ -3,7 +3,6 @@ import django_rq
 import mockredis
 import time
 import logging
-
 from django.conf import settings
 from django.utils.encoding import smart_text, smart_bytes
 from django.utils.functional import wraps
@@ -181,3 +180,15 @@ def get_year_parameter(request, default=None):
     if len(value) == 4 and value.isdigit():
         return int(value)
     return default
+
+
+def set_time_from_exif(storage, image, save=False):
+    """
+    :type storage: bviewer.core.files.storage.ImageStorage
+    :type image: bviewer.core.model.Image
+    """
+    image_path = storage.get_path(image.path)
+    if image_path.is_image and image_path.exif.ctime:
+        image.time = image_path.exif.ctime
+        if save:
+            image.save()

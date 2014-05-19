@@ -22,6 +22,8 @@ from django.utils.html import escape
 
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.exceptions import HttpError, ViewerError
+from bviewer.core.utils import set_time_from_exif
+
 
 logger = logging.getLogger(__name__)
 
@@ -60,9 +62,10 @@ class ProxyUser(User):
     home = models.CharField(max_length=256, blank=True, default='')
 
     cache_size = models.PositiveIntegerField(default=32,
-        validators=[MinValueValidator(CACHE_SIZE_MIN), MaxValueValidator(CACHE_SIZE_MAX)])
+                                             validators=[MinValueValidator(CACHE_SIZE_MIN), MaxValueValidator(CACHE_SIZE_MAX)])
     cache_archive_size = models.PositiveIntegerField(default=256,
-        validators=[MinValueValidator(CACHE_ARCHIVE_SIZE_MIN), MaxValueValidator(CACHE_ARCHIVE_SIZE_MAX)])
+                                                     validators=[MinValueValidator(CACHE_ARCHIVE_SIZE_MIN),
+                                                                 MaxValueValidator(CACHE_ARCHIVE_SIZE_MAX)])
 
     top_gallery = models.ForeignKey('Gallery', related_name='top', null=True, blank=True, on_delete=models.DO_NOTHING)
     about_title = models.CharField(max_length=256, blank=True)
@@ -144,9 +147,10 @@ class Gallery(models.Model):
     title = models.CharField(max_length=256)
     user = models.ForeignKey(ProxyUser)
     visibility = models.SmallIntegerField(max_length=1, choices=VISIBILITY_CHOICE, default=VISIBLE,
-        help_text='HIDDEN - not shown on page for anonymous, PRIVATE - available only to the holder')
+                                          help_text='HIDDEN - not shown on page for anonymous, '
+                                                    'PRIVATE - available only to the holder')
     gallery_sorting = models.SmallIntegerField(max_length=1, choices=SORT_CHOICE, default=ASK,
-        help_text='How to sort galleries inside')
+                                               help_text='How to sort galleries inside')
     allow_archiving = models.BooleanField(default=True)
     description = models.TextField(max_length=512, null=True, blank=True)
     thumbnail = models.ForeignKey('Image', null=True, blank=True, related_name='thumbnail', on_delete=models.SET_NULL)
@@ -201,10 +205,7 @@ def update_time_from_exif(sender, instance, created, **kwargs):
     """
     if created:
         storage = ImageStorage(instance.gallery.user)
-        image_path = storage.get_path(instance.path)
-        if image_path.is_image and image_path.exif.ctime:
-            instance.time = image_path.exif.ctime
-            instance.save()
+        set_time_from_exif(storage, instance, save=True)
 
 
 post_save.connect(update_time_from_exif, sender=Image)

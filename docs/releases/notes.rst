@@ -11,6 +11,7 @@ Release notes
 
 * Fix bug not safe HTML_EXTRA
 * Fix bug admin gallery title unique integrity error
+* Add bulk time edit and update from exif actions for images in profile
 * Add option to allow/disallow gallery archiving
 * Add disk cache info in user profile
 
