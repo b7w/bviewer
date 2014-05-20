@@ -7,9 +7,11 @@
     <li class="view-full">
         <a href="#" onclick="playSlideshow()">Slideshow</a>
     </li>
+    {% if main.allow_archiving %}
     <li class="view-full">
         <a href="{% url 'archive.archive' main.id %}" title="Download all images in archive">Download</a>
     </li>
+    {% endif %}
 {% endblock %}
 
 {% block main %}
