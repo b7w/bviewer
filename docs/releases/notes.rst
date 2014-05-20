@@ -4,8 +4,8 @@ Release notes
 
 .. index:: Release notes
 
-| **v1.0.8 dev**
-| Add some small features. Need database scheme update.
+| **v1.0.8** - *20.05.1014*
+| Add some small features to profile. Need database scheme update.
 
 | ``ALTER TABLE core_gallery ADD COLUMN allow_archiving boolean NOT NULL DEFAULT true;``
 
