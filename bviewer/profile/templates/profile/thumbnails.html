@@ -1,7 +1,7 @@
 {% load staticfiles %}
 
 <script type="text/javascript">
-    django.jQuery('#thumbnails-open').live('click', function (e) {
+    django.jQuery(document).on('click', '#thumbnails-open', function (e) {
         e.preventDefault();
         django.jQuery('#thumbnails-open').css('display', 'none');
         django.jQuery('#thumbnails').css('display', 'block');
@@ -25,7 +25,8 @@
     {% for item in images %}
         <li>
             <span class="thumbnail">
-                <input type="radio" name="thumbnail_id" value="{{ item.id }}" {% if obj.thumbnail_id == item.id %}checked{% endif %}>
+                <input type="radio" name="thumbnail_id" value="{{ item.id }}"
+                       {% if obj.thumbnail_id == item.id %}checked{% endif %}>
                 <img class="thumbnail" data-src="{% url 'core.download' 'tiny' item.id %}">
             </span>
         </li>

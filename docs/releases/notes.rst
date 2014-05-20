@@ -4,7 +4,19 @@ Release notes
 
 .. index:: Release notes
 
-| **v1.0.7**
+| **v1.0.8** - *20.05.1014*
+| Add some small features to profile. Need database scheme update.
+
+| ``ALTER TABLE core_gallery ADD COLUMN allow_archiving boolean NOT NULL DEFAULT true;``
+
+* Fix bug not safe HTML_EXTRA
+* Fix bug admin gallery title unique integrity error
+* Add bulk time edit and update from exif actions for images in profile
+* Add option to allow/disallow gallery archiving
+* Add disk cache info in user profile
+
+
+| **v1.0.7** - *26.01.1014*
 | Fix some bugs. Move project to django 1.6
 
 * Fix exception in getting image cache name on wrong file path

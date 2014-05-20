@@ -175,6 +175,16 @@ class ImageStorage(object):
                 while sum(map(os.path.getsize, cache_paths)) > self._max_cache_size:
                     os.remove(cache_paths.pop())
 
+
+    @io_call
+    def cache_size(self):
+        abs_cache = self._abs_cache_path
+        if os.path.exists(abs_cache):
+            cache_paths = [os.path.join(abs_cache, i) for i in os.listdir(abs_cache)]
+            cache_paths = [i for i in cache_paths if not os.path.islink(i)]
+            return sum(map(os.path.getsize, cache_paths))
+        return 0
+
     @io_call
     def rename_cache(self, path_from, path_to):
         abs_from = os.path.join(self._abs_cache_path, path_from)
