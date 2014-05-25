@@ -131,6 +131,23 @@ class GalleryController(BaseController):
                 result.append(gallery)
         return result
 
+    def pre_cache(self):
+        ids = [self.get_object().id,]
+        ids.extend(i.id for i in self.get_all_sub_galleries())
+        images = Image.objects.filter(gallery__in=ids)
+        sizes = [i for i in settings.VIEWER_IMAGE_SIZE.keys() if i != 'full']
+        for size in sizes:
+            for image in images:
+                storage = ImageStorage(self.holder)
+                self._pre_cache_image(storage, image, size)
+
+    def _pre_cache_image(self, storage, image, size):
+        options = ImageOptions.from_settings(size)
+        image_path = storage.get_path(image.path, options)
+        if image_path.exists and not image_path.cache_exists:
+            image_async = CacheImage(image_path)
+            as_job(image_async.process, waite=False)
+
     def is_archiving_allowed(self):
         obj = self.get_object()
         return obj and obj.allow_archiving

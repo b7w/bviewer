@@ -55,9 +55,9 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
 
     search_fields = ('title', 'description',)
 
-    readonly_fields = ('images', 'thumbnails',)
+    readonly_fields = ('images', 'pre_cache', 'thumbnails',)
     fields = ('parent', 'title', 'visibility', 'gallery_sorting', 'allow_archiving',
-              'images', 'description', 'time', 'thumbnails', )
+              'images', 'pre_cache', 'description', 'time', 'thumbnails', )
 
     def images(self, obj):
         if Gallery.objects.safe_get(id=obj.id):
@@ -69,6 +69,14 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
         return smart_text('<b>Save gallery first to select images</b>')
 
     images.allow_tags = True
+
+    def pre_cache(self, obj):
+        if Gallery.objects.safe_get(id=obj.id):
+            url = reverse('profile.gallery.pre-cache', kwargs=dict(uid=obj.id))
+            return smart_text('<b><a href="{url}">Run pre cache task</a></b>').format(url=url)
+        return smart_text('<b>Save gallery first</b>')
+
+    pre_cache.allow_tags = True
 
     def images_expected_path(self, gallery):
         """

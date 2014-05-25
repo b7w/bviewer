@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
-
 from django.contrib.auth.decorators import login_required, permission_required
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.encoding import smart_text
 
@@ -45,6 +44,26 @@ def images_view(request, uid):
         'folder': folder,
         'title': 'Select images',
     })
+
+
+@login_required
+@permission_required('core.user_holder')
+def gallery_pre_cache(request, uid):
+    holder = get_gallery_user(request)
+    if not holder:
+        raise Http404()
+
+    controller = GalleryController(holder, request.user, uid)
+    main = controller.get_object()
+    if not main:
+        return message_view(request, message='No such gallery')
+
+    try:
+        controller.pre_cache()
+    except FileError as e:
+        logger.exception(e)
+        return message_view(request, message=smart_text(e))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 @login_required
