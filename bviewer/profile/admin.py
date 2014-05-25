@@ -138,7 +138,7 @@ class ProfileImageAdmin(ProfileModelAdmin):
     list_select_related = True
     actions = [bulk_time_update, update_time_from_exif, ]
 
-    list_display = ('path', 'file_name', 'gallery_title', 'time', )
+    list_display = ('path', 'file_name', 'gallery_title', 'image_thumbnail_popup', 'time', )
     list_filter = ('gallery__title', 'time',)
     ordering = ('-time', 'gallery', )
 
@@ -157,6 +157,12 @@ class ProfileImageAdmin(ProfileModelAdmin):
 
     image_thumbnail.allow_tags = True
 
+    def image_thumbnail_popup(self, obj):
+        url = reverse('core.download', kwargs=dict(size='tiny', uid=obj.id))
+        return smart_text('<img class="preview" src="{0}">').format(url)
+
+    image_thumbnail_popup.allow_tags = True
+
     def queryset(self, request):
         return super(ProfileImageAdmin, self).queryset(request).filter(gallery__user=request.user)
 
@@ -167,6 +173,12 @@ class ProfileImageAdmin(ProfileModelAdmin):
         if db_field.name == 'gallery':
             kwargs['queryset'] = Gallery.objects.filter(user=request.user)
         return super(ProfileImageAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    class Media:
+        css = {
+            'all': ('profile/css/profile.css',)
+        }
+        js = ('my_code.js',)
 
 
 profile.register(Image, ProfileImageAdmin)
