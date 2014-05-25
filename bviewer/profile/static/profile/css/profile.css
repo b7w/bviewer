@@ -52,3 +52,13 @@
 .thumbnails li:hover .caption {
     opacity: 1;
 }
+
+.preview {
+    width: 32px;
+    height: 32px;
+}
+
+.preview:hover {
+    width: auto;
+    height: auto;
+}
