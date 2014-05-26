@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import logging
-
 from django.conf import settings
 from django.contrib.auth.views import login, logout
 from django.http import Http404
@@ -26,13 +25,13 @@ def index_view(request):
     if not holder:
         return message_view(request, message='No user defined')
 
-    controller = GalleryController(holder, request.user, holder.top_gallery_id)
-    main = controller.get_object()
-    if not main:
+    controller = GalleryController(holder, request.user, uid=holder.top_gallery_id)
+    if not controller.exists():
         return message_view(request, message='No main gallery')
 
     year_filter = get_year_parameter(request)
 
+    main = controller.get_object()
     galleries = controller.get_galleries(year=year_filter)
     years = controller.get_available_years()
 
@@ -55,11 +54,11 @@ def gallery_view(request, uid):
     if not holder:
         return message_view(request, message='No user defined')
 
-    controller = GalleryController(holder, request.user, uid)
-    main = controller.get_object()
-    if not main:
+    controller = GalleryController(holder, request.user, uid=uid)
+    if not controller.exists():
         return message_view(request, message='No such gallery')
 
+    main = controller.get_object()
     galleries, images, videos, years = None, None, None, None
     year_filter = get_year_parameter(request)
     if controller.is_album():

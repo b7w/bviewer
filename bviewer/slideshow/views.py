@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import logging
-
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 
@@ -19,11 +18,11 @@ def index_view(request):
     if not holder:
         return message_view(request, message='No user defined')
 
-    controller = GalleryController(holder, request.user, holder.top_gallery_id)
-    main = controller.get_object()
-    if not main:
+    controller = GalleryController(holder, request.user, uid=holder.top_gallery_id)
+    if not controller.exists():
         return message_view(request, message='No such gallery')
 
+    main = controller.get_object()
     link = reverse('actions-slideshow-get-or-create') + '?gallery={0}'.format(holder.top_gallery_id)
     return render(request, 'slideshow/index.html', {
         'holder': holder,
@@ -41,11 +40,11 @@ def gallery_view(request, gallery_id):
     if not holder:
         return message_view(request, message='No user defined')
 
-    controller = GalleryController(holder, request.user, gallery_id)
-    main = controller.get_object()
-    if not main:
+    controller = GalleryController(holder, request.user, uid=gallery_id)
+    if not controller.exists():
         return message_view(request, message='No such gallery')
 
+    main = controller.get_object()
     link = reverse('actions-slideshow-get-or-create') + '?gallery={0}'.format(gallery_id)
     return render(request, 'slideshow/index.html', {
         'holder': holder,

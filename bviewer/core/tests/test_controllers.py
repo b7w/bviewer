@@ -31,11 +31,11 @@ class ControllersTestCase(TestCase):
 
         g121 = Gallery.objects.create(parent=g12, user=user, title='1.2.1')
 
-        controller = GalleryController(user, user, top_gallery.id)
+        controller = GalleryController(user, user, uid=top_gallery.id)
         galleries = controller.get_all_sub_galleries()
         self.assertEqual(len(galleries), 10)
 
-        controller = GalleryController(user, user, top_gallery.id)
+        controller = GalleryController(user, user, uid=top_gallery.id)
         galleries = controller.get_all_sub_galleries(parents=False)
         self.assertEqual(len(galleries), 6)
 
