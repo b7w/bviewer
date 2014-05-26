@@ -68,7 +68,10 @@ var core = {
 
         function load() {
             var height = jQuery(window).scrollTop() + jQuery(window).height();
-            if (isMobile) height = height + jQuery(window).height() / 2
+            if (isMobile)
+                height = height + jQuery(window).height();
+            else
+                height = height + jQuery(window).height() / 2;
 
             jQuery('.gallery img[data-src]').each(function (i, img) {
                 var image = jQuery(img);
