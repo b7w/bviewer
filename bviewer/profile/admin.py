@@ -8,6 +8,7 @@ from django.template.loader import render_to_string
 from django.utils.encoding import smart_text
 
 from bviewer.core.admin import ProxyUserForm
+from bviewer.core.controllers import GalleryController
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.models import Gallery, Image, ProxyUser, Video
 from bviewer.profile.actions import bulk_time_update, update_time_from_exif
@@ -111,6 +112,10 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
             obj.thumbnail_id = thumbnail_id
         else:
             obj.thumbnail = None
+        # allow archiving
+        if change and 'allow_archiving' in form.changed_data:
+            controller = GalleryController.from_obj(obj)
+            controller.set_archiving(obj.allow_archiving)
         super(ProfileGalleryAdmin, self).save_model(request, obj, form, change)
 
     def get_form(self, request, obj=None, **kwargs):
