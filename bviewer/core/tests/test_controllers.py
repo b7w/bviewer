@@ -39,4 +39,24 @@ class ControllersTestCase(TestCase):
         galleries = controller.get_all_sub_galleries(parents=False)
         self.assertEqual(len(galleries), 6)
 
+    def test_gallery_controller_from_obj(self):
+        """
+        Tests GalleryController.from_obj
+        """
+        data = TestData()
+        data.load_users()
+
+        user = data.user_b7w
+        top_gallery = user.top_gallery
+
+        controller = GalleryController(user, user, uid=top_gallery.id)
+        self.assertEqual(controller.uid, top_gallery.id)
+        self.assertIsNone(controller.obj)
+        self.assertEqual(controller.get_object(), top_gallery)
+
+        controller = GalleryController(user, user, obj=top_gallery)
+        self.assertEqual(controller.uid, top_gallery.id)
+        self.assertEqual(controller.obj, top_gallery)
+        self.assertEqual(controller.get_object(), top_gallery)
+
 

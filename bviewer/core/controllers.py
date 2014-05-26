@@ -51,7 +51,7 @@ def get_gallery_user(request):
 
 
 class BaseController(object):
-    def __init__(self, holder, user, uid):
+    def __init__(self, holder, user, uid=None, obj=None):
         """
         :type holder: bviewer.core.models.ProxyUser
         :type user: django.contrib.auth.models.User
@@ -59,7 +59,11 @@ class BaseController(object):
         """
         self.holder = holder
         self.user = user
-        self.uid = uid
+        if uid:
+            self.uid = uid
+        else:
+            self.uid = obj.id
+        self.obj = obj
 
     def is_owner(self):
         """
@@ -68,6 +72,10 @@ class BaseController(object):
         :rtype: bool
         """
         return self.holder == self.user
+
+    @staticmethod
+    def from_obj(obj):
+        raise NotImplementedError()
 
     def get_object(self):
         raise NotImplementedError()
@@ -83,6 +91,13 @@ class GalleryController(BaseController):
         if sorting == Gallery.DESK:
             return query_set.order_by('-time')
 
+    @staticmethod
+    def from_obj(obj):
+        """
+        :type obj: bviewer.core.models.Gallery
+        """
+        return GalleryController(obj.user, obj.user, obj=obj)
+
     @cache_method
     def get_object(self):
         """
@@ -90,6 +105,8 @@ class GalleryController(BaseController):
 
         :rtype: bviewer.core.models.Gallery or None
         """
+        if self.obj:
+            return self.obj
         if self.is_owner():
             return Gallery.objects.safe_get(pk=self.uid, user_id=self.holder.id)
         return Gallery.objects.safe_get(Q(pk=self.uid), Q(user_id=self.holder.id), self.OPEN)
@@ -132,7 +149,7 @@ class GalleryController(BaseController):
         return result
 
     def pre_cache(self):
-        ids = [self.get_object().id,]
+        ids = [self.get_object().id, ]
         ids.extend(i.id for i in self.get_all_sub_galleries())
         images = Image.objects.filter(gallery__in=ids)
         sizes = [i for i in settings.VIEWER_IMAGE_SIZE.keys() if i != 'full']
@@ -149,8 +166,13 @@ class GalleryController(BaseController):
             as_job(image_async.process, waite=False)
 
     def is_archiving_allowed(self):
-        obj = self.get_object()
-        return obj and obj.allow_archiving
+        return self.get_object().allow_archiving
+
+    def set_archiving(self, value):
+        self.get_object().allow_archiving = value
+        for gallery in self.get_all_sub_galleries():
+            gallery.allow_archiving = value
+            gallery.save()
 
     def is_album(self):
         """
