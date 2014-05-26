@@ -29,9 +29,8 @@ def index_view(request, gid):
     if not holder:
         return message_view(request, message=NO_USER_DEFINED)
 
-    controller = GalleryController(holder, request.user, gid)
-    main = controller.get_object()
-    if not main:
+    controller = GalleryController(holder, request.user, uid=gid)
+    if not controller.exists():
         return message_view(request, message=NO_GALLERY_FOUND)
 
     if not controller.is_album():
@@ -46,6 +45,7 @@ def index_view(request, gid):
     # links for redirect to download, and check status
     redirect = reverse('archive.download', kwargs=dict(gid=gid, uid=z.uid))
     link = reverse('archive.status', kwargs=dict(gid=gid, uid=z.uid))
+    main = controller.get_object()
 
     if z.status == 'DONE':
         return HttpResponseRedirect(redirect)
@@ -70,8 +70,7 @@ def status_view(request, gid, uid):
         raise Http404(NO_USER_DEFINED)
 
     controller = GalleryController(holder, request.user, gid)
-    main = controller.get_object()
-    if not main:
+    if not controller.exists():
         return HttpResponse(json.dumps(dict(error=NO_GALLERY_FOUND)))
 
     if not controller.is_album():
@@ -95,9 +94,8 @@ def download_view(request, gid, uid):
     if not holder:
         raise Http404(NO_USER_DEFINED)
 
-    controller = GalleryController(holder, request.user, gid)
-    main = controller.get_object()
-    if not main:
+    controller = GalleryController(holder, request.user, uid=gid)
+    if not controller.exists():
         raise Http404(NO_GALLERY_FOUND)
 
     if not controller.is_album():
@@ -112,6 +110,7 @@ def download_view(request, gid, uid):
     if z == 'NONE':
         raise Http404('No file found')
 
+    main = controller.get_object()
     logger.info(smart_text('download archive "%s"'), main.title)
     name = smart_text('{0} - {1}.zip').format(main.time.strftime('%Y-%m-%d'), main.title)
     return download_response(z.archive, name=name)

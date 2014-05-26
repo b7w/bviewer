@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
 import random
-
 from django.db.models import Q
 
 from bviewer.core.controllers import GalleryController
@@ -19,7 +18,7 @@ class SlideShowGenerator(object):
         self.redis = redis
         self.holder = slideshow.gallery.user
         self.user = slideshow.user
-        self.gallery_ctrl = GalleryController(self.holder, self.user, slideshow.gallery_id)
+        self.gallery_ctrl = GalleryController(self.holder, self.user, uid=slideshow.gallery_id)
 
     def get_key(self):
         return 'slideshow-id:' + self.slideshow.id

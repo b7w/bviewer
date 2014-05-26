@@ -73,6 +73,9 @@ class BaseController(object):
         """
         return self.holder == self.user
 
+    def exists(self):
+        return bool(self.get_object())
+
     @staticmethod
     def from_obj(obj):
         raise NotImplementedError()

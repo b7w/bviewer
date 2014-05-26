@@ -25,9 +25,8 @@ def images_view(request, uid):
     if not holder:
         raise Http404()
 
-    controller = GalleryController(holder, request.user, uid)
-    main = controller.get_object()
-    if not main:
+    controller = GalleryController(holder, request.user, uid=uid)
+    if not controller.exists():
         return message_view(request, message='No such gallery')
 
     images = controller.get_images()
@@ -40,7 +39,7 @@ def images_view(request, uid):
         logger.exception(e)
         return message_view(request, message=smart_text(e))
     return render(request, 'profile/images.html', {
-        'gallery': main,
+        'gallery': controller.get_object(),
         'folder': folder,
         'title': 'Select images',
     })
@@ -53,9 +52,8 @@ def gallery_pre_cache(request, uid):
     if not holder:
         raise Http404()
 
-    controller = GalleryController(holder, request.user, uid)
-    main = controller.get_object()
-    if not main:
+    controller = GalleryController(holder, request.user, uid=uid)
+    if not controller.exists():
         return message_view(request, message='No such gallery')
 
     try:
