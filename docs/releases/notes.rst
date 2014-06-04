@@ -4,7 +4,7 @@ Release notes
 
 .. index:: Release notes
 
-| **v1.0.9 dev**
+| **v1.0.9** - 4.06.2014
 | Add some features to profile and improve mobile styles.
 
 * Fix menu links on ipad
