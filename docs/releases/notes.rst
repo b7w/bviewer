@@ -4,6 +4,16 @@ Release notes
 
 .. index:: Release notes
 
+| **v1.0.9 dev**
+| Add some features to profile and improve mobile styles.
+
+* Fix menu links on ipad
+* Pre cache function
+* On setting gallery allow archive set child too
+* Image popup in profile list images
+* Make body on ipad more wide
+
+
 | **v1.0.8** - *20.05.1014*
 | Add some small features to profile. Need database scheme update.
 
