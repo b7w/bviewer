@@ -17,6 +17,7 @@ class TestData(object):
         self.load_albums()
         self.load_images()
         self.load_videos()
+        return self
 
     def load_users(self):
         self.user_b7w = User(username='B7W')

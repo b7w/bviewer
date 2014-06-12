@@ -58,6 +58,7 @@ class Gallery(models.Model):
     CACHE_ARCHIVE_SIZE_MIN = 128
     CACHE_ARCHIVE_SIZE_MAX = 2048
 
+    title = models.CharField(max_length=256)
     user = models.ForeignKey(User)
 
     url = models.CharField(max_length=16, unique=True)
@@ -173,7 +174,7 @@ class Image(models.Model):
         """
         Check path exists
         """
-        storage = ImageStorage(self.album.user)
+        storage = ImageStorage(self.album.gallery)
         if not storage.exists(self.path):
             raise ValidationError(smart_text('No {0} path exists').format(self.path))
 

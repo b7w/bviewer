@@ -16,9 +16,9 @@ class SlideShowGenerator(object):
     def __init__(self, slideshow, redis=None):
         self.slideshow = slideshow
         self.redis = redis
-        self.gallery = slideshow.album.user
+        self.gallery = slideshow.album.gallery
         self.user = slideshow.user
-        self.album_ctrl = AlbumController(selfgalleryr, self.user, uid=slideshow.album_id)
+        self.album_ctrl = AlbumController(self.gallery, self.user, uid=slideshow.album_id)
 
     def get_key(self):
         return 'slideshow-id:' + self.slideshow.id
