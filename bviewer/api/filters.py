@@ -2,7 +2,7 @@
 from rest_framework.filters import BaseFilterBackend
 
 
-class UserSelfFilter(BaseFilterBackend):
+class GalleryUserSelfFilter(BaseFilterBackend):
     HTTP_METHODS = ('POST', 'DELETE',)
     GET_PARAM = 'user__self'
     QUERYSET_PARAM = 'user'
@@ -15,7 +15,9 @@ class UserSelfFilter(BaseFilterBackend):
         return queryset
 
 
-class ItemUserSelfFilter(UserSelfFilter):
-    HTTP_METHODS = ('POST', 'DELETE',)
-    GET_PARAM = 'user__self'
-    QUERYSET_PARAM = 'album__user'
+class AlbumUserSelfFilter(GalleryUserSelfFilter):
+    QUERYSET_PARAM = 'gallery__user'
+
+
+class ItemUserSelfFilter(GalleryUserSelfFilter):
+    QUERYSET_PARAM = 'album__gallery__user'

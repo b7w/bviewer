@@ -19,7 +19,7 @@ class SlideShowTestCase(BaseResourceTestCase):
         # Force create session
         self.client.cookies[settings.SESSION_COOKIE_NAME] = 'session_test'
 
-        album_id = self.data.user_b7w.top_album.id
+        album_id = self.data.gallery_b7w.top_album.id
         response = self.client.rest_get('/api/v1/actions/slideshow/get_or_create/?album={0}'.format(album_id))
         obj1 = SlideShow.objects.safe_get(id=response.object['id'])
         self.assertIsNotNone(obj1)
@@ -58,7 +58,7 @@ class SlideShowTestCase(BaseResourceTestCase):
         self.assertEqual(response.error, 'No slideshow with id "None"')
 
         obj = SlideShow.objects.create(
-            album=self.data.user_b7w.top_album,
+            album=self.data.gallery_b7w.top_album,
             user=self.data.user_b7w,
             session_key=self.client.session.session_key,
         )

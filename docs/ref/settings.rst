@@ -13,7 +13,7 @@ Viewer configuration
 ====================
 
 VIEWER_GALLERY_ID
----------------
+-----------------
 
 .. _CONF_VIEWER_GALLERY_ID:
 
