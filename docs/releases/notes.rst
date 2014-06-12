@@ -4,6 +4,19 @@ Release notes
 
 .. index:: Release notes
 
+| **v1.1 dev**
+| Change database architecture. Need database scheme update.
+
+| ``ALTER TABLE core_profile RENAME COLUMN top_gallery_id TO top_album_id;``
+| ``ALTER TABLE core_gallery RENAME COLUMN gallery_sorting TO album_sorting;``
+| ``ALTER TABLE core_image RENAME COLUMN gallery_id TO album_id;``
+| ``ALTER TABLE core_video RENAME COLUMN gallery_id TO album_id;``
+| ``ALTER TABLE core_gallery RENAME TO core_album;``
+| ``ALTER TABLE slideshow_slideshow RENAME COLUMN gallery_id TO album_id;``
+
+* Refactor all *gallery* to *album*
+
+
 | **v1.0.9** - 4.06.2014
 | Add some features to profile and improve mobile styles.
 

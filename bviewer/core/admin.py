@@ -7,10 +7,10 @@ from django import forms
 from django.contrib.auth.forms import UserChangeForm
 
 from bviewer.core.utils import RaisingRange
-from bviewer.core.models import ProxyUser, Gallery, Image, Video
+from bviewer.core.models import ProxyUser, Album, Image, Video
 
 
-class GalleryAdmin(ModelAdmin):
+class AlbumAdmin(ModelAdmin):
     list_select_related = True
 
     list_display = ('title', 'parent', 'user', 'visibility', 'time',)
@@ -20,26 +20,26 @@ class GalleryAdmin(ModelAdmin):
     search_fields = ('title', 'description',)
 
 
-site.register(Gallery, GalleryAdmin)
+site.register(Album, AlbumAdmin)
 
 
 class ImageAdmin(ModelAdmin):
     list_select_related = True
 
-    list_display = ('path', 'file_name', 'gallery_user', 'gallery_title', 'time', )
-    list_filter = ('gallery__title', 'gallery__user__username', 'time',)
-    ordering = ('gallery__user__username', 'path', '-time',)
+    list_display = ('path', 'file_name', 'album_user', 'album_title', 'time', )
+    list_filter = ('album__title', 'album__user__username', 'time',)
+    ordering = ('album__user__username', 'path', '-time',)
 
-    search_fields = ('gallery__title', 'path',)
+    search_fields = ('album__title', 'path',)
 
     def file_name(self, obj):
         return os.path.basename(obj.path)
 
-    def gallery_title(self, obj):
-        return obj.gallery.title
+    def album_title(self, obj):
+        return obj.album.title
 
-    def gallery_user(self, obj):
-        return obj.gallery.user.username
+    def album_user(self, obj):
+        return obj.album.user.username
 
 
 site.register(Image, ImageAdmin)
@@ -48,17 +48,17 @@ site.register(Image, ImageAdmin)
 class VideoAdmin(ModelAdmin):
     list_select_related = True
 
-    list_display = ('gallery_title', 'gallery_user', 'title', 'type', 'uid', 'time', )
-    list_filter = ('gallery__title', 'gallery__user__username', 'time',)
-    ordering = ('gallery__user__username', '-time',)
+    list_display = ('album_title', 'album_user', 'title', 'type', 'uid', 'time', )
+    list_filter = ('album__title', 'album__user__username', 'time',)
+    ordering = ('album__user__username', '-time',)
 
-    search_fields = ('gallery__title', 'title',)
+    search_fields = ('album__title', 'title',)
 
-    def gallery_title(self, obj):
-        return obj.gallery.title
+    def album_title(self, obj):
+        return obj.album.title
 
-    def gallery_user(self, obj):
-        return obj.gallery.user.username
+    def album_user(self, obj):
+        return obj.album.user.username
 
 
 site.register(Video, VideoAdmin)
@@ -95,12 +95,12 @@ class ProxyUserForm(UserChangeForm):
 class ProxyUserAdmin(UserAdmin, ModelAdmin):
     list_select_related = True
 
-    list_display = ('username', 'email', 'is_staff', 'home', 'top_gallery', )
+    list_display = ('username', 'email', 'is_staff', 'home', 'top_album', )
 
     extra_fieldsets = (
         ('Account info', {'fields': ('username', 'password', )}),
         ('Personal info', {'fields': ('email', 'first_name', 'last_name', )}),
-        ('Viewer info', {'fields': ('url', 'home', 'top_gallery', 'cache_size', 'cache_archive_size', )}),
+        ('Viewer info', {'fields': ('url', 'home', 'top_album', 'cache_size', 'cache_archive_size', )}),
         ('Additional info', {'fields': ('about_title', 'about_text',)}),
     )
     fieldsets = extra_fieldsets + UserAdmin.fieldsets[2:]

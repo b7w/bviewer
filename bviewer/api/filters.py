@@ -18,4 +18,4 @@ class UserSelfFilter(BaseFilterBackend):
 class ItemUserSelfFilter(UserSelfFilter):
     HTTP_METHODS = ('POST', 'DELETE',)
     GET_PARAM = 'user__self'
-    QUERYSET_PARAM = 'gallery__user'
+    QUERYSET_PARAM = 'album__user'

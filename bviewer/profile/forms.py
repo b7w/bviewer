@@ -4,7 +4,7 @@ from datetime import timedelta
 from django.core.exceptions import ValidationError
 from django.forms import Form, ModelForm, ChoiceField, CharField, MultipleHiddenInput
 
-from bviewer.core.models import Gallery, Video
+from bviewer.core.models import Album, Video
 
 
 class BulkTimeUpdateForm(Form):
@@ -32,21 +32,21 @@ class BulkTimeUpdateForm(Form):
         return timedelta(**kwargs)
 
 
-class AdminGalleryForm(ModelForm):
+class AdminAlbumForm(ModelForm):
     def clean_title(self):
         title = self.cleaned_data['title']
         user_id = self.data['user']
-        if Gallery.objects.filter(title=title, user_id=user_id).exclude(id=self.instance.id).count() > 0:
+        if Album.objects.filter(title=title, user_id=user_id).exclude(id=self.instance.id).count() > 0:
             raise ValidationError('Title must be unique')
         return title
 
     class Meta(object):
-        model = Gallery
+        model = Album
 
 
-class GalleryForm(ModelForm):
+class AlbumForm(ModelForm):
     class Meta(object):
-        model = Gallery
+        model = Album
         fields = ('title', 'visibility', 'description', 'time')
 
 

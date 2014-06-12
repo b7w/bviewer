@@ -4,7 +4,7 @@ from mock import Mock
 from django.conf import settings
 from django.test import TestCase
 
-from bviewer.core.controllers import domain_match, get_gallery_user
+from bviewer.core.controllers import domain_match, get_album_user
 from bviewer.core.models import ProxyUser
 
 
@@ -36,30 +36,30 @@ class UtilsTestCase(TestCase):
         self.assertTrue(match)
         self.assertEqual(match.groups(), (None, '172.17.1.10', '80'))
 
-    def test_gallery_user(self):
+    def test_album_user(self):
         """
-        Tests get_gallery_user
+        Tests get_album_user
         """
         settings.VIEWER_USER_ID = None
         user = ProxyUser.objects.create(username='User')
 
         request = request_mock('user.example.com')
-        holder = get_gallery_user(request)
+        holder = get_album_user(request)
         self.assertEqual(holder, user)
 
         request = request_mock('www.user.example.com:8000')
-        holder = get_gallery_user(request)
+        holder = get_album_user(request)
         self.assertEqual(holder, user)
 
         request = request_mock('user.example.com')
-        holder = get_gallery_user(request)
+        holder = get_album_user(request)
         self.assertEqual(holder, user)
 
         request = request_mock('example.com')
-        holder = get_gallery_user(request)
+        holder = get_album_user(request)
         self.assertIsNone(holder)
 
         settings.VIEWER_USER_ID = user.id
         request = request_mock('example.com')
-        holder = get_gallery_user(request)
+        holder = get_album_user(request)
         self.assertEqual(holder, user)

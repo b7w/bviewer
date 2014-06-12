@@ -3,8 +3,8 @@ import logging
 import random
 from django.db.models import Q
 
-from bviewer.core.controllers import GalleryController
-from bviewer.core.models import Image, Gallery
+from bviewer.core.controllers import AlbumController
+from bviewer.core.models import Image, Album
 from bviewer.core.utils import as_job, cache_method, get_redis_connection
 from bviewer.slideshow.models import SlideShow
 
@@ -16,9 +16,9 @@ class SlideShowGenerator(object):
     def __init__(self, slideshow, redis=None):
         self.slideshow = slideshow
         self.redis = redis
-        self.holder = slideshow.gallery.user
+        self.holder = slideshow.album.user
         self.user = slideshow.user
-        self.gallery_ctrl = GalleryController(self.holder, self.user, uid=slideshow.gallery_id)
+        self.album_ctrl = AlbumController(self.holder, self.user, uid=slideshow.album_id)
 
     def get_key(self):
         return 'slideshow-id:' + self.slideshow.id
@@ -29,8 +29,8 @@ class SlideShowGenerator(object):
         redis = self.redis or get_redis_connection()
 
         saved_images_count = 0
-        for gallery in self.gallery_ctrl.get_all_sub_galleries(parents=False):
-            images_ids = list(Image.objects.filter(gallery=gallery).values_list('id', flat=True))
+        for album in self.album_ctrl.get_all_sub_albums(parents=False):
+            images_ids = list(Image.objects.filter(album=album).values_list('id', flat=True))
             count = int(len(images_ids) * ratio)
             images_ids = random.sample(images_ids, count)
             saved_images_count += len(images_ids)
@@ -46,14 +46,14 @@ class SlideShowGenerator(object):
 
 
 class SlideShowController(object):
-    def __init__(self, user, session_key, slideshow_id=None, gallery_id=None, redis=None):
+    def __init__(self, user, session_key, slideshow_id=None, album_id=None, redis=None):
         self.user = user if user.is_authenticated() else None
         self.session_key = session_key
-        self.gallery_id = gallery_id
+        self.album_id = album_id
         self.redis = redis or get_redis_connection()
         self.slideshow_id = slideshow_id
-        args = (slideshow_id, gallery_id,)
-        assert any(args) and not all(args), 'Need one of slideshow_id/gallery_id kwargs'
+        args = (slideshow_id, album_id,)
+        assert any(args) and not all(args), 'Need one of slideshow_id/album_id kwargs'
 
     def get_key(self):
         return 'slideshow-id:' + self.slideshow_id
@@ -68,20 +68,20 @@ class SlideShowController(object):
             return SlideShow.objects.safe_get(id=self.slideshow_id, session_key=self.session_key)
 
     @cache_method
-    def get_gallery(self):
+    def get_album(self):
         obj = None
         if self.user:  # if holder == user
-            obj = Gallery.objects.safe_get(id=self.gallery_id, user=self.user)
+            obj = Album.objects.safe_get(id=self.album_id, user=self.user)
         if not obj:
-            obj = Gallery.objects.safe_get(
-                Q(pk=self.gallery_id),
-                Q(visibility=Gallery.VISIBLE) | Q(visibility=Gallery.HIDDEN)
+            obj = Album.objects.safe_get(
+                Q(pk=self.album_id),
+                Q(visibility=Album.VISIBLE) | Q(visibility=Album.HIDDEN)
             )
         return obj
 
     def get_or_create(self):
         status = Q(status=SlideShow.NEW) | Q(status=SlideShow.BUILD)
-        items = list(SlideShow.objects.filter(Q(gallery=self.gallery_id), Q(session_key=self.session_key), status))
+        items = list(SlideShow.objects.filter(Q(album=self.album_id), Q(session_key=self.session_key), status))
         for slideshow in items:
             if slideshow.status == SlideShow.BUILD:
                 return slideshow
@@ -90,7 +90,7 @@ class SlideShowController(object):
                 return slideshow
         return SlideShow.objects.create(
             session_key=self.session_key,
-            gallery_id=self.gallery_id,
+            album_id=self.album_id,
             user=self.user
         )
 

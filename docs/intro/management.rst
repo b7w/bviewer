@@ -11,15 +11,15 @@ Adding content
 .. index:: Adding content, Content
 
 | To add content login, and click profile link on a right side.
-  On django admin site add new gallery (Home › Galleries).
+  On django admin site add new album (Home › Albums).
   After creating follow *Select images on disk* link in *Images* field.
   In new window find in file system your directory with images and check them. Save.
 
-| To select gallery thumbnail, go to the gallery settings (Home › Galleries > Some gallery).
-  At the bottom click *Click to see all image previews or select gallery thumbnail*.
+| To select album thumbnail, go to the album settings (Home › Albums > Some album).
+  At the bottom click *Click to see all image previews or select album thumbnail*.
   Select one from appeared images. Save.
 
-| To add video, go to videos (Home › Videos). Add video, in *Gallery* field select required gallery.
+| To add video, go to videos (Home › Videos). Add video, in *Album* field select required album.
 
 
 Application cache

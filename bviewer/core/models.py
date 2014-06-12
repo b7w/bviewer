@@ -67,7 +67,7 @@ class ProxyUser(User):
                                                      validators=[MinValueValidator(CACHE_ARCHIVE_SIZE_MIN),
                                                                  MaxValueValidator(CACHE_ARCHIVE_SIZE_MAX)])
 
-    top_gallery = models.ForeignKey('Gallery', related_name='top', null=True, blank=True, on_delete=models.DO_NOTHING)
+    top_album = models.ForeignKey('Album', related_name='top', null=True, blank=True, on_delete=models.DO_NOTHING)
     about_title = models.CharField(max_length=256, blank=True)
     about_text = models.TextField(max_length=1024, blank=True)
 
@@ -93,24 +93,23 @@ class ProxyUser(User):
     class Meta(object):
         db_table = 'core_profile'
         ordering = ['username']
-        verbose_name = 'Gallery user'
-        verbose_name_plural = 'Gallery users'
+        verbose_name = 'Profile'
         permissions = (
-            ('user_holder', 'User is galleries holder'),
+            ('user_holder', 'User is albums holder'),
         )
 
 
-def add_top_gallery(sender, instance, created, **kwargs):
+def add_top_album(sender, instance, created, **kwargs):
     if created:
-        gal = Gallery(user=instance, title='Welcome', description='Edit main gallery to change it')
+        gal = Album(user=instance, title='Welcome', description='Edit main album to change it')
         gal.save()
-        instance.top_gallery = gal
+        instance.top_album = gal
         perms = Permission.objects.filter(
             Q(codename='change_proxyuser') |
             Q(codename='user_holder') |
-            Q(codename='add_gallery') |
-            Q(codename='change_gallery') |
-            Q(codename='delete_gallery') |
+            Q(codename='add_album') |
+            Q(codename='change_album') |
+            Q(codename='delete_album') |
             Q(codename='add_image') |
             Q(codename='change_image') |
             Q(codename='delete_image') |
@@ -125,14 +124,14 @@ def add_top_gallery(sender, instance, created, **kwargs):
         instance.save()
 
 
-post_save.connect(add_top_gallery, sender=ProxyUser)
+post_save.connect(add_top_album, sender=ProxyUser)
 
 
 def date_now():
     return timezone.now().replace(minute=0, second=0, microsecond=0)
 
 
-class Gallery(models.Model):
+class Album(models.Model):
     VISIBLE = 1
     HIDDEN = 2
     PRIVATE = 3
@@ -149,8 +148,8 @@ class Gallery(models.Model):
     visibility = models.SmallIntegerField(max_length=1, choices=VISIBILITY_CHOICE, default=VISIBLE,
                                           help_text='HIDDEN - not shown on page for anonymous, '
                                                     'PRIVATE - available only to the holder')
-    gallery_sorting = models.SmallIntegerField(max_length=1, choices=SORT_CHOICE, default=ASK,
-                                               help_text='How to sort galleries inside')
+    album_sorting = models.SmallIntegerField(max_length=1, choices=SORT_CHOICE, default=ASK,
+                                               help_text='How to sort albums inside')
     allow_archiving = models.BooleanField(default=True)
     description = models.TextField(max_length=512, null=True, blank=True)
     thumbnail = models.ForeignKey('Image', null=True, blank=True, related_name='thumbnail', on_delete=models.SET_NULL)
@@ -166,15 +165,15 @@ class Gallery(models.Model):
     __unicode__ = __str__
 
     class Meta(object):
-        verbose_name = 'Gallery'
-        verbose_name_plural = 'Galleries'
+        verbose_name = 'Album'
+        verbose_name_plural = 'Albums'
         ordering = ['-time']
         unique_together = (('title', 'user'),)
 
 
 class Image(models.Model):
     id = models.CharField(max_length=32, default=uuid_pk(length=12), primary_key=True)
-    gallery = models.ForeignKey(Gallery)
+    album = models.ForeignKey(Album)
     path = models.CharField(max_length=256)
     time = models.DateTimeField(default=timezone.now)
 
@@ -184,19 +183,19 @@ class Image(models.Model):
         """
         Check path exists
         """
-        storage = ImageStorage(self.gallery.user)
+        storage = ImageStorage(self.album.user)
         if not storage.exists(self.path):
             raise ValidationError(smart_text('No {0} path exists').format(self.path))
 
     def __str__(self):
-        return smart_text('{0}: {1}').format(self.gallery.title, self.path)
+        return smart_text('{0}: {1}').format(self.album.title, self.path)
 
     __unicode__ = __str__
 
     class Meta(object):
         verbose_name = 'Image'
         ordering = ['time']
-        unique_together = (('gallery', 'path'),)
+        unique_together = (('album', 'path'),)
 
 
 def update_time_from_exif(sender, instance, created, **kwargs):
@@ -204,7 +203,7 @@ def update_time_from_exif(sender, instance, created, **kwargs):
     :type instance: Image
     """
     if created:
-        storage = ImageStorage(instance.gallery.user)
+        storage = ImageStorage(instance.album.user)
         set_time_from_exif(storage, instance, save=True)
 
 
@@ -219,7 +218,7 @@ class Video(models.Model):
     id = models.CharField(max_length=32, default=uuid_pk(length=12), primary_key=True)
     uid = models.CharField(max_length=32)
     type = models.SmallIntegerField(max_length=1, choices=TYPE_CHOICE, default=YOUTUBE)
-    gallery = models.ForeignKey(Gallery)
+    album = models.ForeignKey(Album)
     title = models.CharField(max_length=256)
     description = models.TextField(max_length=512, null=True, blank=True)
     time = models.DateTimeField(default=timezone.now)
@@ -263,4 +262,4 @@ class Video(models.Model):
     class Meta(object):
         verbose_name = 'Video'
         ordering = ['time']
-        unique_together = (('uid', 'gallery'),)
+        unique_together = (('uid', 'album'),)

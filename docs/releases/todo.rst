@@ -10,7 +10,7 @@ ToDo plan
     `bitbucket.org <https://bitbucket.org/B7W/believeviewer/issues?status=new&status=open>`__.
   | But do not wait that I will implement all proposals. I do not want one more CMS monster.
 
-* | **Gallery flow**
+* | **Album flow**
   | Up today all thumbnails are catting to square tile.
     It is normal but not the best choice. 3 columns with max fit thumbnails looks very cool.
     To take maximum from that style it is better to mix landscapes and portraits.
