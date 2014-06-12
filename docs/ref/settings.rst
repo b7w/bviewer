@@ -19,7 +19,7 @@ VIEWER_USER_ID
 
 Default: ``None``
 
-| If gallery is used for one person or for tests set user id here.
+| If album is used for one person or for tests set user id here.
 
 
 VIEWER_CACHE_PATH
@@ -83,7 +83,7 @@ Default:
   If image smaller than size it will be linked.
 
 | Tiny size used in admin to minimize cache size. Small size used in image thumbnails.
-  Big size used for js gallery. Full size used to download real image.
+  Big size used for js album. Full size used to download real image.
 
 
 VIEWER_DOWNLOAD_RESPONSE

@@ -5,7 +5,7 @@ from django.db.models.signals import post_save
 from django.utils import timezone
 from django.utils.encoding import smart_text
 
-from bviewer.core.models import Gallery, ProxyManager, uuid_pk
+from bviewer.core.models import Album, ProxyManager, uuid_pk
 
 
 class SlideShow(models.Model):
@@ -15,7 +15,7 @@ class SlideShow(models.Model):
     STATUS_CHOICE = ((NEW, 'New'), (BUILD, 'Build'), (FINISHED, 'Finished'),)
 
     id = models.CharField(max_length=32, default=uuid_pk(length=8), primary_key=True)
-    gallery = models.ForeignKey(Gallery, on_delete=models.DO_NOTHING)
+    album = models.ForeignKey(Album, on_delete=models.DO_NOTHING)
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.DO_NOTHING)
     session_key = models.CharField(max_length=32)
     timer = models.SmallIntegerField(max_length=4, default=10)
@@ -26,7 +26,7 @@ class SlideShow(models.Model):
     objects = ProxyManager()
 
     def __str__(self):
-        return smart_text('{0}: {1}').format(self.gallery.title, self.status)
+        return smart_text('{0}: {1}').format(self.album.title, self.status)
 
     __unicode__ = __str__
 

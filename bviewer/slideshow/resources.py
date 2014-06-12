@@ -31,8 +31,8 @@ class SlideShowResource(ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly, )
 
     filter_backends = (OrderingFilter, DjangoFilterBackend, )
-    filter_fields = ('id', 'gallery', 'status', )
-    ordering = ('gallery', 'time',)
+    filter_fields = ('id', 'album', 'status', )
+    ordering = ('album', 'time',)
 
     paginate_by = ITEMS_PER_PAGE
 
@@ -44,13 +44,13 @@ class SlideShowResource(ModelViewSet):
         if pk:
             return Response(dict(error='No "pk" parameter needed'), status=status.HTTP_400_BAD_REQUEST)
         session_key = request.session.session_key
-        gallery_id = request.GET.get('gallery')
-        if not gallery_id:
-            return Response(dict(error='No "gallery" parameter'), status=status.HTTP_400_BAD_REQUEST)
+        album_id = request.GET.get('album')
+        if not album_id:
+            return Response(dict(error='No "album" parameter'), status=status.HTTP_400_BAD_REQUEST)
 
-        controller = SlideShowController(request.user, session_key, gallery_id=gallery_id)
-        if not controller.get_gallery():
-            return Response(dict(error='No gallery'), status=status.HTTP_404_NOT_FOUND)
+        controller = SlideShowController(request.user, session_key, album_id=album_id)
+        if not controller.get_album():
+            return Response(dict(error='No album'), status=status.HTTP_404_NOT_FOUND)
 
         serializer = self.get_serializer(controller.get_or_create())
         return Response(serializer.data)
@@ -66,7 +66,7 @@ class SlideShowResource(ModelViewSet):
             image = controller.next_image()
             if image:
                 link = reverse('core.download', args=('big', image.id,))
-                return Response(dict(image_id=image.id, link=link, title=image.gallery.title))
+                return Response(dict(image_id=image.id, link=link, title=image.album.title))
             controller.finish()
             return Response(dict(error='No more images'), status=status.HTTP_204_NO_CONTENT)
         return Response(dict(error='No slideshow with id "{0}"'.format(pk)), status=status.HTTP_404_NOT_FOUND)

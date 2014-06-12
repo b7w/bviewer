@@ -35,8 +35,8 @@ Project structure
     * **files** - File system wrapper for storage access and image serving.
     * **exceptions** - All main exception classes.
     * **images** - Resizing and Image caching, Exif data.
-* **profile** - Provide subclass of *AdminSite* for gallery owners with limited access.
-* **slideshow** - Module for slideshow that cat run on many galleries.
+* **profile** - Provide subclass of *AdminSite* for album owners with limited access.
+* **slideshow** - Module for slideshow that cat run on many albums.
 * **settings** - Django and project settings. Split and pack into python packages.
     * **django** - Default django settings setup for this project.
     * **project** - Settings used by application. Import django settings.
@@ -53,7 +53,7 @@ Holder profile
 
 .. index:: Holder profile
 
-| Profile was made for gallery owners, where he can edit only his galleries and images.
+| Profile was made for album owners, where he can edit only his albums and images.
   Technically it is sub class of django *AdminSite*.
   Plus some separate views to provide extra image managing.
 
@@ -63,10 +63,10 @@ SlideShow
 
 .. index:: SlideShow
 
-| It is separate view. It can be call on group on galleries.
+| It is separate view. It can be call on group on albums.
   Slideshow settings and status stored in relational database, image ids in Redis set.
   Slideshow attached to user via session_key.
-  On slideshow creating each gallery put half random images to redis set.
+  On slideshow creating each album put half random images to redis set.
   On next call from set selected and deleted random image.
   If no image in set, slideshow status is installed to Finish. And you need to create another one.
 
@@ -96,20 +96,20 @@ Models
     Models mentioned here very similar to the real, but not equal them!
     Some options can be omitted.
 
-| Gallery, Image, Video models have special unique identifier. It is text field about 8-12 char length.
-  It is made to provide way to hide some galleries. If all galleries with long complex urls,
-  you can hide one form gallery tree and share it personally. Off course it is worth than authentication,
+| Album, Image, Video models have special unique identifier. It is text field about 8-12 char length.
+  It is made to provide way to hide some albums. If all albums with long complex urls,
+  you can hide one form album tree and share it personally. Off course it is worth than authentication,
   but more simple to implement and use.
 
 .. index:: ProxyUser model
 .. _proxy-user-model:
 
-| Special model for gallery holders with additional fields.
+| Special model for album holders with additional fields.
   **URL** - full domain name.
   **Home** - relative path from :ref:`VIEWER_STORAGE_PATH <CONF_VIEWER_STORAGE_PATH>`.
   **Cache size** - size in MB of user images cache, range [16, 256].
   **Cache archive size** - size in MB of user archives cache, range [128, 2048].
-  **Top gallery** - witch gallery will be displayed on home page. The gallery is created automatically with user.
+  **Top album** - witch album will be displayed on home page. The album is created automatically with user.
   **About title** - title for text in about page.
   **About text** - text in about page.
 
@@ -120,34 +120,34 @@ Models
         home = models.CharField(max_length=256, blank=True, default='')
         cache_size = models.PositiveIntegerField(default=32)
         cache_archive_size = models.PositiveIntegerField(default=256)
-        top_gallery = models.ForeignKey('Gallery', null=True)
+        top_album = models.ForeignKey('Album', null=True)
         about_title = models.CharField(max_length=256)
         about_text = models.TextField(max_length=1024)
 
-.. index:: Gallery model
+.. index:: Album model
 
-| *Gallery model*
-  **Parent** - for example ``ProxyUser.top_gallery`` to show on home page.
+| *Album model*
+  **Parent** - for example ``ProxyUser.top_album`` to show on home page.
   **User** - not show on user profile, editable only by admin.
   **Visibility** - Type of visibility.
-  VISIBLE - all user see in gallery tree and can access,
-  HIDDEN - not visible in gallery tree but can be access if you know url,
-  PRIVATE - visible and accessible only for gallery holder.
-  *If parent is None it will be hidden from gallery tree for holder too.*
-  **Gallery sorting** - Sort order of the nested galleries on time.
+  VISIBLE - all user see in album tree and can access,
+  HIDDEN - not visible in album tree but can be access if you know url,
+  PRIVATE - visible and accessible only for album holder.
+  *If parent is None it will be hidden from album tree for holder too.*
+  **Album sorting** - Sort order of the nested albums on time.
   ASK - Ascending, DESK - Descending.
   **allow_archiving** - Allow users to download images in archive
-  **Thumbnail** - image of gallery tile.
+  **Thumbnail** - image of album tile.
 
 .. code-block:: python
 
-    class Gallery(models.Model):
+    class Album(models.Model):
         id = models.CharField(max_length=32, default=uuid_pk(length=8), primary_key=True)
         parent = models.ForeignKey('self', null=True)
         title = models.CharField(max_length=256)
         user = models.ForeignKey(ProxyUser)
         visibility = models.SmallIntegerField(max_length=1, choices=VISIBILITY_CHOICE, default=VISIBLE)
-        gallery_sorting = models.SmallIntegerField(max_length=1, choices=SORT_CHOICE, default=ASK)
+        album_sorting = models.SmallIntegerField(max_length=1, choices=SORT_CHOICE, default=ASK)
         allow_archiving = models.BooleanField(default=True)
         description = models.TextField(max_length=512, null=True)
         thumbnail = models.ForeignKey('Image', null=True)
@@ -157,15 +157,15 @@ Models
 
 | **Image model**. Store path to files. Do not store exif in database,
   images can be changed so this will to redundant file reads.
-  **Gallery** - gallery FK.
-  **Path** - relative path fom user home. For example: ``[/home/bviewer/data/[user]]/gallery1/img1.jpg``.
+  **Album** - album FK.
+  **Path** - relative path fom user home. For example: ``[/home/bviewer/data/[user]]/album1/img1.jpg``.
   **Time** - default time will be taken from image exif.
 
 .. code-block:: python
 
     class Image(models.Model):
         id = models.CharField(max_length=32, default=uuid_pk(length=12), primary_key=True)
-        gallery = models.ForeignKey(Gallery)
+        album = models.ForeignKey(Album)
         path = models.CharField(max_length=256)
         time = models.DateTimeField(default=datetime.now)
 
@@ -174,7 +174,7 @@ Models
 | **Video model**. Store Vimio or YouTube links.
   **UID** - vimio or YouTube video id.
   **Type** - VIMIO or YOUTUBE.
-  **Gallery** - gallery FK.
+  **Album** - album FK.
 
 .. code-block:: python
 
@@ -182,7 +182,7 @@ Models
         id = models.CharField(max_length=32, default=uuid_pk(length=12), primary_key=True)
         uid = models.CharField(max_length=32)
         type = models.SmallIntegerField(max_length=1, choices=TYPE_CHOICE, default=YOUTUBE)
-        gallery = models.ForeignKey(Gallery)
+        album = models.ForeignKey(Album)
         title = models.CharField(max_length=256)
         description = models.TextField(max_length=512, null=True)
         time = models.DateTimeField(default=datetime.now)
@@ -202,7 +202,7 @@ Models
 
     class SlideShow(models.Model):
         id = models.CharField(max_length=32, default=uuid_pk(length=8), primary_key=True)
-        gallery = models.ForeignKey(Gallery)
+        album = models.ForeignKey(Album)
         user = models.ForeignKey(User, null=True)
         session_key = models.CharField(max_length=32)
         timer = models.SmallIntegerField(max_length=4, default=10)

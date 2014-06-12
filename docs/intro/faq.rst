@@ -49,11 +49,11 @@ Registration? Privacy?
   So account available only for gallery holders.
 
 | But there are some ways to stay private.
-  Set gallery hidden, available only via secret link.
+  Set album hidden, available only via secret link.
   And set it private, available only for holder.
 
-| Like gallery, images have visibility settings.
-  They inherit it from gallery. And there is no way to download it
+| Like album, images have visibility settings.
+  They inherit it from album. And there is no way to download it
   if you have not such permission. There aren't directs links.
 
 Management questions

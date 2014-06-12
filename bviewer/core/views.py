@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 
-from bviewer.core.controllers import GalleryController, ImageController, VideoController, get_gallery_user
+from bviewer.core.controllers import AlbumController, ImageController, VideoController, get_album_user
 from bviewer.core.exceptions import ResizeOptionsError, FileError
 from bviewer.core.utils import decor_on, get_year_parameter
 
@@ -19,26 +19,26 @@ logger = logging.getLogger(__name__)
 @vary_on_cookie
 def index_view(request):
     """
-    Show home pages with galleries
+    Show home pages with albums
     """
-    holder = get_gallery_user(request)
+    holder = get_album_user(request)
     if not holder:
         return message_view(request, message='No user defined')
 
-    controller = GalleryController(holder, request.user, uid=holder.top_gallery_id)
+    controller = AlbumController(holder, request.user, uid=holder.top_album_id)
     if not controller.exists():
-        return message_view(request, message='No main gallery')
+        return message_view(request, message='No main album')
 
     year_filter = get_year_parameter(request)
 
     main = controller.get_object()
-    galleries = controller.get_galleries(year=year_filter)
+    albums = controller.get_albums(year=year_filter)
     years = controller.get_available_years()
 
-    return render(request, 'core/galleries.html', {
+    return render(request, 'core/gallery.html', {
         'holder': holder,
         'main': main,
-        'galleries': galleries,
+        'albums': albums,
         'year_filter': year_filter,
         'years': years,
     })
@@ -46,39 +46,39 @@ def index_view(request):
 
 @cache_page(60 * 60)
 @vary_on_cookie
-def gallery_view(request, uid):
+def album_view(request, uid):
     """
-    Show sub galleries or images with videos
+    Show sub albums or images with videos
     """
-    holder = get_gallery_user(request)
+    holder = get_album_user(request)
     if not holder:
         return message_view(request, message='No user defined')
 
-    controller = GalleryController(holder, request.user, uid=uid)
+    controller = AlbumController(holder, request.user, uid=uid)
     if not controller.exists():
-        return message_view(request, message='No such gallery')
+        return message_view(request, message='No such album')
 
     main = controller.get_object()
-    galleries, images, videos, years = None, None, None, None
+    albums, images, videos, years = None, None, None, None
     year_filter = get_year_parameter(request)
     if controller.is_album():
-        template = 'core/gallery.html'
+        template = 'core/album.html'
         videos = controller.get_videos()
         images = controller.get_images()
     else:
-        template = 'core/galleries.html'
-        galleries = controller.get_galleries()
+        template = 'core/gallery.html'
+        albums = controller.get_albums()
         years = controller.get_available_years()
 
     return render(request, template, {
         'holder': holder,
         'main': main,
-        'galleries': galleries,
+        'albums': albums,
         'videos': videos,
         'images': images,
         'year_filter': year_filter,
         'years': years,
-        'back': dict(gallery_id=main.parent_id, home=holder.top_gallery_id == main.parent_id),
+        'back': dict(album_id=main.parent_id, home=holder.top_album_id == main.parent_id),
     })
 
 
@@ -88,7 +88,7 @@ def image_view(request, uid):
     """
     Show image with description
     """
-    holder = get_gallery_user(request)
+    holder = get_album_user(request)
     if not holder:
         return message_view(request, message='No user defined')
 
@@ -99,9 +99,9 @@ def image_view(request, uid):
 
     return render(request, 'core/image.html', {
         'holder': holder,
-        'gallery': image.gallery,
+        'album': image.album,
         'image': image,
-        'back': dict(gallery_id=image.gallery_id),
+        'back': dict(album_id=image.album_id),
     })
 
 
@@ -111,7 +111,7 @@ def video_view(request, uid):
     """
     Show video with description
     """
-    holder = get_gallery_user(request)
+    holder = get_album_user(request)
     if not holder:
         return message_view(request, message='No user defined')
 
@@ -122,9 +122,9 @@ def video_view(request, uid):
 
     return render(request, 'core/video.html', {
         'holder': holder,
-        'gallery': video.gallery,
+        'album': video.album,
         'video': video,
-        'back': dict(gallery_id=video.gallery_id),
+        'back': dict(album_id=video.album_id),
     })
 
 
@@ -134,7 +134,7 @@ def download_video_thumbnail_view(request, uid):
     """
     Get video thumbnail from video hosting and cache it
     """
-    holder = get_gallery_user(request)
+    holder = get_album_user(request)
     if not holder:
         raise Http404('No user defined')
 
@@ -159,7 +159,7 @@ def download_image_view(request, size, uid):
     """
     Get image with special size
     """
-    holder = get_gallery_user(request)
+    holder = get_album_user(request)
     if not holder:
         raise Http404('No user defined')
 
@@ -175,7 +175,7 @@ def download_image_view(request, size, uid):
         return message_view(request, message=e)
     except FileError as e:
         logger.error('id:%s, holder:%s \n %s', uid, holder, e)
-        return redirect('/static/core/img/gallery.png')
+        return redirect('/static/core/img/album.png')
 
 
 def message_view(request, title='Error', info=None, message=None):
@@ -194,7 +194,7 @@ def about_view(request):
     """
     Show about page
     """
-    holder = get_gallery_user(request)
+    holder = get_album_user(request)
     if not holder:
         return message_view(request, message='No user defined')
 
@@ -209,7 +209,7 @@ def login_view(request):
     """
     Proxy for `django.contrib.auth.views.login` + holder check
     """
-    holder = get_gallery_user(request)
+    holder = get_album_user(request)
     if not holder:
         return message_view(request, message='No user defined')
     return login(request, template_name='core/login.html', extra_context=dict(holder=holder))
@@ -219,7 +219,7 @@ def logout_view(request):
     """
     Proxy for `django.contrib.auth.views.logout` + holder check
     """
-    holder = get_gallery_user(request)
+    holder = get_album_user(request)
     if not holder:
         return message_view(request, message='No user defined')
     return logout(request, next_page='/')

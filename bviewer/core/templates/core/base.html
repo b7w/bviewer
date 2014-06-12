@@ -38,7 +38,7 @@
                     {% if back.home %}
                         <li><a href="{% url 'core.home' %}">Back</a></li>
                     {% else %}
-                        <li><a href="{% url 'core.gallery' back.gallery_id %}">Back</a></li>
+                        <li><a href="{% url 'core.album' back.album_id %}">Back</a></li>
                     {% endif %}
                     <li class="divider-vertical"></li>
                 {% endif %}

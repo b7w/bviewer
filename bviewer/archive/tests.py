@@ -4,14 +4,14 @@ from bviewer.core.tests.base import BaseViewTestCase
 
 class ArchiveViewsTestCase(BaseViewTestCase):
     """
-    Create private gallery and not.
+    Create private album and not.
     Test that only owner have access to private.
     """
 
-    def test_gallery(self):
-        url_first = self.reverse('archive.archive', self.data.gallery1.id)
+    def test_album(self):
+        url_first = self.reverse('archive.archive', self.data.album1.id)
         self.assertContent(url_first, 'Waite')
-        url_second = self.reverse('archive.archive', self.data.gallery2.id)
+        url_second = self.reverse('archive.archive', self.data.album2.id)
         self.assertContent(url_second, 'Error')
 
         self.login()

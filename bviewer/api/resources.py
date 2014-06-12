@@ -6,8 +6,8 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.viewsets import ModelViewSet
 from bviewer.api.filters import UserSelfFilter, ItemUserSelfFilter
 
-from bviewer.api.serializers import UserSerializer, GallerySerializer, ImageSerializer, VideoSerializer
-from bviewer.core.models import Gallery, ProxyUser, Image, Video
+from bviewer.api.serializers import UserSerializer, AlbumSerializer, ImageSerializer, VideoSerializer
+from bviewer.core.models import Album, ProxyUser, Image, Video
 
 
 ITEMS_PER_PAGE = 16
@@ -26,11 +26,11 @@ class UserResource(ModelViewSet):
     paginate_by = ITEMS_PER_PAGE
 
 
-class GalleryResource(ModelViewSet):
-    queryset = Gallery.objects.all().select_related()
+class AlbumResource(ModelViewSet):
+    queryset = Album.objects.all().select_related()
 
     http_method_names = ('get', 'post', 'delete',)
-    serializer_class = GallerySerializer
+    serializer_class = AlbumSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     filter_backends = (UserSelfFilter, OrderingFilter, DjangoFilterBackend)
@@ -42,9 +42,9 @@ class GalleryResource(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated():
-            return self.queryset.filter(Q(visibility=Gallery.VISIBLE) | Q(user=user))
+            return self.queryset.filter(Q(visibility=Album.VISIBLE) | Q(user=user))
         else:
-            return self.queryset.filter(visibility=Gallery.VISIBLE)
+            return self.queryset.filter(visibility=Album.VISIBLE)
 
 
 class ImageResource(ModelViewSet):
@@ -55,7 +55,7 @@ class ImageResource(ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly, )
 
     filter_backends = (ItemUserSelfFilter, OrderingFilter, DjangoFilterBackend,)
-    filter_fields = ('id', 'gallery', 'path', )
+    filter_fields = ('id', 'album', 'path', )
     ordering = ('time',)
 
     paginate_by = ITEMS_PER_PAGE
@@ -63,9 +63,9 @@ class ImageResource(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated():
-            return self.queryset.filter(Q(gallery__visibility=Gallery.VISIBLE) | Q(gallery__user=user))
+            return self.queryset.filter(Q(album__visibility=Album.VISIBLE) | Q(album__user=user))
         else:
-            return self.queryset.filter(gallery__visibility=Gallery.VISIBLE)
+            return self.queryset.filter(album__visibility=Album.VISIBLE)
 
 
 class VideoResource(ModelViewSet):
@@ -76,7 +76,7 @@ class VideoResource(ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly, )
 
     filter_backends = (ItemUserSelfFilter, OrderingFilter, DjangoFilterBackend,)
-    filter_fields = ('id', 'gallery',)
+    filter_fields = ('id', 'album',)
     ordering = ('time',)
 
     paginate_by = ITEMS_PER_PAGE
@@ -84,6 +84,6 @@ class VideoResource(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated():
-            return self.queryset.filter(Q(gallery__visibility=Gallery.VISIBLE) | Q(gallery__user=user))
+            return self.queryset.filter(Q(album__visibility=Album.VISIBLE) | Q(album__user=user))
         else:
-            return self.queryset.filter(gallery__visibility=Gallery.VISIBLE)
+            return self.queryset.filter(album__visibility=Album.VISIBLE)

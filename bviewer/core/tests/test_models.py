@@ -9,28 +9,28 @@ except ImportError:
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from bviewer.core.models import ProxyUser, Gallery, Video
+from bviewer.core.models import ProxyUser, Album, Video
 from bviewer.core.tests.data import TestData
 
 
 class ModelTestCase(TestCase):
-    def test_new_gallery_user(self):
+    def test_new_album_user(self):
         """
         Tests domain match
         """
         ProxyUser.objects.create(username='Test', password='secret')
         self.assertTrue(User.objects.filter(username='Test').exists())
         self.assertTrue(ProxyUser.objects.filter(username='Test').exists())
-        self.assertIsNotNone(ProxyUser.objects.get(username='Test').top_gallery)
-        self.assertTrue(Gallery.objects.filter(user__username='Test').exists())
+        self.assertIsNotNone(ProxyUser.objects.get(username='Test').top_album)
+        self.assertTrue(Album.objects.filter(user__username='Test').exists())
 
         user = ProxyUser.objects.get(username='Test')
         need = [
             'core.change_proxyuser',
             'core.user_holder',
-            'core.add_gallery',
-            'core.change_gallery',
-            'core.delete_gallery',
+            'core.add_album',
+            'core.change_album',
+            'core.delete_album',
             'core.add_image',
             'core.change_image',
             'core.delete_image',
@@ -59,10 +59,10 @@ class ModelTestCase(TestCase):
         Videos can be deleted! Check it first. Anyway it is important test.
         """
         data = TestData().load_users()
-        gallery = data.user_b7w.top_gallery
+        album = data.user_b7w.top_album
 
-        video1 = Video.objects.create(gallery=gallery, uid='56433514', type=Video.VIMIO)
+        video1 = Video.objects.create(album=album, uid='56433514', type=Video.VIMIO)
         self.assertHttpOk(video1.thumbnail_url)
 
-        video2 = Video.objects.create(gallery=gallery, uid='7dGGPlZlPQw', type=Video.YOUTUBE)
+        video2 = Video.objects.create(album=album, uid='7dGGPlZlPQw', type=Video.YOUTUBE)
         self.assertHttpOk(video2.thumbnail_url)
