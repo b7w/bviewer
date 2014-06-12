@@ -27,14 +27,14 @@ class ImagePathTestCase(TestCase):
     def test_url(self):
         storage = Mock(
             hash_for=Mock(return_value='cache_name'),
-            holder=Mock(url='holder.url'),
+            gallery=Mock(url='gallery.url'),
             type='type'
         )
         self.assertEqual(storage.hash_for(), 'cache_name')
-        self.assertEqual(storage.holder.url, 'holder.url')
+        self.assertEqual(storage.gallery.url, 'gallery.url')
 
         path = ImagePath(storage, 'path/1.jpg')
-        self.assertEqual(path.url, 'type/holder.url/cache_name.jpg')
+        self.assertEqual(path.url, 'type/gallery.url/cache_name.jpg')
 
     def test_order(self):
         self.assertLess(self.f1, self.f2)
@@ -132,8 +132,8 @@ class ImageStorageTestCase(BaseImageStorageTestCase):
                 for_cache = os.path.normcase('cache/images/url/path/img.jpg')
                 self.assertEqual(func(image_path, for_cache=True), for_cache)
 
-        holder = Mock(home='home', url='url', cache_size=0)
-        storage = ImageStorage(holder, root_path='root', cache_path='cache')
+        gallery = Mock(home='home', url='url', cache_size=0)
+        storage = ImageStorage(gallery, root_path='root', cache_path='cache')
 
         assert_method_for_cache('os.path.getctime', storage.ctime, side_effect=str)
         assert_method_for_cache('os.path.exists', storage.exists, side_effect=str)

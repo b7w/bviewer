@@ -5,7 +5,7 @@
 
 {% block navigation %}
     <li class="view-full">
-        {% if holder.top_album_id == main.id %}
+        {% if gallery.top_album_id == main.id %}
             <a href="{% url 'slideshow.index' %}">Slideshow</a>
         {% else %}
             <a href="{% url 'slideshow.album' main.id %}">Slideshow</a>
@@ -48,7 +48,7 @@
     </ul>
 
     <div class="album-years">
-        {% if holder.top_album_id == main.id %}
+        {% if gallery.top_album_id == main.id %}
             {% for item in years %}
                 <a href="{% url 'core.home' %}?year={{ item|date:"Y" }}"
                    class="{% if year_filter == item.year %}selected{% endif %}">{{ item|date:"Y" }}</a>

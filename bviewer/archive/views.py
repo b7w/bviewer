@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.utils.encoding import smart_text
 
 from bviewer.archive.controllers import ZipArchiveController
-from bviewer.core.controllers import get_album_user, AlbumController
+from bviewer.core.controllers import get_gallery, AlbumController
 from bviewer.core.files.response import download_response
 from bviewer.core.views import message_view
 
@@ -25,11 +25,11 @@ def index_view(request, gid):
     Start to archive images, or if done redirect to download
     js - waite while done, after redirect to download
     """
-    holder = get_album_user(request)
-    if not holder:
+    gallery = get_gallery(request)
+    if not gallery:
         return message_view(request, message=NO_USER_DEFINED)
 
-    controller = AlbumController(holder, request.user, uid=gid)
+    controller = AlbumController(gallery, request.user, uid=gid)
     if not controller.exists():
         return message_view(request, message=NO_GALLERY_FOUND)
 
@@ -40,7 +40,7 @@ def index_view(request, gid):
         return message_view(request, message=NOT_ALLOW_ARCHIVING)
 
     image_paths = [i.path for i in controller.get_images()]
-    z = ZipArchiveController(image_paths, holder)
+    z = ZipArchiveController(image_paths, gallery)
 
     # links for redirect to download, and check status
     redirect = reverse('archive.download', kwargs=dict(gid=gid, uid=z.uid))
@@ -52,7 +52,7 @@ def index_view(request, gid):
 
     z.add_job()
     return render(request, 'archive/download.html', {
-        'holder': holder,
+        'gallery': gallery,
         'path': request.path,
         'link': link,
         'redirect': redirect,
@@ -65,11 +65,11 @@ def status_view(request, gid, uid):
     """
     Check if archive exists and ready for download
     """
-    holder = get_album_user(request)
-    if not holder:
+    gallery = get_gallery(request)
+    if not gallery:
         raise Http404(NO_USER_DEFINED)
 
-    controller = AlbumController(holder, request.user, gid)
+    controller = AlbumController(gallery, request.user, gid)
     if not controller.exists():
         return HttpResponse(json.dumps(dict(error=NO_GALLERY_FOUND)))
 
@@ -80,7 +80,7 @@ def status_view(request, gid, uid):
         return HttpResponse(json.dumps(dict(error=NOT_ALLOW_ARCHIVING)))
 
     image_paths = [i.path for i in controller.get_images()]
-    z = ZipArchiveController(image_paths, holder, name=uid)
+    z = ZipArchiveController(image_paths, gallery, name=uid)
     data = dict(status=z.status, album=gid, uid=uid, progress=z.progress)
 
     return HttpResponse(json.dumps(data))
@@ -90,11 +90,11 @@ def download_view(request, gid, uid):
     """
     Download archive
     """
-    holder = get_album_user(request)
-    if not holder:
+    gallery = get_gallery(request)
+    if not gallery:
         raise Http404(NO_USER_DEFINED)
 
-    controller = AlbumController(holder, request.user, uid=gid)
+    controller = AlbumController(gallery, request.user, uid=gid)
     if not controller.exists():
         raise Http404(NO_GALLERY_FOUND)
 
@@ -105,7 +105,7 @@ def download_view(request, gid, uid):
         return message_view(request, message=NOT_ALLOW_ARCHIVING)
 
     image_paths = [i.path for i in controller.get_images()]
-    z = ZipArchiveController(image_paths, holder, name=uid)
+    z = ZipArchiveController(image_paths, gallery, name=uid)
 
     if z == 'NONE':
         raise Http404('No file found')

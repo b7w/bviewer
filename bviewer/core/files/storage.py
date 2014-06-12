@@ -51,25 +51,25 @@ class ImageStorage(object):
     TYPES_ALLOWED = ('.jpeg', '.jpg', )
     PATH_CHECKERS = ('../', './', '/.', )
 
-    def __init__(self, holder, root_path=None, cache_path=None, archive_cache=False):
+    def __init__(self, gallery, root_path=None, cache_path=None, archive_cache=False):
         """
         :param root_path: place where image files stored, default settings.VIEWER_STORAGE_PATH
         :param cache_path: place where cache stored, default settings.VIEWER_CACHE_PATH
         :param archive_cache: set 'archives' sub cache folder instead of 'images'
-        :type holder: bviewer.core.models.ProxyUser
+        :type gallery: bviewer.core.models.Gallery
         """
-        self.holder = holder
+        self.gallery = gallery
         self.root = root_path or settings.VIEWER_STORAGE_PATH
         self.cache_path = cache_path or settings.VIEWER_CACHE_PATH
         self.type = 'archives' if archive_cache else 'images'
 
-        self._abs_root_path = os.path.join(self.root, holder.home)
+        self._abs_root_path = os.path.join(self.root, gallery.home)
         if archive_cache:
-            self._abs_cache_path = os.path.join(self.cache_path, self.type, holder.url)
-            self._max_cache_size = holder.cache_archive_size * 2 ** 20
+            self._abs_cache_path = os.path.join(self.cache_path, self.type, gallery.url)
+            self._max_cache_size = gallery.cache_archive_size * 2 ** 20
         else:
-            self._abs_cache_path = os.path.join(self.cache_path, self.type, holder.url)
-            self._max_cache_size = holder.cache_size * 2 ** 20
+            self._abs_cache_path = os.path.join(self.cache_path, self.type, gallery.url)
+            self._max_cache_size = gallery.cache_size * 2 ** 20
         self.create_cache()
 
     def _is_valid_path(self, path):
@@ -161,7 +161,7 @@ class ImageStorage(object):
     @io_call
     def clear_cache(self, full=False):
         """
-        Clear old cache while size of directory bigger than holder.cache_size.
+        Clear old cache while size of directory bigger than gallery.cache_size.
         If `full` is True - delete user cache folder.
         """
         abs_cache = self._abs_cache_path
@@ -208,4 +208,4 @@ class ImageStorage(object):
         return uuid.uuid1().hex
 
     def __repr__(self):
-        return 'ImageStorage({h})'.format(h=self.holder)
+        return 'ImageStorage({h})'.format(h=self.gallery)

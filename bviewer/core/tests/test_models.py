@@ -9,7 +9,7 @@ except ImportError:
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from bviewer.core.models import ProxyUser, Album, Video
+from bviewer.core.models import Gallery, Album, Video
 from bviewer.core.tests.data import TestData
 
 
@@ -18,16 +18,18 @@ class ModelTestCase(TestCase):
         """
         Tests domain match
         """
-        ProxyUser.objects.create(username='Test', password='secret')
-        self.assertTrue(User.objects.filter(username='Test').exists())
-        self.assertTrue(ProxyUser.objects.filter(username='Test').exists())
-        self.assertIsNotNone(ProxyUser.objects.get(username='Test').top_album)
-        self.assertTrue(Album.objects.filter(user__username='Test').exists())
+        user = User.objects.create_user('Test', 'test@test.com', 'test')
 
-        user = ProxyUser.objects.get(username='Test')
+        Gallery.objects.create(user=user)
+        self.assertTrue(User.objects.filter(username='Test').exists())
+        self.assertTrue(Gallery.objects.filter(user__username='Test').exists())
+        self.assertIsNotNone(Gallery.objects.get(user__username='Test').top_album)
+        self.assertTrue(Album.objects.filter(gallery__user__username='Test').exists())
+
+        user = User.objects.get(username='Test')
         need = [
-            'core.change_proxyuser',
-            'core.user_holder',
+            'core.change_gallery',
+            'core.user_gallery',
             'core.add_album',
             'core.change_album',
             'core.delete_album',
@@ -58,8 +60,8 @@ class ModelTestCase(TestCase):
         Test Vimio 56433514 video and YouTube 7dGGPlZlPQw thumbnails http status.
         Videos can be deleted! Check it first. Anyway it is important test.
         """
-        data = TestData().load_users()
-        album = data.user_b7w.top_album
+        data = TestData().load_users().load_galleries()
+        album = data.gallery_b7w.top_album
 
         video1 = Video.objects.create(album=album, uid='56433514', type=Video.VIMIO)
         self.assertHttpOk(video1.thumbnail_url)

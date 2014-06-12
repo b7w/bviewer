@@ -7,10 +7,10 @@ from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
 from django.utils.encoding import smart_text
 
-from bviewer.core.admin import ProxyUserForm
+from bviewer.core.admin import GalleryForm
 from bviewer.core.controllers import AlbumController
 from bviewer.core.files.storage import ImageStorage
-from bviewer.core.models import Album, Image, ProxyUser, Video
+from bviewer.core.models import Album, Image, Gallery, Video
 from bviewer.profile.actions import bulk_time_update, update_time_from_exif
 from bviewer.profile.forms import AdminAlbumForm
 
@@ -25,7 +25,7 @@ class ProfileSite(AdminSite):
 
     def has_permission(self, request):
         user = request.user
-        return user.is_active and request.user.has_perm('core.user_holder')
+        return user.is_active and request.user.has_perm('core.user_gallery')
 
 
 profile = ProfileSite()
@@ -104,7 +104,7 @@ class ProfileAlbumAdmin(ProfileModelAdmin):
         return super(ProfileAlbumAdmin, self).queryset(request).filter(user=request.user)
 
     def save_model(self, request, obj, form, change):
-        obj.user = ProxyUser.objects.get(pk=request.user.pk)
+        obj.user = Gallery.objects.get(pk=request.user.pk)
         if not obj.parent:
             obj.parent = obj.user.top_album
         thumbnail_id = form.data['thumbnail_id']
@@ -120,7 +120,7 @@ class ProfileAlbumAdmin(ProfileModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         # Add default parent Welcome album
-        user = ProxyUser.objects.get(pk=request.user.pk)
+        user = Gallery.objects.get(pk=request.user.pk)
         data = request.GET.copy()
         data['parent'] = user.top_album_id
         request.GET = data
@@ -239,7 +239,7 @@ class ProfileUserAdmin(ProfileModelAdmin, UserAdmin):
     )
     readonly_fields = ('last_login', 'date_joined', 'cache_info', )
 
-    form = ProxyUserForm
+    form = GalleryForm
 
     def cache_info(self, user):
         storage = ImageStorage(user)
@@ -263,4 +263,4 @@ class ProfileUserAdmin(ProfileModelAdmin, UserAdmin):
         return super(ProfileUserAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-profile.register(ProxyUser, ProfileUserAdmin)
+profile.register(Gallery, ProfileUserAdmin)

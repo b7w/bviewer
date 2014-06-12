@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
 from rest_framework.relations import HyperlinkedRelatedField, HyperlinkedIdentityField
 from rest_framework.serializers import ModelSerializer
 
-from bviewer.core.models import ProxyUser, Album, Image, Video
+from bviewer.core.models import Album, Image, Video
 
 
 class UserSerializer(ModelSerializer):
     detail = HyperlinkedIdentityField(view_name='proxyuser-detail')
 
     class Meta:
-        model = ProxyUser
+        model = User
         fields = ('detail', 'id', 'username', 'date_joined', 'last_login', 'about_title', 'about_text',)
 
 

@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import User, Permission
 
 from bviewer.core.images import RandomImage
-from bviewer.core.models import ProxyUser, Album, Image, Video
+from bviewer.core.models import Gallery, Album, Image, Video
 
 
 class TestData(object):
@@ -13,50 +13,58 @@ class TestData(object):
 
     def load_all(self):
         self.load_users()
+        self.load_galleries()
         self.load_albums()
         self.load_images()
         self.load_videos()
 
     def load_users(self):
-        self.user_b7w = ProxyUser(username='B7W')
+        self.user_b7w = User(username='B7W')
         self.user_b7w.set_password(self.PASSWORD)
         self.user_b7w.save()
-        self.update_to_holder('B7W')
+        self.update_to_gallery('B7W')
 
-        self.user_keks = ProxyUser(username='Keks')
+        self.user_keks = User(username='Keks')
         self.user_keks.set_password(self.PASSWORD)
         self.user_keks.save()
-        self.update_to_holder('Keks')
+        self.update_to_gallery('Keks')
         return self
 
-    def update_to_holder(self, name):
+    def update_to_gallery(self, name):
         user = User.objects.get(username=name)
-        perm = Permission.objects.get(codename='user_holder')
+        perm = Permission.objects.get(codename='user_gallery')
         user.user_permissions.add(perm)
         user.save()
 
-    def load_albums(self):
-        self.album_b7w = self.user_b7w.top_album
-        self.album_keks = self.user_keks.top_album
+    def load_galleries(self):
+        self.gallery_b7w = Gallery(user=self.user_b7w)
+        self.gallery_b7w.save()
+        self.gallery_keks = Gallery(user=self.user_keks)
+        self.gallery_keks.save()
+        return self
 
-        self.album1 = Album(parent=self.album_b7w, user=self.user_b7w, title='First')
+    def load_albums(self):
+        self.album_b7w = self.gallery_b7w.top_album
+        self.album_keks = self.gallery_keks.top_album
+
+        self.album1 = Album(parent=self.album_b7w, gallery=self.gallery_b7w, title='First')
         self.album1.description = 'First description'
         self.album1.save()
 
-        self.album2 = Album(parent=self.album_b7w, user=self.user_b7w, title='Second')
+        self.album2 = Album(parent=self.album_b7w, gallery=self.gallery_b7w, title='Second')
         self.album2.visibility = Album.PRIVATE
         self.album2.description = 'Second description'
         self.album2.save()
 
-        self.album3 = Album(parent=self.album_b7w, user=self.user_b7w, title='Third')
+        self.album3 = Album(parent=self.album_b7w, gallery=self.gallery_b7w, title='Third')
         self.album3.description = 'Third description'
         self.album3.save()
 
-        self.album4 = Album(parent=self.album3, user=self.user_b7w, title='Under third')
+        self.album4 = Album(parent=self.album3, gallery=self.gallery_b7w, title='Under third')
         self.album4.description = 'Under description'
         self.album4.save()
 
-        self.album5 = Album(user=self.user_keks, title='Hidden')
+        self.album5 = Album(gallery=self.gallery_keks, title='Hidden')
         self.album5.description = 'Hidden description'
         self.album5.save()
         return self
@@ -77,16 +85,16 @@ class TestData(object):
     def load_images(self):
         self.image1 = Image.objects.create(album=self.album1, path='image1.jpg')
         self.image2 = Image.objects.create(album=self.album1, path='image2.jpg')
-        self.generate_image(self.album1.user.home, self.image1.path)
-        self.generate_image(self.album1.user.home, self.image2.path)
+        self.generate_image(self.album1.gallery.home, self.image1.path)
+        self.generate_image(self.album1.gallery.home, self.image2.path)
 
         self.image3 = Image.objects.create(album=self.album2, path='image3.jpg')
         self.image4 = Image.objects.create(album=self.album2, path='image4.jpg')
-        self.generate_image(self.album2.user.home, self.image3.path)
-        self.generate_image(self.album2.user.home, self.image4.path)
+        self.generate_image(self.album2.gallery.home, self.image3.path)
+        self.generate_image(self.album2.gallery.home, self.image4.path)
 
         self.image5 = Image.objects.create(album=self.album5, path='image5.jpg')
-        self.generate_image(self.album5.user.home, self.image5.path)
+        self.generate_image(self.album5.gallery.home, self.image5.path)
         return self
 
     def load_videos(self):

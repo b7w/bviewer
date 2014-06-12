@@ -43,7 +43,7 @@
                     <li class="divider-vertical"></li>
                 {% endif %}
                 {% if request.user.is_authenticated %}
-                    {% if perms.core.user_holder %}
+                    {% if perms.core.user_gallery %}
                         <li class="view-full"><a href="{% url 'profile:index' %}">Profile</a></li>
                     {% endif %}
                     <li><a href="{% url 'core.logout' %}">Log out</a></li>
@@ -67,7 +67,7 @@
 <footer>
     <div class="container">
         <p>
-            Copyright &copy; {% now "Y" %} <a href="mailto:{{ holder.email }}">{{ holder.username }}</a>
+            Copyright &copy; {% now "Y" %} <a href="mailto:{{galleryr.email }}">{galleryer.username }}</a>
         </p>
 
         <p>

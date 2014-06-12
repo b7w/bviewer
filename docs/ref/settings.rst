@@ -12,14 +12,14 @@ Settings
 Viewer configuration
 ====================
 
-VIEWER_USER_ID
+VIEWER_GALLERY_ID
 ---------------
 
-.. _CONF_VIEWER_USER_ID:
+.. _CONF_VIEWER_GALLERY_ID:
 
 Default: ``None``
 
-| If album is used for one person or for tests set user id here.
+| If gallery is used for one person or for tests set user id here.
 
 
 VIEWER_CACHE_PATH

@@ -9,7 +9,7 @@ except ImportError:
     from urllib.request import urlopen
     from urllib.error import URLError
 
-from django.contrib.auth.models import User, AbstractUser, Permission
+from django.contrib.auth.models import User, Permission
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -52,11 +52,13 @@ class ProxyManager(models.Manager):
             return None
 
 
-class ProxyUser(User):
+class Gallery(models.Model):
     CACHE_SIZE_MIN = 16
     CACHE_SIZE_MAX = 256
     CACHE_ARCHIVE_SIZE_MIN = 128
     CACHE_ARCHIVE_SIZE_MAX = 2048
+
+    user = models.ForeignKey(User)
 
     url = models.CharField(max_length=16, unique=True)
     home = models.CharField(max_length=256, blank=True, default='')
@@ -75,38 +77,26 @@ class ProxyUser(User):
 
     def save(self, *args, **kwargs):
         if not self.url:
-            url = self.username.lower()
+            url = self.user.username.lower()
             domain = Site.objects.get_current().domain
             self.url = '{0}.{1}'.format(url, domain)
-        super(ProxyUser, self).save(*args, **kwargs)
-
-    def __eq__(self, other):
-        """
-        if isinstance of ProxyUser, AbstractUser:
-            return self.id == other.id
-        return False
-        """
-        if other and isinstance(other, (ProxyUser, AbstractUser)):
-            return self.id == other.id
-        return False
+        super(Gallery, self).save(*args, **kwargs)
 
     class Meta(object):
-        db_table = 'core_profile'
-        ordering = ['username']
-        verbose_name = 'Profile'
+        ordering = ['user']
         permissions = (
-            ('user_holder', 'User is albums holder'),
+            ('user_gallery', 'User is albums gallery'),
         )
 
 
 def add_top_album(sender, instance, created, **kwargs):
     if created:
-        gal = Album(user=instance, title='Welcome', description='Edit main album to change it')
+        gal = Album(gallery=instance, title='Welcome', description='Edit main album to change it')
         gal.save()
         instance.top_album = gal
         perms = Permission.objects.filter(
-            Q(codename='change_proxyuser') |
-            Q(codename='user_holder') |
+            Q(codename='change_gallery') |
+            Q(codename='user_gallery') |
             Q(codename='add_album') |
             Q(codename='change_album') |
             Q(codename='delete_album') |
@@ -120,11 +110,11 @@ def add_top_album(sender, instance, created, **kwargs):
             Q(codename='change_slideshow') |
             Q(codename='delete_slideshow')
         )
-        instance.user_permissions = list(perms)
+        instance.user.user_permissions = list(perms)
         instance.save()
 
 
-post_save.connect(add_top_album, sender=ProxyUser)
+post_save.connect(add_top_album, sender=Gallery)
 
 
 def date_now():
@@ -144,12 +134,12 @@ class Album(models.Model):
     id = models.CharField(max_length=32, default=uuid_pk(length=8), primary_key=True)
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.SET_NULL)
     title = models.CharField(max_length=256)
-    user = models.ForeignKey(ProxyUser)
+    gallery = models.ForeignKey(Gallery)
     visibility = models.SmallIntegerField(max_length=1, choices=VISIBILITY_CHOICE, default=VISIBLE,
                                           help_text='HIDDEN - not shown on page for anonymous, '
-                                                    'PRIVATE - available only to the holder')
+                                                    'PRIVATE - available only to the gallery')
     album_sorting = models.SmallIntegerField(max_length=1, choices=SORT_CHOICE, default=ASK,
-                                               help_text='How to sort albums inside')
+                                             help_text='How to sort albums inside')
     allow_archiving = models.BooleanField(default=True)
     description = models.TextField(max_length=512, null=True, blank=True)
     thumbnail = models.ForeignKey('Image', null=True, blank=True, related_name='thumbnail', on_delete=models.SET_NULL)
@@ -168,7 +158,7 @@ class Album(models.Model):
         verbose_name = 'Album'
         verbose_name_plural = 'Albums'
         ordering = ['-time']
-        unique_together = (('title', 'user'),)
+        unique_together = (('title', 'gallery'),)
 
 
 class Image(models.Model):
@@ -203,7 +193,7 @@ def update_time_from_exif(sender, instance, created, **kwargs):
     :type instance: Image
     """
     if created:
-        storage = ImageStorage(instance.album.user)
+        storage = ImageStorage(instance.album.gallery)
         set_time_from_exif(storage, instance, save=True)
 
 
