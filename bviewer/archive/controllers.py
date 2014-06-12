@@ -11,14 +11,14 @@ logger = logging.getLogger(__name__)
 class ZipArchiveController(object):
     STATUS_KEY_TIMOUT = 4 * 60
 
-    def __init__(self, image_paths, holder, name=None):
+    def __init__(self, image_paths, gallery, name=None):
         """
         :type image_paths: list of str
-        :type holder: bviewer.core.models.ProxyUser
+        :type gallery: bviewer.core.models.Gallery
         :type name: str
         """
-        self.holder = holder
-        self.storage = ImageStorage(holder, archive_cache=True)
+        self.gallery = gallery
+        self.storage = ImageStorage(gallery, archive_cache=True)
         self.image_paths = [self.storage.get_path(i) for i in image_paths]
         self.name = name or self.uid
 
@@ -41,7 +41,7 @@ class ZipArchiveController(object):
     @property
     @cache_method
     def uid(self):
-        pack = [self.holder.home, ]
+        pack = [self.gallery.home, ]
         for path in self.image_paths:
             if path.exists:
                 pack.append(path.cache_name)

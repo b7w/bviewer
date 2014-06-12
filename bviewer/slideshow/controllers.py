@@ -16,9 +16,9 @@ class SlideShowGenerator(object):
     def __init__(self, slideshow, redis=None):
         self.slideshow = slideshow
         self.redis = redis
-        self.holder = slideshow.album.user
+        self.gallery = slideshow.album.user
         self.user = slideshow.user
-        self.album_ctrl = AlbumController(self.holder, self.user, uid=slideshow.album_id)
+        self.album_ctrl = AlbumController(selfgalleryr, self.user, uid=slideshow.album_id)
 
     def get_key(self):
         return 'slideshow-id:' + self.slideshow.id
@@ -70,7 +70,7 @@ class SlideShowController(object):
     @cache_method
     def get_album(self):
         obj = None
-        if self.user:  # if holder == user
+        if self.user:  # igalleryer == user
             obj = Album.objects.safe_get(id=self.album_id, user=self.user)
         if not obj:
             obj = Album.objects.safe_get(

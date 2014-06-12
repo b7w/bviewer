@@ -10,7 +10,7 @@ from bviewer.core.exceptions import FileError
 from bviewer.core.files.response import download_response
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.images import CacheImage
-from bviewer.core.models import Album, Video, Image, ProxyUser
+from bviewer.core.models import Gallery, Album, Video, Image
 from bviewer.core.utils import cache_method, ImageOptions, as_job
 
 
@@ -19,45 +19,45 @@ logger = logging.getLogger(__name__)
 domain_match = re.compile(r'([w]{3})?\.?(?P<domain>[\w\.]+):?(\d{0,4})')
 
 
-def get_album_user(request):
+def get_gallery(request):
     """
-    Get domain from request and try to find user with user.url == domain.
-    If not try return authenticated user, else user from settings.VIEWER_USER_ID.
+    Get domain from request and try to find gallery with gallery.url == domain.
+    If not try return authenticated gallery, else gallery from settings.VIEWER_GALLERY_ID.
 
     :type request: django.http.HttpRequest
-    :rtype: bviewer.core.models.ProxyUser
+    :rtype: bviewer.core.models.Gallery
     """
-    key = 'core.utils.get_album_user({0})'.format(request.get_host())
+    key = 'core.controllers.get_gallery({0})'.format(request.get_host())
     data = cache.get(key)
     if data:
         return data
-    if settings.VIEWER_USER_ID:
-        user = ProxyUser.objects.get(id=settings.VIEWER_USER_ID)
-        cache.set(key, user)
-        return user
+    if settings.VIEWER_GALLERY_ID:
+        gallery = Gallery.objects.get(id=settings.VIEWER_GALLERY_ID)
+        cache.set(key, gallery)
+        return gallery
 
     match = domain_match.match(request.get_host())
     if match:
         url = match.group('domain')
-        user = ProxyUser.objects.safe_get(url=url)
-        if user:
-            cache.set(key, user)
-            return user
+        gallery = Gallery.objects.safe_get(url=url)
+        if gallery:
+            cache.set(key, gallery)
+            return gallery
 
     if request.user.is_authenticated():
-        return ProxyUser.objects.get(id=request.user.id)
+        return Gallery.objects.get(id=request.user.id)
 
     return None
 
 
 class BaseController(object):
-    def __init__(self, holder, user, uid=None, obj=None):
+    def __init__(self, gallery, user, uid=None, obj=None):
         """
-        :type holder: bviewer.core.models.ProxyUser
+        :type gallery: bviewer.core.models.Gallery
         :type user: django.contrib.auth.models.User
         :type uid: str
         """
-        self.holder = holder
+        self.gallery = gallery
         self.user = user
         if uid:
             self.uid = uid
@@ -67,11 +67,11 @@ class BaseController(object):
 
     def is_owner(self):
         """
-        Return holder == user
+        Return gallery == user
 
         :rtype: bool
         """
-        return self.holder == self.user
+        return self.gallery.user == self.user
 
     def exists(self):
         return bool(self.get_object())
@@ -111,8 +111,8 @@ class AlbumController(BaseController):
         if self.obj:
             return self.obj
         if self.is_owner():
-            return Album.objects.safe_get(pk=self.uid, user_id=self.holder.id)
-        return Album.objects.safe_get(Q(pk=self.uid), Q(user_id=self.holder.id), self.OPEN)
+            return Album.objects.safe_get(pk=self.uid, gallery_id=self.gallery.id)
+        return Album.objects.safe_get(Q(pk=self.uid), Q(gallery_id=self.gallery.id), self.OPEN)
 
     def _get_albums(self, parent_id):
         """
@@ -158,7 +158,7 @@ class AlbumController(BaseController):
         sizes = [i for i in settings.VIEWER_IMAGE_SIZE.keys() if i != 'full']
         for size in sizes:
             for image in images:
-                storage = ImageStorage(self.holder)
+                storage = ImageStorage(self.gallery)
                 self._pre_cache_image(storage, image, size)
 
     def _pre_cache_image(self, storage, image, size):
@@ -210,8 +210,8 @@ class MediaController(BaseController):
         Get self.MODEL instance or None
         """
         if self.is_owner():
-            return self.MODEL.objects.safe_get(pk=self.uid, album__user__id=self.holder.id)
-        return self.MODEL.objects.safe_get(Q(pk=self.uid), Q(album__user__id=self.holder.id), self.OPEN)
+            return self.MODEL.objects.safe_get(pk=self.uid, album__gallery__id=self.gallery.id)
+        return self.MODEL.objects.safe_get(Q(pk=self.uid), Q(album__gallery__id=self.gallery.id), self.OPEN)
 
     def get_response(self, size):
         """
@@ -226,7 +226,7 @@ class ImageController(MediaController):
     def get_response(self, size):
         #: :type: bviewer.core.models.Image
         image = self.get_object()
-        storage = ImageStorage(self.holder)
+        storage = ImageStorage(self.gallery)
         options = ImageOptions.from_settings(size)
         image_path = storage.get_path(image.path, options)
         if not image_path.exists:
@@ -245,7 +245,7 @@ class VideoController(MediaController):
     def get_response(self, size):
         #: :type: bviewer.core.models.Video
         video = self.get_object()
-        storage = ImageStorage(self.holder)
+        storage = ImageStorage(self.gallery)
         options = ImageOptions.from_settings(size, name=str(video.id))
         image_url = storage.get_url(video.thumbnail_url, options)
 

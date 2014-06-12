@@ -5,7 +5,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.encoding import smart_text
 
-from bviewer.core.controllers import get_album_user, AlbumController
+from bviewer.core.controllers import get_gallery, AlbumController
 from bviewer.core.exceptions import FileError
 from bviewer.core.files.response import download_response
 from bviewer.core.files.storage import ImageStorage
@@ -19,18 +19,18 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
-@permission_required('core.user_holder')
+@permission_required('core.user_gallery')
 def images_view(request, uid):
-    holder = get_album_user(request)
-    if not holder:
+    gallery = get_gallery(request)
+    if not gallery:
         raise Http404()
 
-    controller = AlbumController(holder, request.user, uid=uid)
+    controller = AlbumController(gallery, request.user, uid=uid)
     if not controller.exists():
         return message_view(request, message='No such album')
 
     images = controller.get_images()
-    storage = ImageStorage(holder)
+    storage = ImageStorage(gallery)
     path = request.GET.get('p', '')
     try:
         image_paths = storage.list(path, saved_images=images)
@@ -46,13 +46,13 @@ def images_view(request, uid):
 
 
 @login_required
-@permission_required('core.user_holder')
+@permission_required('core.user_gallery')
 def album_pre_cache(request, uid):
-    holder = get_album_user(request)
-    if not holder:
+    gallery = get_gallery(request)
+    if not gallery:
         raise Http404()
 
-    controller = AlbumController(holder, request.user, uid=uid)
+    controller = AlbumController(gallery, request.user, uid=uid)
     if not controller.exists():
         return message_view(request, message='No such album')
 
@@ -65,11 +65,11 @@ def album_pre_cache(request, uid):
 
 
 @login_required
-@permission_required('core.user_holder')
+@permission_required('core.user_gallery')
 def download_image(request):
     if request.GET.get('p', None):
         path = request.GET['p']
-        user = get_album_user(request)
+        user = get_gallery(request)
         storage = ImageStorage(user)
         options = ImageOptions.from_settings('tiny')
         image_path = storage.get_path(path, options)

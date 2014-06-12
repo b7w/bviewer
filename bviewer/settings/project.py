@@ -15,7 +15,7 @@ TEST = False
 
 # If album is used for one person or for tests
 # set user id here
-VIEWER_USER_ID = None
+VIEWER_GALLERY_ID = None
 
 
 # Path where cache will be stored

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
 from django.db.models import Q
 
 from rest_framework.filters import OrderingFilter, DjangoFilterBackend
@@ -7,14 +8,14 @@ from rest_framework.viewsets import ModelViewSet
 from bviewer.api.filters import UserSelfFilter, ItemUserSelfFilter
 
 from bviewer.api.serializers import UserSerializer, AlbumSerializer, ImageSerializer, VideoSerializer
-from bviewer.core.models import Album, ProxyUser, Image, Video
+from bviewer.core.models import Gallery, Album, Image, Video
 
 
 ITEMS_PER_PAGE = 16
 
 
 class UserResource(ModelViewSet):
-    queryset = ProxyUser.objects.all().select_related()
+    queryset = User.objects.all().select_related()
     serializer_class = UserSerializer
     http_method_names = ('get',)
     permission_classes = (IsAuthenticated,)
@@ -22,6 +23,18 @@ class UserResource(ModelViewSet):
     filter_backends = (OrderingFilter, DjangoFilterBackend,)
     filter_fields = ('id', 'username')
     ordering = ('username',)
+
+    paginate_by = ITEMS_PER_PAGE
+
+
+class GalleryResource(ModelViewSet):
+    queryset = Gallery.objects.all().select_related()
+    serializer_class = UserSerializer
+    http_method_names = ('get',)
+    permission_classes = (IsAuthenticated,)
+
+    filter_backends = (OrderingFilter, DjangoFilterBackend,)
+    ordering = ('user',)
 
     paginate_by = ITEMS_PER_PAGE
 
@@ -34,7 +47,7 @@ class AlbumResource(ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     filter_backends = (UserSelfFilter, OrderingFilter, DjangoFilterBackend)
-    filter_fields = ('id', 'user', 'title')
+    filter_fields = ('id', 'gallery', 'title')
     ordering = ('title', 'time',)
 
     paginate_by = ITEMS_PER_PAGE

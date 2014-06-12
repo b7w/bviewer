@@ -14,7 +14,7 @@ from bviewer.core.tests.data import TestData
 
 class BaseViewTestCase(TestCase):
     """
-    Set up TestData, b7w user as holder.
+    Set up TestData, b7w user as gallery.
     """
 
     def setUp(self):
@@ -25,7 +25,7 @@ class BaseViewTestCase(TestCase):
 
         self.data = TestData()
         self.data.load_all()
-        settings.VIEWER_USER_ID = self.data.user_b7w.id
+        settings.VIEWER_GALLERY_ID = self.data.user_b7w.id
 
     def reverse(self, name, *args):
         """
@@ -48,8 +48,8 @@ class BaseViewTestCase(TestCase):
 
 class BaseImageStorageTestCase(TestCase):
     def setUp(self):
-        self.holder = Mock(home='holder_home', url='holder_url', cache_size=0)
-        self.storage = ImageStorage(self.holder)
+        self.gallery = Mock(home='gallery_home', url='gallery_url', cache_size=0)
+        self.storage = ImageStorage(self.gallery)
         self.remove_storage_folders()
         self.create_storage_folders()
 

@@ -4,7 +4,7 @@ import logging
 from django.core.management.base import BaseCommand
 
 from bviewer.core.files.storage import ImageStorage
-from bviewer.core.models import ProxyUser
+from bviewer.core.models import Gallery
 
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         full = 'full' in args
-        for user in ProxyUser.objects.all():
+        for user in Gallery.objects.all():
             ImageStorage(user).clear_cache(full=full)
             ImageStorage(user, archive_cache=True).clear_cache(full=full)
-        self.stdout.write('Clear cache for {c} users'.format(c=ProxyUser.objects.count()))
+        self.stdout.write('Clear cache for {c} users'.format(c=Gallery.objects.count()))
