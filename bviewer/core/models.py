@@ -57,8 +57,8 @@ class Gallery(models.Model):
     CACHE_ARCHIVE_SIZE_MIN = 128
     CACHE_ARCHIVE_SIZE_MAX = 2048
 
-    title = models.CharField(max_length=256)
     user = models.ForeignKey(User)
+    description = models.CharField(max_length=256)
 
     url = models.CharField(max_length=16, unique=True)
     home = models.CharField(max_length=256, blank=True, default='')

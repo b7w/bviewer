@@ -71,7 +71,7 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
     list_select_related = True
     form = AdminGalleryForm
 
-    list_display = ('url', 'title', 'top_album', )
+    list_display = ('url', 'top_album', 'description', )
     exclude = ('user',)
 
     readonly_fields = ('cache_info', )

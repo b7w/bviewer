@@ -9,7 +9,7 @@ from bviewer.core.models import Gallery, Album, Image, Video
 class GalleryAdmin(ModelAdmin):
     list_select_related = True
 
-    list_display = ('url', 'title', 'top_album', )
+    list_display = ('url', 'top_album', 'description', )
     list_filter = ('user', )
 
     ordering = ('user',)
