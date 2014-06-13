@@ -52,12 +52,9 @@ class ProfileUserAdmin(UserAdmin):
 
     list_display = ('username', 'email')
 
-    extra_fieldsets = (
-        ('Account info', {'fields': ('username', 'password', )}),
-        # ('Personal info', {'fields': ('email', 'first_name', 'last_name', )}),
-    )
-    fieldsets = (extra_fieldsets[0], UserAdmin.fieldsets[1], UserAdmin.fieldsets[3])
     readonly_fields = ('is_active', 'is_staff', 'last_login', 'date_joined', )
+    extra_fieldsets = ('Account info', {'fields': ('username', 'password', )})
+    fieldsets = (extra_fieldsets, UserAdmin.fieldsets[1], UserAdmin.fieldsets[3])
 
     def queryset(self, request):
         return super(ProfileUserAdmin, self).queryset(request).filter(id=request.user.id)
@@ -182,10 +179,12 @@ class ProfileAlbumAdmin(ProfileModelAdmin):
             obj.thumbnail_id = thumbnail_id
         else:
             obj.thumbnail = None
+        controller = AlbumController.from_obj(obj)
         # allow archiving
         if change and 'allow_archiving' in form.changed_data:
-            controller = AlbumController.from_obj(obj)
             controller.set_archiving(obj.allow_archiving)
+        if change and 'gallery' in form.changed_data:
+            controller.set_gallery(obj.gallery)
         super(ProfileAlbumAdmin, self).save_model(request, obj, form, change)
 
     class Media(object):

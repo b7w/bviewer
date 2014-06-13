@@ -99,7 +99,7 @@ class AlbumController(BaseController):
         """
         :type obj: bviewer.core.models.Album
         """
-        return AlbumController(obj.user, obj.user, obj=obj)
+        return AlbumController(obj.gallery, obj.gallery.user, obj=obj)
 
     @cache_method
     def get_object(self):
@@ -175,6 +175,12 @@ class AlbumController(BaseController):
         self.get_object().allow_archiving = value
         for album in self.get_all_sub_albums():
             album.allow_archiving = value
+            album.save()
+
+    def set_gallery(self, value):
+        self.get_object().gallery = value
+        for album in self.get_all_sub_albums():
+            album.gallery = value
             album.save()
 
     def is_album(self):

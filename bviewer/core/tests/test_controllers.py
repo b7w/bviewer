@@ -61,4 +61,7 @@ class ControllersTestCase(TestCase):
         self.assertEqual(controller.obj, top_album)
         self.assertEqual(controller.get_object(), top_album)
 
-
+        controller = AlbumController.from_obj(gallery)
+        self.assertEqual(controller.uid, top_album.id)
+        self.assertEqual(controller.obj, top_album)
+        self.assertEqual(controller.get_object(), top_album)
