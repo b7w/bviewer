@@ -53,7 +53,7 @@ class ProfileUserAdmin(UserAdmin):
 
     list_display = ('username', 'email')
 
-    readonly_fields = ('username', 'is_active', 'last_login', 'date_joined', 'user_permissions')
+    readonly_fields = ('username', 'is_active', 'last_login', 'date_joined', 'user_permissions', )
     fieldsets = (
         ('Account info', {'fields': ('username', 'password', 'is_active',)}),
         ('Personal info', {'fields': ('first_name', 'last_name', 'email',)}),
