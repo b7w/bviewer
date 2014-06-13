@@ -3,6 +3,7 @@ import os
 from collections import Counter
 
 from django.contrib.admin import AdminSite, ModelAdmin
+from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
@@ -46,8 +47,20 @@ class ProfileModelAdmin(ModelAdmin):
         return self.admin_site.has_permission(request)
 
 
-class ProfileUserAdmin(ProfileModelAdmin):
+class ProfileUserAdmin(UserAdmin):
     list_select_related = True
+
+    list_display = ('username', 'email')
+
+    extra_fieldsets = (
+        ('Account info', {'fields': ('username', 'password', )}),
+        # ('Personal info', {'fields': ('email', 'first_name', 'last_name', )}),
+    )
+    fieldsets = (extra_fieldsets[0], UserAdmin.fieldsets[1], UserAdmin.fieldsets[3])
+    readonly_fields = ('is_active', 'is_staff', 'last_login', 'date_joined', )
+
+    def queryset(self, request):
+        return super(ProfileUserAdmin, self).queryset(request).filter(id=request.user.id)
 
 
 profile.register(User, ProfileUserAdmin)

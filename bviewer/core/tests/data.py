@@ -33,7 +33,7 @@ class TestData(object):
 
     def update_to_gallery(self, name):
         user = User.objects.get(username=name)
-        perm = Permission.objects.get(codename='user_gallery')
+        perm = Permission.objects.get(codename='user_holder')
         user.user_permissions.add(perm)
         user.save()
 
