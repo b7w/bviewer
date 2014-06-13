@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
-@permission_required('core.user_gallery')
+@permission_required('core.user_holder')
 def images_view(request, uid):
     gallery = get_gallery(request)
     if not gallery:
@@ -46,7 +46,7 @@ def images_view(request, uid):
 
 
 @login_required
-@permission_required('core.user_gallery')
+@permission_required('core.user_holder')
 def album_pre_cache(request, uid):
     gallery = get_gallery(request)
     if not gallery:
@@ -65,7 +65,7 @@ def album_pre_cache(request, uid):
 
 
 @login_required
-@permission_required('core.user_gallery')
+@permission_required('core.user_holder')
 def download_image(request):
     if request.GET.get('p', None):
         path = request.GET['p']

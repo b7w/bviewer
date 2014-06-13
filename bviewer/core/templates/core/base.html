@@ -43,7 +43,7 @@
                     <li class="divider-vertical"></li>
                 {% endif %}
                 {% if request.user.is_authenticated %}
-                    {% if perms.core.user_gallery %}
+                    {% if perms.core.user_holder %}
                         <li class="view-full"><a href="{% url 'profile:index' %}">Profile</a></li>
                     {% endif %}
                     <li><a href="{% url 'core.logout' %}">Log out</a></li>
