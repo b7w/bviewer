@@ -26,25 +26,6 @@ class ModelTestCase(TestCase):
         self.assertIsNotNone(Gallery.objects.get(user__username='Test').top_album)
         self.assertTrue(Album.objects.filter(gallery__user__username='Test').exists())
 
-        user = User.objects.get(username='Test')
-        need = [
-            'core.user_holder',
-            'core.change_gallery',
-            'core.add_album',
-            'core.change_album',
-            'core.delete_album',
-            'core.add_image',
-            'core.change_image',
-            'core.delete_image',
-            'core.add_video',
-            'core.change_video',
-            'core.delete_video',
-            'slideshow.add_slideshow',
-            'slideshow.change_slideshow',
-            'slideshow.delete_slideshow',
-        ]
-        self.assertEqual(set(need), user.get_all_permissions())
-
     def assertHttpOk(self, url):
         """
         Open http connection, send HEAD and assert 200 status

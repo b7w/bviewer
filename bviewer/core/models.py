@@ -9,12 +9,11 @@ except ImportError:
     from urllib.request import urlopen
     from urllib.error import URLError
 
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
 from django.utils import timezone
 from django.utils.encoding import smart_text
@@ -99,26 +98,8 @@ class Gallery(models.Model):
 
 def add_top_album(sender, instance, created, **kwargs):
     if created:
-        gal = Album(gallery=instance, title='Welcome', description='Edit main album to change it')
-        gal.save()
-        instance.top_album = gal
-        perms = Permission.objects.filter(
-            Q(codename='change_gallery') |
-            Q(codename='user_gallery') |
-            Q(codename='add_album') |
-            Q(codename='change_album') |
-            Q(codename='delete_album') |
-            Q(codename='add_image') |
-            Q(codename='change_image') |
-            Q(codename='delete_image') |
-            Q(codename='add_video') |
-            Q(codename='change_video') |
-            Q(codename='delete_video') |
-            Q(codename='add_slideshow') |
-            Q(codename='change_slideshow') |
-            Q(codename='delete_slideshow')
-        )
-        instance.user.user_permissions = list(perms)
+        instance.top_album = Album.objects \
+            .create(gallery=instance, title='Welcome', description='Edit main album to change it')
         instance.save()
 
 
