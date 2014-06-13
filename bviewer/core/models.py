@@ -83,10 +83,17 @@ class Gallery(models.Model):
             self.url = '{0}.{1}'.format(url, domain)
         super(Gallery, self).save(*args, **kwargs)
 
+    def __str__(self):
+        return self.title
+
+    __unicode__ = __str__
+
     class Meta(object):
         ordering = ['user']
+        verbose_name = 'Gallery'
+        verbose_name_plural = 'Galleries'
         permissions = (
-            ('user_gallery', 'User is albums gallery'),
+            ('user_holder', 'User is gallery holder'),
         )
 
 

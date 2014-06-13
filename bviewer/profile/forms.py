@@ -4,7 +4,8 @@ from datetime import timedelta
 from django.core.exceptions import ValidationError
 from django.forms import Form, ModelForm, ChoiceField, CharField, MultipleHiddenInput
 
-from bviewer.core.models import Album, Video
+from bviewer.core.models import Gallery, Album, Video
+from bviewer.core.utils import RaisingRange
 
 
 class BulkTimeUpdateForm(Form):
@@ -30,6 +31,34 @@ class BulkTimeUpdateForm(Form):
             if match:
                 kwargs[dimension] = int(match.group()[:-1])
         return timedelta(**kwargs)
+
+
+class AdminGalleryForm(ModelForm):
+    """
+    Set for UserAdmin Gallery model except User.
+    Add choice field for cache size filed.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(AdminGalleryForm, self).__init__(*args, **kwargs)
+        self._set_choice('cache_size',
+                         cache_max=Gallery.CACHE_SIZE_MAX,
+                         cache_min=Gallery.CACHE_SIZE_MIN,
+                         base=16
+        )
+        self._set_choice('cache_archive_size',
+                         cache_max=Gallery.CACHE_ARCHIVE_SIZE_MAX,
+                         cache_min=Gallery.CACHE_ARCHIVE_SIZE_MIN,
+                         base=64
+        )
+
+    def _set_choice(self, field_name, cache_max, cache_min, base):
+        raising = RaisingRange(cache_max, start=cache_min, base=base)
+        choice = [(i, '%s MB' % i) for i in raising]
+        self.fields[field_name] = ChoiceField(choices=choice)
+
+    class Meta(object):
+        model = Gallery
 
 
 class AdminAlbumForm(ModelForm):

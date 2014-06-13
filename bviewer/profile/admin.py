@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 import os
 from collections import Counter
+
 from django.contrib.admin import AdminSite, ModelAdmin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
 from django.utils.encoding import smart_text
 
-from bviewer.core.admin import GalleryForm
 from bviewer.core.controllers import AlbumController
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.models import Album, Image, Gallery, Video
 from bviewer.profile.actions import bulk_time_update, update_time_from_exif
-from bviewer.profile.forms import AdminAlbumForm
+from bviewer.profile.forms import AdminGalleryForm, AdminAlbumForm
 
 
 class ProfileSite(AdminSite):
@@ -25,7 +25,7 @@ class ProfileSite(AdminSite):
 
     def has_permission(self, request):
         user = request.user
-        return user.is_active and request.user.has_perm('core.user_gallery')
+        return user.is_active and request.user.has_perm('core.user_holder')
 
 
 profile = ProfileSite()
@@ -46,6 +46,47 @@ class ProfileModelAdmin(ModelAdmin):
         return self.admin_site.has_permission(request)
 
 
+class ProfileUserAdmin(ProfileModelAdmin):
+    list_select_related = True
+
+
+profile.register(User, ProfileUserAdmin)
+
+
+class ProfileGalleryAdmin(ProfileModelAdmin):
+    list_select_related = True
+    form = AdminGalleryForm
+
+    list_display = ('url', 'title', 'top_album', )
+    list_filter = ()
+
+    readonly_fields = ('cache_info', )
+
+    def cache_info(self, user):
+        storage = ImageStorage(user)
+        images_size = storage.cache_size() / 2 ** 20
+        storage = ImageStorage(user, archive_cache=True)
+        archive_size = storage.cache_size() / 2 ** 20
+        return 'Images size: {0} MB, archives size: {1} MB'.format(images_size, archive_size)
+
+    def has_add_permission(self, request):
+        return False
+
+    def queryset(self, request):
+        return super(ProfileGalleryAdmin, self).queryset(request).filter(user=request.user)
+
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
+        """
+        Show in drop down menu only user albums
+        """
+        if db_field.name == 'top_album':
+            kwargs['queryset'] = Album.objects.filter(gallery__user=request.user)
+        return super(ProfileGalleryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+profile.register(Gallery, ProfileGalleryAdmin)
+
+
 class ProfileAlbumAdmin(ProfileModelAdmin):
     list_select_related = True
     form = AdminAlbumForm
@@ -57,7 +98,7 @@ class ProfileAlbumAdmin(ProfileModelAdmin):
     search_fields = ('title', 'description',)
 
     readonly_fields = ('images', 'pre_cache', 'thumbnails',)
-    fields = ('parent', 'title', 'visibility', 'album_sorting', 'allow_archiving',
+    fields = ('gallery', 'parent', 'title', 'visibility', 'album_sorting', 'allow_archiving',
               'images', 'pre_cache', 'description', 'time', 'thumbnails', )
 
     def images(self, obj):
@@ -101,7 +142,7 @@ class ProfileAlbumAdmin(ProfileModelAdmin):
     thumbnails.short_description = 'Album thumbnail'
 
     def queryset(self, request):
-        return super(ProfileAlbumAdmin, self).queryset(request).filter(user=request.user)
+        return super(ProfileAlbumAdmin, self).queryset(request).filter(gallery__user=request.user)
 
     def save_model(self, request, obj, form, change):
         obj.user = Gallery.objects.get(pk=request.user.pk)
@@ -118,24 +159,24 @@ class ProfileAlbumAdmin(ProfileModelAdmin):
             controller.set_archiving(obj.allow_archiving)
         super(ProfileAlbumAdmin, self).save_model(request, obj, form, change)
 
-    def get_form(self, request, obj=None, **kwargs):
-        # Add default parent Welcome album
-        user = Gallery.objects.get(pk=request.user.pk)
-        data = request.GET.copy()
-        data['parent'] = user.top_album_id
-        request.GET = data
-        # Add default user
-        data = request.POST.copy()
-        data['user'] = user.id
-        request.POST = data
-        return super(ProfileAlbumAdmin, self).get_form(request, obj=None, **kwargs)
+    # def get_form(self, request, obj=None, **kwargs):
+    # # Add default parent Welcome album
+    # user = Gallery.objects.get(pk=request.user.pk)
+    #     data = request.GET.copy()
+    #     data['parent'] = user.top_album_id
+    #     request.GET = data
+    #     # Add default user
+    #     data = request.POST.copy()
+    #     data['user'] = user.id
+    #     request.POST = data
+    #     return super(ProfileAlbumAdmin, self).get_form(request, obj=None, **kwargs)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """
         Show in drop down menu only user albums
         """
         if db_field.name == 'parent':
-            kwargs['queryset'] = Album.objects.filter(user=request.user)
+            kwargs['queryset'] = Album.objects.filter(gallery__user=request.user)
         return super(ProfileAlbumAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     class Media(object):
@@ -177,21 +218,20 @@ class ProfileImageAdmin(ProfileModelAdmin):
     image_thumbnail_popup.allow_tags = True
 
     def queryset(self, request):
-        return super(ProfileImageAdmin, self).queryset(request).filter(album__user=request.user)
+        return super(ProfileImageAdmin, self).queryset(request).filter(album__gallery__user=request.user)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """
         Show in drop down menu only user albums
         """
         if db_field.name == 'album':
-            kwargs['queryset'] = Album.objects.filter(user=request.user)
+            kwargs['queryset'] = Album.objects.filter(gallery__user=request.user)
         return super(ProfileImageAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     class Media:
         css = {
             'all': ('profile/css/profile.css',)
         }
-        js = ('my_code.js',)
 
 
 profile.register(Image, ProfileImageAdmin)
@@ -210,57 +250,15 @@ class ProfileVideoAdmin(ProfileModelAdmin):
         return obj.album.title
 
     def queryset(self, request):
-        return super(ProfileVideoAdmin, self).queryset(request).filter(album__user=request.user)
+        return super(ProfileVideoAdmin, self).queryset(request).filter(album__gallery__user=request.user)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """
         Show in drop down menu only user albums
         """
         if db_field.name == 'album':
-            kwargs['queryset'] = Album.objects.filter(user=request.user)
+            kwargs['queryset'] = Album.objects.filter(gallery__user=request.user)
         return super(ProfileVideoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 profile.register(Video, ProfileVideoAdmin)
-
-
-class ProfileUserAdmin(ProfileModelAdmin, UserAdmin):
-    list_select_related = True
-
-    list_display = ('username', 'url', 'email', 'top_album', 'is_staff', )
-    list_filter = ()
-
-    fieldsets = (
-        ('Account info', {'fields': ('username', 'password', )}),
-        ('Personal info', {'fields': ('email', 'first_name', 'last_name', )}),
-        ('Viewer info', {'fields': ('url', 'top_album', 'cache_size', 'cache_archive_size', 'cache_info', )}),
-        ('Additional info', {'fields': ('about_title', 'about_text', )}),
-        ('Important dates', {'fields': ('last_login', 'date_joined', )}),
-    )
-    readonly_fields = ('last_login', 'date_joined', 'cache_info', )
-
-    form = GalleryForm
-
-    def cache_info(self, user):
-        storage = ImageStorage(user)
-        images_size = storage.cache_size() / 2 ** 20
-        storage = ImageStorage(user, archive_cache=True)
-        archive_size = storage.cache_size() / 2 ** 20
-        return 'Images size: {0} MB, archives size: {1} MB'.format(images_size, archive_size)
-
-    def has_add_permission(self, request):
-        return False
-
-    def queryset(self, request):
-        return super(ProfileUserAdmin, self).queryset(request).filter(id=request.user.id)
-
-    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
-        """
-        Show in drop down menu only user albums
-        """
-        if db_field.name == 'top_album':
-            kwargs['queryset'] = Album.objects.filter(user=request.user)
-        return super(ProfileUserAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-
-
-profile.register(Gallery, ProfileUserAdmin)

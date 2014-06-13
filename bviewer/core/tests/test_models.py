@@ -28,8 +28,8 @@ class ModelTestCase(TestCase):
 
         user = User.objects.get(username='Test')
         need = [
+            'core.user_holder',
             'core.change_gallery',
-            'core.user_gallery',
             'core.add_album',
             'core.change_album',
             'core.delete_album',
