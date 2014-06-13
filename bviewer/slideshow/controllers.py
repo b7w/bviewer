@@ -70,8 +70,8 @@ class SlideShowController(object):
     @cache_method
     def get_album(self):
         obj = None
-        if self.user:  # igalleryer == user
-            obj = Album.objects.safe_get(id=self.album_id, user=self.user)
+        if self.user:
+            obj = Album.objects.safe_get(id=self.album_id, gallery__user=self.user)
         if not obj:
             obj = Album.objects.safe_get(
                 Q(pk=self.album_id),
