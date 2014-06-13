@@ -67,6 +67,8 @@ class AdminAlbumForm(ModelForm):
     def clean_parent(self):
         gallery = self.cleaned_data['gallery']
         album = self.cleaned_data['parent']
+        if 'gallery' in self.changed_data:
+            return gallery.top_album
         if album.gallery != gallery:
             raise ValidationError('Album must be from {0} gallery'.format(gallery))
         return album
