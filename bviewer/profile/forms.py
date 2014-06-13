@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 from datetime import timedelta
+
 from django.core.exceptions import ValidationError
 from django.forms import Form, ModelForm, ChoiceField, CharField, MultipleHiddenInput
 
@@ -62,12 +63,18 @@ class AdminGalleryForm(ModelForm):
 
 
 class AdminAlbumForm(ModelForm):
-    def clean_title(self):
-        title = self.cleaned_data['title']
-        user_id = self.data['user']
-        if Album.objects.filter(title=title, user_id=user_id).exclude(id=self.instance.id).count() > 0:
-            raise ValidationError('Title must be unique')
-        return title
+    def __init__(self, *args, **kwargs):
+        super(AdminAlbumForm, self).__init__(*args, **kwargs)
+        if self.instance.gallery_id:
+            self.fields['parent'].queryset = Album.objects \
+                .filter(gallery__user=self.instance.gallery.user, gallery=self.instance.gallery)
+
+    def clean_parent(self):
+        gallery = self.cleaned_data['gallery']
+        album = self.cleaned_data['parent']
+        if album.gallery != gallery:
+            raise ValidationError('Album must be from {0} gallery'.format(gallery))
+        return album
 
     class Meta(object):
         model = Album
