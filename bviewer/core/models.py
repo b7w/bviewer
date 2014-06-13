@@ -84,7 +84,7 @@ class Gallery(models.Model):
         super(Gallery, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.title
+        return self.url
 
     __unicode__ = __str__
 

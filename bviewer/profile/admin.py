@@ -58,9 +58,11 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
     form = AdminGalleryForm
 
     list_display = ('url', 'title', 'top_album', )
-    list_filter = ()
+    exclude = ('user',)
 
     readonly_fields = ('cache_info', )
+
+    ordering = ('url',)
 
     def cache_info(self, user):
         storage = ImageStorage(user)
@@ -74,6 +76,21 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
 
     def queryset(self, request):
         return super(ProfileGalleryAdmin, self).queryset(request).filter(user=request.user)
+
+    def get_form(self, request, obj=None, **kwargs):
+        # Add default user
+        data = request.POST.copy()
+        data['user'] = request.user.id
+        request.POST = data
+        return super(ProfileGalleryAdmin, self).get_form(request, obj=None, **kwargs)
+
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
+        """
+        Show in drop down menu only user albums
+        """
+        if db_field.name == 'parent':
+            kwargs['queryset'] = Album.objects.filter(gallery__user=request.user)
+        return super(ProfileGalleryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """
@@ -91,15 +108,15 @@ class ProfileAlbumAdmin(ProfileModelAdmin):
     list_select_related = True
     form = AdminAlbumForm
 
-    list_display = ('title', 'parent', 'visibility', 'images', 'time',)
-    list_filter = ('parent__title', 'time', )
-    ordering = ('parent', '-time',)
-
-    search_fields = ('title', 'description',)
-
     readonly_fields = ('images', 'pre_cache', 'thumbnails',)
     fields = ('gallery', 'parent', 'title', 'visibility', 'album_sorting', 'allow_archiving',
               'images', 'pre_cache', 'description', 'time', 'thumbnails', )
+    list_display = ('title', 'parent', 'gallery', 'visibility', 'images', 'time',)
+
+    list_filter = ('gallery', 'parent__title', 'time', )
+    search_fields = ('title', 'description',)
+
+    ordering = ('parent', '-time',)
 
     def images(self, obj):
         if Album.objects.safe_get(id=obj.id):
@@ -145,9 +162,8 @@ class ProfileAlbumAdmin(ProfileModelAdmin):
         return super(ProfileAlbumAdmin, self).queryset(request).filter(gallery__user=request.user)
 
     def save_model(self, request, obj, form, change):
-        obj.user = Gallery.objects.get(pk=request.user.pk)
         if not obj.parent:
-            obj.parent = obj.user.top_album
+            obj.parent = obj.gallery.top_album
         thumbnail_id = form.data['thumbnail_id']
         if thumbnail_id != 'None':
             obj.thumbnail_id = thumbnail_id
@@ -158,26 +174,6 @@ class ProfileAlbumAdmin(ProfileModelAdmin):
             controller = AlbumController.from_obj(obj)
             controller.set_archiving(obj.allow_archiving)
         super(ProfileAlbumAdmin, self).save_model(request, obj, form, change)
-
-    # def get_form(self, request, obj=None, **kwargs):
-    # # Add default parent Welcome album
-    # user = Gallery.objects.get(pk=request.user.pk)
-    #     data = request.GET.copy()
-    #     data['parent'] = user.top_album_id
-    #     request.GET = data
-    #     # Add default user
-    #     data = request.POST.copy()
-    #     data['user'] = user.id
-    #     request.POST = data
-    #     return super(ProfileAlbumAdmin, self).get_form(request, obj=None, **kwargs)
-
-    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
-        """
-        Show in drop down menu only user albums
-        """
-        if db_field.name == 'parent':
-            kwargs['queryset'] = Album.objects.filter(gallery__user=request.user)
-        return super(ProfileAlbumAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     class Media(object):
         css = {
@@ -192,12 +188,13 @@ class ProfileImageAdmin(ProfileModelAdmin):
     list_select_related = True
     actions = [bulk_time_update, update_time_from_exif, ]
 
-    list_display = ('path', 'file_name', 'album_title', 'image_thumbnail_popup', 'time', )
-    list_filter = ('album__title', 'time',)
-    ordering = ('-time', 'album', )
-
     readonly_fields = ('image_thumbnail',)
+    list_display = ('path', 'file_name', 'album_title', 'image_thumbnail_popup', 'time', )
+
+    list_filter = ('album__title', 'time',)
     search_fields = ('album__title', 'path',)
+
+    ordering = ('-time', 'album', )
 
     def file_name(self, obj):
         return os.path.basename(obj.path)
@@ -241,10 +238,11 @@ class ProfileVideoAdmin(ProfileModelAdmin):
     list_select_related = True
 
     list_display = ('album_title', 'title', 'type', 'uid', 'time', )
-    list_filter = ('album__title', 'type', 'time',)
-    ordering = ('-time', 'album', )
 
+    list_filter = ('album__title', 'type', 'time',)
     search_fields = ('album__title', 'title',)
+
+    ordering = ('-time', 'album', )
 
     def album_title(self, obj):
         return obj.album.title
