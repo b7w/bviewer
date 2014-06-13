@@ -53,7 +53,7 @@ class ProxyManager(models.Manager):
 
 class Gallery(models.Model):
     CACHE_SIZE_MIN = 16
-    CACHE_SIZE_MAX = 256
+    CACHE_SIZE_MAX = 512
     CACHE_ARCHIVE_SIZE_MIN = 128
     CACHE_ARCHIVE_SIZE_MAX = 2048
 
