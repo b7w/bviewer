@@ -6,7 +6,6 @@ from django.core.exceptions import ValidationError
 from django.forms import Form, ModelForm, ChoiceField, CharField, MultipleHiddenInput
 
 from bviewer.core.models import Gallery, Album, Video
-from bviewer.core.utils import RaisingRange
 
 
 class BulkTimeUpdateForm(Form):
@@ -42,21 +41,17 @@ class AdminGalleryForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(AdminGalleryForm, self).__init__(*args, **kwargs)
-        self._set_choice('cache_size',
-                         cache_max=Gallery.CACHE_SIZE_MAX,
-                         cache_min=Gallery.CACHE_SIZE_MIN,
-                         base=16
-        )
-        self._set_choice('cache_archive_size',
-                         cache_max=Gallery.CACHE_ARCHIVE_SIZE_MAX,
-                         cache_min=Gallery.CACHE_ARCHIVE_SIZE_MIN,
-                         base=64
-        )
+        self._set_choice('cache_size', Gallery.CACHE_SIZE_MAX)
+        self._set_choice('cache_archive_size', Gallery.CACHE_ARCHIVE_SIZE_MAX)
 
-    def _set_choice(self, field_name, cache_max, cache_min, base):
-        raising = RaisingRange(cache_max, start=cache_min, base=base)
-        choice = [(i, '%s MB' % i) for i in raising]
-        self.fields[field_name] = ChoiceField(choices=choice)
+    def _set_choice(self, field_name, cache_max):
+        base = cache_max // 8
+        raising = (i * base for i in range(1, 9))
+        choice = set([(i, '{0} MB'.format(i)) for i in raising])
+        if self.instance:
+            attr = getattr(self.instance, field_name)
+            choice.add((attr, '{0} MB'.format(attr)))
+        self.fields[field_name] = ChoiceField(choices=sorted(choice))
 
     class Meta(object):
         model = Gallery
