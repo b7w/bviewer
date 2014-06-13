@@ -13,7 +13,7 @@ from bviewer.core.controllers import AlbumController
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.models import Album, Image, Gallery, Video
 from bviewer.profile.actions import bulk_time_update, update_time_from_exif
-from bviewer.profile.forms import AdminGalleryForm, AdminAlbumForm
+from bviewer.profile.forms import AdminUserChangeForm, AdminGalleryForm, AdminAlbumForm
 
 
 class ProfileSite(AdminSite):
@@ -49,12 +49,16 @@ class ProfileModelAdmin(ModelAdmin):
 
 class ProfileUserAdmin(UserAdmin):
     list_select_related = True
+    form = AdminUserChangeForm
 
     list_display = ('username', 'email')
 
-    readonly_fields = ('is_active', 'is_staff', 'last_login', 'date_joined', )
-    extra_fieldsets = ('Account info', {'fields': ('username', 'password', )})
-    fieldsets = (extra_fieldsets, UserAdmin.fieldsets[1], UserAdmin.fieldsets[3])
+    readonly_fields = ('username', 'is_active', 'last_login', 'date_joined', 'user_permissions')
+    fieldsets = (
+        ('Account info', {'fields': ('username', 'password', 'is_active',)}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'email',)}),
+        ('Important dates', {'fields': ('last_login', 'date_joined',)}),
+    )
 
     def queryset(self, request):
         return super(ProfileUserAdmin, self).queryset(request).filter(id=request.user.id)
