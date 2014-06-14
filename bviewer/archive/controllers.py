@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from bviewer.core.files.storage import ImageStorage
+from bviewer.core.files.proxy import ProxyImageStorage
 from bviewer.core.utils import ImageOptions, cache_method, as_job, get_redis_connection
 
 
@@ -18,7 +18,7 @@ class ZipArchiveController(object):
         :type name: str
         """
         self.gallery = gallery
-        self.storage = ImageStorage(gallery, archive_cache=True)
+        self.storage = ProxyImageStorage(gallery, archive_cache=True)
         self.image_paths = [self.storage.get_path(i) for i in image_paths]
         self.name = name or self.uid
 

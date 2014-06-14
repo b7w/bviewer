@@ -85,6 +85,7 @@ class BasePath(object):
         self.storage = storage
         self.id = None
         self.path = path
+        self.full_path = storage.gallery.home + '/' + path
         self.options = options
         self.name = os.path.basename(path)
         self.saved = False
@@ -104,6 +105,14 @@ class BasePath(object):
 
     def open(self, mode='rb'):
         raise NotImplementedError()
+
+
+class MountPath(object):
+    def __init__(self, name):
+        self.name = name
+        self.full_path = name
+        self.is_image = False
+        self.is_dir = True
 
 
 class ImagePath(BasePath, ImagePathCacheMixin):

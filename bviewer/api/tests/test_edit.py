@@ -11,7 +11,7 @@ class EditTestCase(BaseResourceTestCase):
         gallery_id = self.data.gallery_b7w.id
         album_id = self.data.album_b7w.id
 
-        self.new_gallery = dict(title='New gallery', user=user_id, url='test')
+        self.new_gallery = dict(description='New gallery', user=user_id, url='test')
         self.new_album = dict(title='New album', gallery=gallery_id)
         self.new_image = dict(path='image1.jpg', album=album_id)
         self.data.generate_image(self.data.gallery_b7w.home, 'image1.jpg')

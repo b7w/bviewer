@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
-from mock import Mock, patch
 
+from mock import Mock, patch
 from django.test import TestCase
 from django.utils import six
 
@@ -15,7 +15,7 @@ from bviewer.core.utils import ImageOptions
 
 class ImagePathTestCase(TestCase):
     def setUp(self):
-        self.storage = Mock(hash_for=str)
+        self.storage = Mock(gallery=Mock(home='home'), hash_for=str)
         self.f1 = ImagePath(self.storage, 'path/1.jpg')
         self.f2 = ImagePath(self.storage, 'path/2.jpg')
 
@@ -27,7 +27,7 @@ class ImagePathTestCase(TestCase):
     def test_url(self):
         storage = Mock(
             hash_for=Mock(return_value='cache_name'),
-            gallery=Mock(url='gallery.url'),
+            gallery=Mock(home='home', url='gallery.url'),
             type='type'
         )
         self.assertEqual(storage.hash_for(), 'cache_name')
