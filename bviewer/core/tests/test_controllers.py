@@ -51,12 +51,12 @@ class ControllersTestCase(TestCase):
         gallery = data.gallery_b7w
         top_album = gallery.top_album
 
-        controller = AlbumController(gallery, gallery, uid=top_album.id)
+        controller = AlbumController(gallery, gallery.user, uid=top_album.id)
         self.assertEqual(controller.uid, top_album.id)
         self.assertIsNone(controller.obj)
         self.assertEqual(controller.get_object(), top_album)
 
-        controller = AlbumController(gallery, gallery, obj=top_album)
+        controller = AlbumController(gallery, gallery.user, obj=top_album)
         self.assertEqual(controller.uid, top_album.id)
         self.assertEqual(controller.obj, top_album)
         self.assertEqual(controller.get_object(), top_album)

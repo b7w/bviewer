@@ -43,3 +43,15 @@ class ImageFolder(object):
             return data
 
         return _split(self.path, [])
+
+
+class GalleryConfig(object):
+    def __init__(self, gallery, mount):
+        self.gallery = gallery
+        self.home = mount
+        self.url = gallery.url
+        self.cache_size = gallery.cache_size
+        self.cache_archive_size = gallery.cache_archive_size
+
+    def __str__(self):
+        return 'GalleryConfig({0}, {1})'.format(self.gallery, self.home)

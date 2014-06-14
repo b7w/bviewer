@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 from django.utils.encoding import smart_text
 
 from bviewer.core.controllers import AlbumController
-from bviewer.core.files.storage import ImageStorage
+from bviewer.core.files.proxy import ProxyImageStorage
 from bviewer.core.models import Album, Image, Gallery, Video
 from bviewer.profile.actions import bulk_time_update, update_time_from_exif
 from bviewer.profile.forms import AdminUserChangeForm, AdminGalleryForm, AdminAlbumForm
@@ -72,16 +72,16 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
     form = AdminGalleryForm
 
     list_display = ('url', 'top_album', 'description', )
-    exclude = ('user',)
 
-    readonly_fields = ('cache_info', )
+    readonly_fields = ('home', 'cache_info', )
+    exclude = ('user',)
 
     ordering = ('url',)
 
     def cache_info(self, user):
-        storage = ImageStorage(user)
+        storage = ProxyImageStorage(user)
         images_size = storage.cache_size() / 2 ** 20
-        storage = ImageStorage(user, archive_cache=True)
+        storage = ProxyImageStorage(user, archive_cache=True)
         archive_size = storage.cache_size() / 2 ** 20
         return 'Images size: {0} MB, archives size: {1} MB'.format(images_size, archive_size)
 

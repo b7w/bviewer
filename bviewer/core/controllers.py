@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 import logging
 import re
+
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
 from django.utils.encoding import smart_text
 
 from bviewer.core.exceptions import FileError
+from bviewer.core.files.proxy import ProxyImageStorage
 from bviewer.core.files.response import download_response
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.images import CacheImage
@@ -99,7 +101,7 @@ class AlbumController(BaseController):
         """
         :type obj: bviewer.core.models.Album
         """
-        return AlbumController(obj.gallery, obj.gallery.user, obj=obj)
+        return AlbumController(obj, obj.user, obj=obj.top_album)
 
     @cache_method
     def get_object(self):
@@ -158,7 +160,7 @@ class AlbumController(BaseController):
         sizes = [i for i in settings.VIEWER_IMAGE_SIZE.keys() if i != 'full']
         for size in sizes:
             for image in images:
-                storage = ImageStorage(self.gallery)
+                storage = ProxyImageStorage(self.gallery)
                 self._pre_cache_image(storage, image, size)
 
     def _pre_cache_image(self, storage, image, size):
@@ -230,9 +232,9 @@ class ImageController(MediaController):
     MODEL = Image
 
     def get_response(self, size):
-        #: :type: bviewer.core.models.Image
+        # : :type: bviewer.core.models.Image
         image = self.get_object()
-        storage = ImageStorage(self.gallery)
+        storage = ProxyImageStorage(self.gallery)
         options = ImageOptions.from_settings(size)
         image_path = storage.get_path(image.path, options)
         if not image_path.exists:
@@ -249,9 +251,9 @@ class VideoController(MediaController):
     MODEL = Video
 
     def get_response(self, size):
-        #: :type: bviewer.core.models.Video
+        # : :type: bviewer.core.models.Video
         video = self.get_object()
-        storage = ImageStorage(self.gallery)
+        storage = ProxyImageStorage(self.gallery)
         options = ImageOptions.from_settings(size, name=str(video.id))
         image_url = storage.get_url(video.thumbnail_url, options)
 
