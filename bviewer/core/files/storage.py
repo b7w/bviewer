@@ -38,7 +38,7 @@ class ImageStorage(BaseImageStorage):
         :param root_path: place where image files stored, default settings.VIEWER_STORAGE_PATH
         :param cache_path: place where cache stored, default settings.VIEWER_CACHE_PATH
         :param archive_cache: set 'archives' sub cache folder instead of 'images'
-        :type gallery: bviewer.core.models.Gallery
+        :type gallery: bviewer.core.files.utils.GalleryConfig or bviewer.core.models.Gallery
         """
         self.gallery = gallery
         self.root = root_path or settings.VIEWER_STORAGE_PATH
