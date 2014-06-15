@@ -38,9 +38,9 @@ class TestData(object):
         user.save()
 
     def load_galleries(self):
-        self.gallery_b7w = Gallery(user=self.user_b7w)
+        self.gallery_b7w = Gallery(user=self.user_b7w, home='b7w_home')
         self.gallery_b7w.save()
-        self.gallery_keks = Gallery(user=self.user_keks)
+        self.gallery_keks = Gallery(user=self.user_keks, home='keks_home')
         self.gallery_keks.save()
         return self
 
@@ -70,12 +70,12 @@ class TestData(object):
         self.album5.save()
         return self
 
-    def generate_image(self, home, name, force=False):
+    def generate_image(self, name, force=False):
         """
         Create random image in settings.VIEWER_STORAGE_PATH if not exists.
         Or user `force=True` to override.
         """
-        path = os.path.join(settings.VIEWER_STORAGE_PATH, home, name)
+        path = os.path.join(settings.VIEWER_STORAGE_PATH, name)
         if not os.path.exists(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path))
         if not os.path.exists(path) or force:
@@ -84,18 +84,18 @@ class TestData(object):
             image.save(path)
 
     def load_images(self):
-        self.image1 = Image.objects.create(album=self.album1, path='image1.jpg')
-        self.image2 = Image.objects.create(album=self.album1, path='image2.jpg')
-        self.generate_image(self.album1.gallery.home, self.image1.path)
-        self.generate_image(self.album1.gallery.home, self.image2.path)
+        self.image1 = Image.objects.create(album=self.album1, path='b7w_home/image1.jpg')
+        self.image2 = Image.objects.create(album=self.album1, path='b7w_home/image2.jpg')
+        self.generate_image(self.image1.path)
+        self.generate_image(self.image2.path)
 
-        self.image3 = Image.objects.create(album=self.album2, path='image3.jpg')
-        self.image4 = Image.objects.create(album=self.album2, path='image4.jpg')
-        self.generate_image(self.album2.gallery.home, self.image3.path)
-        self.generate_image(self.album2.gallery.home, self.image4.path)
+        self.image3 = Image.objects.create(album=self.album2, path='b7w_home/image3.jpg')
+        self.image4 = Image.objects.create(album=self.album2, path='b7w_home/image4.jpg')
+        self.generate_image(self.image3.path)
+        self.generate_image(self.image4.path)
 
-        self.image5 = Image.objects.create(album=self.album5, path='image5.jpg')
-        self.generate_image(self.album5.gallery.home, self.image5.path)
+        self.image5 = Image.objects.create(album=self.album5, path='keks_home/image5.jpg')
+        self.generate_image(self.image5.path)
         return self
 
     def load_videos(self):
