@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+
 from django.utils.timezone import utc
 
 from bviewer.core.images import CacheImage
@@ -13,7 +14,7 @@ class CacheImageTestCase(BaseImageStorageTestCase):
         super(CacheImageTestCase, self).setUp()
         self.data = TestData()
         self.path = 'image1.jpg'
-        self.data.generate_image(self.gallery.home, self.path)
+        self.data.generate_image(self.gallery.home + '/' + self.path)
 
     def assertCacheImage(self, options, download=False):
         image_path = self.storage.get_path(self.path, options)
@@ -42,7 +43,7 @@ class ExifTest(BaseImageStorageTestCase):
         super(ExifTest, self).setUp()
         self.data = TestData()
         self.path = 'image1.jpg'
-        self.data.generate_image(self.gallery.home, self.path)
+        self.data.generate_image(self.gallery.home + '/' + self.path)
 
     def test_ctime(self):
         exif = self.storage.exif(self.path)
