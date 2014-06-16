@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import logging
-
 from django.contrib import admin
 from django.db.models import F
 from django.shortcuts import redirect, render
 
-from bviewer.core.files.proxy import ProxyImageStorage
 from bviewer.core.utils import set_time_from_exif
+from bviewer.core.files.storage import ImageStorage
 from bviewer.profile.forms import BulkTimeUpdateForm
 
 
@@ -39,5 +38,5 @@ def bulk_time_update(model_admin, request, queryset):
 
 def update_time_from_exif(model_admin, request, queryset):
     for image in queryset:
-        storage = ProxyImageStorage(image.album.user)
+        storage = ImageStorage(image.album.user)
         set_time_from_exif(storage, image, save=True)

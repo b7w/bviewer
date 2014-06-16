@@ -2,7 +2,6 @@
 import json
 import logging
 import uuid
-from bviewer.core.files.proxy import ProxyImageStorage
 
 try:
     from urllib2 import urlopen, URLError
@@ -163,8 +162,8 @@ class Image(models.Model):
         """
         Check path exists
         """
-        storage = ProxyImageStorage(self.album.gallery)
-        if not storage.get_path(self.path).exists:
+        storage = ImageStorage(self.album.gallery)
+        if not storage.exists(self.path):
             raise ValidationError(smart_text('No {0} path exists').format(self.path))
 
     def __str__(self):
@@ -183,7 +182,7 @@ def update_time_from_exif(sender, instance, created, **kwargs):
     :type instance: Image
     """
     if created:
-        storage = ProxyImageStorage(instance.album.gallery)
+        storage = ImageStorage(instance.album.gallery)
         set_time_from_exif(storage, instance, save=True)
 
 

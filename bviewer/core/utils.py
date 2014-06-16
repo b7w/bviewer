@@ -8,7 +8,7 @@ from django.conf import settings
 from django.utils.encoding import smart_text, smart_bytes
 from django.utils.functional import wraps
 
-from bviewer.core.exceptions import ResizeOptionsError, FileError
+from bviewer.core.exceptions import ResizeOptionsError
 
 
 logger = logging.getLogger(__name__)
@@ -155,21 +155,3 @@ def set_time_from_exif(storage, image, save=False):
         image.time = image_path.exif.ctime
         if save:
             image.save()
-
-
-def io_call(func):
-    """
-    Wrap method where can be raised `IOError` and re raise `FileError`.
-    Save method calls with all args to debug log.
-    """
-
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        try:
-            logger.debug(method_call_str(func.__name__, self, *args, **kwargs))
-            return func(self, *args, **kwargs)
-        except IOError as e:
-            logger.exception(e)
-            raise FileError(e)
-
-    return wrapper

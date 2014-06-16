@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import logging
-
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
@@ -8,8 +7,8 @@ from django.utils.encoding import smart_text
 
 from bviewer.core.controllers import get_gallery, AlbumController
 from bviewer.core.exceptions import FileError
-from bviewer.core.files.proxy import ProxyImageStorage
 from bviewer.core.files.response import download_response
+from bviewer.core.files.storage import ImageStorage
 from bviewer.core.files.utils import ImageFolder
 from bviewer.core.images import CacheImage
 from bviewer.core.utils import ImageOptions, as_job
@@ -31,7 +30,7 @@ def images_view(request, uid):
         return message_view(request, message='No such album')
 
     images = controller.get_images()
-    storage = ProxyImageStorage(gallery)
+    storage = ImageStorage(gallery)
     path = request.GET.get('p', '')
     try:
         image_paths = storage.list(path, saved_images=images)
@@ -70,8 +69,8 @@ def album_pre_cache(request, uid):
 def download_image(request):
     if request.GET.get('p', None):
         path = request.GET['p']
-        gallery = get_gallery(request)
-        storage = ProxyImageStorage(gallery)
+        user = get_gallery(request)
+        storage = ImageStorage(user)
         options = ImageOptions.from_settings('tiny')
         image_path = storage.get_path(path, options)
         try:
