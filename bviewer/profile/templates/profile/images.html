@@ -72,7 +72,7 @@
                     </li>
                     {% for dir in folder.dirs %}
                         <li>
-                            <a href="{% url 'profile.album' album.id %}?p={{ dir.full_path }}" class="thumbnail">
+                            <a href="{% url 'profile.album' album.id %}?p={{ dir.path }}" class="thumbnail">
                                 <img src="{% static 'core/img/album.png' %}">
 
                                 <p class="caption">{{ dir.name }}</p>
@@ -84,9 +84,9 @@
                             <a class="thumbnail image">
                                 <input type='checkbox' class="caption-checkbox"
                                        data-id="{{ file.id }}"
-                                       data-value="{{ file.full_path }}"
+                                       data-value="{{ file.path }}"
                                        {% if file.saved %}checked{% endif %}>
-                                <img src="{% url 'profile.download' %}?p={{ file.full_path }}">
+                                <img src="{% url 'profile.download' %}?p={{ file.path }}">
 
                                 <p class="caption">{{ file.name }}</p>
                             </a>

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from functools import wraps
 import hashlib
 import logging
 import os
@@ -13,17 +14,34 @@ except ImportError:
 from django.conf import settings
 from django.utils.encoding import smart_bytes, smart_text
 
-from bviewer.core.files.base import BaseImageStorage
 from bviewer.core.files.path import ImagePath, ImageUrl, ImageArchivePath
 from bviewer.core.exceptions import FileError
 from bviewer.core.images import Exif
-from bviewer.core.utils import io_call
-
+from bviewer.core.utils import method_call_str
 
 logger = logging.getLogger(__name__)
 
 
-class ImageStorage(BaseImageStorage):
+def io_call(func):
+    """
+    Wrap method where can be raised `IOError` and re raise `FileError`.
+    Save method calls with all args to debug log.
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        try:
+            logger.debug(method_call_str(func.__name__, self, *args, **kwargs))
+            return func(self, *args, **kwargs)
+        except IOError as e:
+            print('1')
+            logger.exception(e)
+            raise FileError(e)
+
+    return wrapper
+
+
+class ImageStorage(object):
     """
     Wrapper on file system.
     Provide methods to get pre config ImagePath, ImageUrl, ImageArchivePath.
@@ -38,7 +56,7 @@ class ImageStorage(BaseImageStorage):
         :param root_path: place where image files stored, default settings.VIEWER_STORAGE_PATH
         :param cache_path: place where cache stored, default settings.VIEWER_CACHE_PATH
         :param archive_cache: set 'archives' sub cache folder instead of 'images'
-        :type gallery: bviewer.core.files.utils.GalleryConfig or bviewer.core.models.Gallery
+        :type gallery: bviewer.core.models.Gallery
         """
         self.gallery = gallery
         self.root = root_path or settings.VIEWER_STORAGE_PATH
@@ -86,7 +104,7 @@ class ImageStorage(BaseImageStorage):
             image_path = ImagePath(self, relative_path)
             if image_path.is_image or image_path.is_dir:
                 for obj in saved_images:
-                    if obj.path == image_path.full_path:
+                    if obj.path == image_path.path:
                         image_path.saved = True
                         image_path.id = obj.id
                         break
@@ -156,6 +174,7 @@ class ImageStorage(BaseImageStorage):
                 cache_paths = sorted(cache_paths, key=os.path.getctime, reverse=True)
                 while sum(map(os.path.getsize, cache_paths)) > self._max_cache_size:
                     os.remove(cache_paths.pop())
+
 
     @io_call
     def cache_size(self):

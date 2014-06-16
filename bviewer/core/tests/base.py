@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 import shutil
-
 from mock import Mock
+
 from django.conf import settings
 from django.core import urlresolvers
 from django.test import TestCase
