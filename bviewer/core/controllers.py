@@ -97,9 +97,9 @@ class AlbumController(BaseController):
     @staticmethod
     def from_obj(obj):
         """
-        :type obj: bviewer.core.models.Album
+        :type obj: bviewer.core.models.Gallery
         """
-        return AlbumController(obj.gallery, obj.gallery.user, obj=obj)
+        return AlbumController(obj, obj.user, obj=obj.top_album)
 
     @cache_method
     def get_object(self):
