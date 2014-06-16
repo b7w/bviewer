@@ -74,7 +74,7 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
     list_display = ('url', 'top_album', 'description', )
     exclude = ('user',)
 
-    readonly_fields = ('cache_info', )
+    readonly_fields = ('home', 'cache_info', )
 
     ordering = ('url',)
 

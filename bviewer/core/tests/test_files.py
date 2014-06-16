@@ -133,7 +133,9 @@ class ImageStorageTestCase(BaseImageStorageTestCase):
                 self.assertEqual(func(image_path, for_cache=True), for_cache)
 
         gallery = Mock(home='home', url='url', cache_size=0)
-        storage = ImageStorage(gallery, root_path='root', cache_path='cache')
+        # Storage pre create cache dir, fix it
+        with patch('os.makedirs'):
+            storage = ImageStorage(gallery, root_path='root', cache_path='cache')
 
         assert_method_for_cache('os.path.getctime', storage.ctime, side_effect=str)
         assert_method_for_cache('os.path.exists', storage.exists, side_effect=str)
