@@ -44,9 +44,6 @@ def get_gallery(request):
             cache.set(key, gallery)
             return gallery
 
-    if request.user.is_authenticated():
-        return Gallery.objects.get(id=request.user.id)
-
     return None
 
 

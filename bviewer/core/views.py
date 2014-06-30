@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+
 from django.conf import settings
 from django.contrib.auth.views import login, logout
 from django.http import Http404
@@ -93,9 +94,9 @@ def image_view(request, uid):
         return message_view(request, message='No user defined')
 
     controller = ImageController(gallery, request.user, uid)
-    image = controller.get_object()
-    if image is None:
+    if not controller.exists():
         return message_view(request, message='No such image')
+    image = controller.get_object()
 
     return render(request, 'core/image.html', {
         'gallery': gallery,
@@ -116,16 +117,16 @@ def video_view(request, uid):
         return message_view(request, message='No user defined')
 
     controller = VideoController(gallery, request.user, uid)
-    video = controller.get_object()
-    if video is None:
+    if not controller.exists():
         return message_view(request, message='No such video')
+    video = controller.get_object()
 
     return render(request, 'core/video.html', {
         'gallery': gallery,
         'album': video.album,
         'video': video,
         'back': dict(album_id=video.album_id),
-    })
+        })
 
 
 @decor_on(settings.VIEWER_DOWNLOAD_RESPONSE['CACHE'], cache_page, 60 * 60)
@@ -139,8 +140,7 @@ def download_video_thumbnail_view(request, uid):
         raise Http404('No user defined')
 
     controller = VideoController(gallery, request.user, uid)
-    video = controller.get_object()
-    if video is None:
+    if not controller.exists():
         raise Http404('No such video')
 
     try:
@@ -164,8 +164,7 @@ def download_image_view(request, size, uid):
         raise Http404('No user defined')
 
     controller = ImageController(gallery, request.user, uid)
-    image = controller.get_object()
-    if image is None:
+    if not controller.exists():
         raise Http404('No such image')
 
     try:
