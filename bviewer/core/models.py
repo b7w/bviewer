@@ -51,6 +51,21 @@ class ProxyManager(models.Manager):
             return None
 
 
+class Access(models.Model):
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    gallery = models.ForeignKey('Gallery', on_delete=models.DO_NOTHING)
+
+    objects = ProxyManager()
+
+    def __str__(self):
+        return smart_text('{0}: {1}').format(self.user, self.gallery)
+
+    __unicode__ = __str__
+
+    class Meta(object):
+        unique_together = (('user', 'gallery'),)
+
+
 class Gallery(models.Model):
     CACHE_SIZE_MIN = 16
     CACHE_SIZE_MAX = 512

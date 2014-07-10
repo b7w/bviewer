@@ -2,7 +2,7 @@
 import os
 from collections import Counter
 
-from django.contrib.admin import AdminSite, ModelAdmin
+from django.contrib.admin import AdminSite, ModelAdmin, TabularInline
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -11,7 +11,7 @@ from django.utils.encoding import smart_text
 
 from bviewer.core.controllers import AlbumController
 from bviewer.core.files.storage import ImageStorage
-from bviewer.core.models import Album, Image, Gallery, Video
+from bviewer.core.models import Access, Album, Image, Gallery, Video
 from bviewer.profile.actions import bulk_time_update, update_time_from_exif
 from bviewer.profile.forms import AdminUserChangeForm, AdminGalleryForm, AdminAlbumForm
 
@@ -26,7 +26,7 @@ class ProfileSite(AdminSite):
 
     def has_permission(self, request):
         user = request.user
-        return user.is_active and request.user.has_perm('core.user_holder')
+        return user.is_active and user.has_perm('core.user_holder')
 
 
 profile = ProfileSite()
@@ -67,9 +67,30 @@ class ProfileUserAdmin(UserAdmin):
 profile.register(User, ProfileUserAdmin)
 
 
+class ProfileAccessAdmin(ProfileModelAdmin):
+    list_select_related = True
+
+    list_display = ('user', 'gallery')
+    list_filter = ('user', 'gallery')
+
+    ordering = ('gallery',)
+
+
+profile.register(Access, ProfileAccessAdmin)
+
+
+class AccessInline(TabularInline):
+    model = Access
+    verbose_name = 'Visible to user'
+    verbose_name_plural = 'Visible to users'
+    extra = 0
+
+
 class ProfileGalleryAdmin(ProfileModelAdmin):
     list_select_related = True
     form = AdminGalleryForm
+
+    inlines = (AccessInline,)
 
     list_display = ('url', 'top_album', 'description', )
     exclude = ('user',)

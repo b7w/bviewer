@@ -3,7 +3,19 @@ import os
 
 from django.contrib.admin import site, ModelAdmin
 
-from bviewer.core.models import Gallery, Album, Image, Video
+from bviewer.core.models import Access, Gallery, Album, Image, Video
+
+
+class PermissionAdmin(ModelAdmin):
+    list_select_related = True
+
+    list_display = ('user', 'gallery')
+    list_filter = ('user', 'gallery')
+
+    ordering = ('gallery',)
+
+
+site.register(Access, PermissionAdmin)
 
 
 class GalleryAdmin(ModelAdmin):

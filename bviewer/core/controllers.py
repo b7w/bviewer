@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import re
+
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
@@ -10,7 +11,7 @@ from bviewer.core.exceptions import FileError
 from bviewer.core.files.response import download_response
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.images import CacheImage
-from bviewer.core.models import Gallery, Album, Video, Image
+from bviewer.core.models import Gallery, Album, Video, Image, Access
 from bviewer.core.utils import cache_method, ImageOptions, as_job
 
 
@@ -70,6 +71,15 @@ class BaseController(object):
         """
         return self.gallery.user == self.user
 
+    @cache_method
+    def user_has_access(self):
+        if self.is_owner():
+            return True
+        if self.user.is_authenticated():
+            obj = Access.objects.safe_get(user=self.user, gallery=self.gallery)
+            return bool(obj)
+        return False
+
     def exists(self):
         return bool(self.get_object())
 
@@ -107,7 +117,7 @@ class AlbumController(BaseController):
         """
         if self.obj:
             return self.obj
-        if self.is_owner():
+        if self.user_has_access():
             return Album.objects.safe_get(pk=self.uid, gallery_id=self.gallery.id)
         return Album.objects.safe_get(Q(pk=self.uid), Q(gallery_id=self.gallery.id), self.OPEN)
 
@@ -117,7 +127,7 @@ class AlbumController(BaseController):
 
         :rtype: django.db.models.query.QuerySet
         """
-        if self.is_owner():
+        if self.user_has_access():
             return Album.objects.filter(parent_id=parent_id)
         return Album.objects.filter(parent_id=parent_id, visibility=Album.VISIBLE)
 
@@ -212,7 +222,7 @@ class MediaController(BaseController):
         """
         Get self.MODEL instance or None
         """
-        if self.is_owner():
+        if self.user_has_access():
             return self.MODEL.objects.safe_get(pk=self.uid, album__gallery__id=self.gallery.id)
         return self.MODEL.objects.safe_get(Q(pk=self.uid), Q(album__gallery__id=self.gallery.id), self.OPEN)
 
