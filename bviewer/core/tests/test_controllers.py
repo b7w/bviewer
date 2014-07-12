@@ -78,17 +78,12 @@ class ControllersTestCase(TestCase):
 
         controller = AlbumController(gallery, gallery.user, uid=top_album.id)
         self.assertEqual(controller.uid, top_album.id)
-        self.assertIsNone(controller.obj)
         self.assertEqual(controller.get_object(), top_album)
 
-        controller = AlbumController(gallery, gallery.user, obj=top_album)
+        controller = AlbumController.from_obj(top_album)
+        self.assertEqual(controller.gallery, gallery)
+        self.assertEqual(controller.user, self.data.user_b7w)
         self.assertEqual(controller.uid, top_album.id)
-        self.assertEqual(controller.obj, top_album)
-        self.assertEqual(controller.get_object(), top_album)
-
-        controller = AlbumController.from_obj(gallery)
-        self.assertEqual(controller.uid, top_album.id)
-        self.assertEqual(controller.obj, top_album)
         self.assertEqual(controller.get_object(), top_album)
 
     def test_album_controller_no_access(self):

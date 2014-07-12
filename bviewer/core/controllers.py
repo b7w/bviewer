@@ -49,7 +49,7 @@ def get_gallery(request):
 
 
 class BaseController(object):
-    def __init__(self, gallery, user, uid=None, obj=None):
+    def __init__(self, gallery, user, uid=None):
         """
         :type gallery: bviewer.core.models.Gallery
         :type user: django.contrib.auth.models.User or None
@@ -58,11 +58,7 @@ class BaseController(object):
         assert gallery is not None
         self.gallery = gallery
         self.user = user
-        if uid:
-            self.uid = uid
-        else:
-            self.uid = obj.id
-        self.obj = obj
+        self.uid = uid
 
     def is_owner(self):
         """
@@ -84,10 +80,6 @@ class BaseController(object):
     def exists(self):
         return bool(self.get_object())
 
-    @staticmethod
-    def from_obj(obj):
-        raise NotImplementedError()
-
     def get_object(self):
         raise NotImplementedError()
 
@@ -105,9 +97,12 @@ class AlbumController(BaseController):
     @staticmethod
     def from_obj(obj):
         """
-        :type obj: bviewer.core.models.Gallery
+        :type obj: bviewer.core.models.Album
         """
-        return AlbumController(obj, obj.user, obj=obj.top_album)
+        controller = AlbumController(obj.gallery, obj.gallery.user, uid=obj.id)
+        # field of `cache_method` decorator
+        controller._cache_get_object = obj
+        return controller
 
     @cache_method
     def get_object(self):
@@ -116,8 +111,6 @@ class AlbumController(BaseController):
 
         :rtype: bviewer.core.models.Album or None
         """
-        if self.obj:
-            return self.obj
         if self.user_has_access():
             return Album.objects.safe_get(pk=self.uid, gallery_id=self.gallery.id)
         return Album.objects.safe_get(Q(pk=self.uid), Q(gallery_id=self.gallery.id), self.OPEN)
@@ -238,7 +231,7 @@ class ImageController(MediaController):
     MODEL = Image
 
     def get_response(self, size):
-        #: :type: bviewer.core.models.Image
+        # : :type: bviewer.core.models.Image
         image = self.get_object()
         storage = ImageStorage(self.gallery)
         options = ImageOptions.from_settings(size)
@@ -257,7 +250,7 @@ class VideoController(MediaController):
     MODEL = Video
 
     def get_response(self, size):
-        #: :type: bviewer.core.models.Video
+        # : :type: bviewer.core.models.Video
         video = self.get_object()
         storage = ImageStorage(self.gallery)
         options = ImageOptions.from_settings(size, name=str(video.id))
