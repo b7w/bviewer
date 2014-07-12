@@ -52,9 +52,10 @@ class BaseController(object):
     def __init__(self, gallery, user, uid=None, obj=None):
         """
         :type gallery: bviewer.core.models.Gallery
-        :type user: django.contrib.auth.models.User
+        :type user: django.contrib.auth.models.User or None
         :type uid: str
         """
+        assert gallery is not None
         self.gallery = gallery
         self.user = user
         if uid:
@@ -75,7 +76,7 @@ class BaseController(object):
     def user_has_access(self):
         if self.is_owner():
             return True
-        if self.user.is_authenticated():
+        if self.user and self.user.is_authenticated():
             obj = Access.objects.safe_get(user=self.user, gallery=self.gallery)
             return bool(obj)
         return False
