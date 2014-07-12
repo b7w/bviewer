@@ -13,13 +13,13 @@
     });
 </script>
 
-<a id="thumbnails-open" href="#"><b>Click to see all image previews or select gallery thumbnail</b></a>
+<a id="thumbnails-open" href="#"><b>Click to see all image previews or select album thumbnail</b></a>
 
 <ul class="thumbnails" id="thumbnails" style="display:none;">
     <li>
         <span class="thumbnail">
             <input type="radio" name="thumbnail_id" value="None" {% if obj.thumbnail_id == item.id %}checked{% endif %}>
-            <img class="thumbnail" src="{% static 'core/img/gallery.png' %}">
+            <img class="thumbnail" src="{% static 'core/img/album.png' %}">
         </span>
     </li>
     {% for item in images %}

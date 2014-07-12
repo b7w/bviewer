@@ -4,9 +4,9 @@ BelieveViewer documentation
 
 .. sidebar:: BelieveViewer
 
-    Believe is a web photo gallery. Developed to make image sharing easier.
+    Believe is a web photo album. Developed to make image sharing easier.
     Main idea is nice dark template, good image quality and no any social stuff.
-    It is also sub galleries, full image download.
+    It is also sub albums, full image download.
 
     *Open source, MIT license*
 
@@ -27,11 +27,10 @@ API Reference
 * :doc:`Settings </ref/settings>`
 
 
-Releases
-========
+Notes
+=====
 
-* :doc:`Release notes </releases/notes>`
-* :doc:`ToDo </releases/todo>`
+* :doc:`Release notes </notes/release>`
 
 
 Indices and tables

@@ -92,7 +92,7 @@ class BasePath(object):
 
     @property
     def url(self):
-        return '/'.join([self.storage.type, self.storage.holder.url, self.url_name])
+        return '/'.join([self.storage.type, self.storage.gallery.url, self.url_name])
 
     @property
     def url_name(self):

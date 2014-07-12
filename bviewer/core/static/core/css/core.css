@@ -297,47 +297,47 @@ footer p {
     margin: 0 -10px;
 }
 
-.gallery:before, .flow:before {
+.album:before, .flow:before {
     display: table;
     line-height: 0;
     content: "";
 }
 
-.clear, .gallery:after, .flow:after {
+.clear, .album:after, .flow:after {
     clear: both;
     display: table;
     line-height: 0;
     content: "";
 }
 
-.gallery-title {
+.album-title {
     margin: 10px;
     text-shadow: 0 0 36px rgba(255, 255, 255, 0.6);
 }
 
-.gallery-title h2 {
+.album-title h2 {
     color: #CCC;
     margin: 0;
 }
 
-.gallery-title p {
+.album-title p {
     margin: 0 4px;
     font-style: italic;
 }
 
-.gallery-title a {
+.album-title a {
     color: #999;
 }
 
-.gallery-title .description {
+.album-title .description {
     width: 80%;
 }
 
-.gallery-years {
+.album-years {
     margin: 10px;
 }
 
-.gallery-years a {
+.album-years a {
     padding: 2px 4px;
     margin-right: 4px;
     color: #999;
@@ -347,7 +347,7 @@ footer p {
     border: solid 1px #212930;
 }
 
-.gallery-years a:hover, .gallery-years .selected {
+.album-years a:hover, .album-years .selected {
     color: #EEE;
     border: solid 1px #3A3A3A;
 }
@@ -394,9 +394,9 @@ footer p {
     -o-transition: opacity 2s;
 }
 
-.preview-body .video-tag {
+.preview-body .video-tag img {
     position: absolute;
-    opacity: 0.65;
+    opacity: 0.6;
     top: -24px;
     right: -24px;
     height: 64px;
@@ -409,8 +409,8 @@ footer p {
     -o-transition: all 1s ease;
 }
 
-.preview-body:hover .video-tag {
-    opacity: 0.9;
+.preview-body:hover .video-tag img {
+    opacity: 0.85;
 }
 
 /* PREVIEW CAPTION */

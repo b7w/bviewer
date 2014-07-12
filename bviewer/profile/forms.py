@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import re
 from datetime import timedelta
+
+from django.contrib.auth.forms import UserChangeForm
 from django.core.exceptions import ValidationError
 from django.forms import Form, ModelForm, ChoiceField, CharField, MultipleHiddenInput
 
-from bviewer.core.models import Gallery, Video
+from bviewer.core.models import Gallery, Album, Video
 
 
 class BulkTimeUpdateForm(Form):
@@ -32,21 +34,60 @@ class BulkTimeUpdateForm(Form):
         return timedelta(**kwargs)
 
 
+class AdminUserChangeForm(UserChangeForm):
+    def __init__(self, *args, **kwargs):
+        super(AdminUserChangeForm, self).__init__(*args, **kwargs)
+        # Remove filed, it is not send to form (it is readonly_fields) but form need it
+        del self.fields['username']
+
+
 class AdminGalleryForm(ModelForm):
-    def clean_title(self):
-        title = self.cleaned_data['title']
-        user_id = self.data['user']
-        if Gallery.objects.filter(title=title, user_id=user_id).exclude(id=self.instance.id).count() > 0:
-            raise ValidationError('Title must be unique')
-        return title
+    """
+    Set for UserAdmin Gallery model except User.
+    Add choice field for cache size filed.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(AdminGalleryForm, self).__init__(*args, **kwargs)
+        self._set_choice('cache_size', Gallery.CACHE_SIZE_MAX)
+        self._set_choice('cache_archive_size', Gallery.CACHE_ARCHIVE_SIZE_MAX)
+
+    def _set_choice(self, field_name, cache_max):
+        base = cache_max // 8
+        raising = (i * base for i in range(1, 9))
+        choice = set([(i, '{0} MB'.format(i)) for i in raising])
+        if self.instance:
+            attr = getattr(self.instance, field_name)
+            choice.add((attr, '{0} MB'.format(attr)))
+        self.fields[field_name] = ChoiceField(choices=sorted(choice))
 
     class Meta(object):
         model = Gallery
 
 
-class GalleryForm(ModelForm):
+class AdminAlbumForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(AdminAlbumForm, self).__init__(*args, **kwargs)
+        if self.instance.gallery_id:
+            self.fields['parent'].queryset = Album.objects \
+                .filter(gallery__user=self.instance.gallery.user, gallery=self.instance.gallery)
+
+    def clean_parent(self):
+        gallery = self.cleaned_data['gallery']
+        album = self.cleaned_data['parent']
+        if 'gallery' in self.changed_data:
+            return gallery.top_album
+        if album.gallery != gallery:
+            raise ValidationError('Album must be from {0} gallery'.format(gallery))
+        return album
+
     class Meta(object):
-        model = Gallery
+        model = Album
+
+
+class AlbumForm(ModelForm):
+    class Meta(object):
+        model = Album
         fields = ('title', 'visibility', 'description', 'time')
 
 

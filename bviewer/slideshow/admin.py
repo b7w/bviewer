@@ -2,7 +2,7 @@
 from django.contrib.admin import site
 
 from bviewer.profile.admin import profile
-from bviewer.core.models import Gallery
+from bviewer.core.models import Album
 from bviewer.profile.admin import ProfileModelAdmin
 from bviewer.slideshow.models import SlideShow
 
@@ -10,26 +10,26 @@ from bviewer.slideshow.models import SlideShow
 class SlideShowAdmin(ProfileModelAdmin):
     list_select_related = True
 
-    fields = ('id', 'gallery', 'user', 'timer', 'status', 'image_count', 'time',)
+    fields = ('id', 'album', 'user', 'timer', 'status', 'image_count', 'time',)
 
-    list_display = ('id', 'gallery_title', 'user', 'timer', 'status', 'image_count', 'time', )
-    list_filter = ('gallery__title', 'time',)
+    list_display = ('id', 'album_title', 'user', 'timer', 'status', 'image_count', 'time', )
+    list_filter = ('album__title', 'time',)
     ordering = ('-time', )
 
-    search_fields = ('gallery__title', 'user', 'status',)
+    search_fields = ('album__title', 'user', 'status',)
 
-    def gallery_title(self, obj):
-        return obj.gallery.title
+    def album_title(self, obj):
+        return obj.album.title
 
 
 site.register(SlideShow, SlideShowAdmin)
 
 
 class SlideShowProfile(SlideShowAdmin):
-    fields = ('id', 'gallery', 'timer', 'status', 'image_count', 'time',)
+    fields = ('id', 'album', 'timer', 'status', 'image_count', 'time',)
 
-    list_display = ('id', 'gallery_title', 'timer', 'status', 'image_count', 'time', )
-    list_filter = ('gallery__title', 'time',)
+    list_display = ('id', 'album_title', 'timer', 'status', 'image_count', 'time', )
+    list_filter = ('album__title', 'time',)
     ordering = ('-time', )
 
     readonly_fields = ('id', 'image_count',)
@@ -38,14 +38,14 @@ class SlideShowProfile(SlideShowAdmin):
         return False
 
     def queryset(self, request):
-        return super(SlideShowProfile, self).queryset(request).filter(gallery__user=request.user)
+        return super(SlideShowProfile, self).queryset(request).filter(album__user=request.user)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """
-        Show in drop down menu only user galleries
+        Show in drop down menu only user albums
         """
-        if db_field.name == 'gallery':
-            kwargs['queryset'] = Gallery.objects.filter(user=request.user)
+        if db_field.name == 'album':
+            kwargs['queryset'] = Album.objects.filter(user=request.user)
         return super(SlideShowProfile, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):

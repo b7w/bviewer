@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+
 from django.conf import settings
 from django.contrib.auth.views import login, logout
 from django.http import Http404
@@ -7,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 
-from bviewer.core.controllers import GalleryController, ImageController, VideoController, get_gallery_user
+from bviewer.core.controllers import AlbumController, ImageController, VideoController, get_gallery
 from bviewer.core.exceptions import ResizeOptionsError, FileError
 from bviewer.core.utils import decor_on, get_year_parameter
 
@@ -19,26 +20,26 @@ logger = logging.getLogger(__name__)
 @vary_on_cookie
 def index_view(request):
     """
-    Show home pages with galleries
+    Show home pages with albums
     """
-    holder = get_gallery_user(request)
-    if not holder:
+    gallery = get_gallery(request)
+    if not gallery:
         return message_view(request, message='No user defined')
 
-    controller = GalleryController(holder, request.user, uid=holder.top_gallery_id)
+    controller = AlbumController(gallery, request.user, uid=gallery.top_album_id)
     if not controller.exists():
-        return message_view(request, message='No main gallery')
+        return message_view(request, message='No main album')
 
     year_filter = get_year_parameter(request)
 
     main = controller.get_object()
-    galleries = controller.get_galleries(year=year_filter)
+    albums = controller.get_albums(year=year_filter)
     years = controller.get_available_years()
 
-    return render(request, 'core/galleries.html', {
-        'holder': holder,
+    return render(request, 'core/gallery.html', {
+        'gallery': gallery,
         'main': main,
-        'galleries': galleries,
+        'albums': albums,
         'year_filter': year_filter,
         'years': years,
     })
@@ -46,39 +47,39 @@ def index_view(request):
 
 @cache_page(60 * 60)
 @vary_on_cookie
-def gallery_view(request, uid):
+def album_view(request, uid):
     """
-    Show sub galleries or images with videos
+    Show sub albums or images with videos
     """
-    holder = get_gallery_user(request)
-    if not holder:
+    gallery = get_gallery(request)
+    if not gallery:
         return message_view(request, message='No user defined')
 
-    controller = GalleryController(holder, request.user, uid=uid)
+    controller = AlbumController(gallery, request.user, uid=uid)
     if not controller.exists():
-        return message_view(request, message='No such gallery')
+        return message_view(request, message='No such album')
 
     main = controller.get_object()
-    galleries, images, videos, years = None, None, None, None
+    albums, images, videos, years = None, None, None, None
     year_filter = get_year_parameter(request)
     if controller.is_album():
-        template = 'core/gallery.html'
+        template = 'core/album.html'
         videos = controller.get_videos()
         images = controller.get_images()
     else:
-        template = 'core/galleries.html'
-        galleries = controller.get_galleries()
+        template = 'core/gallery.html'
+        albums = controller.get_albums()
         years = controller.get_available_years()
 
     return render(request, template, {
-        'holder': holder,
+        'gallery': gallery,
         'main': main,
-        'galleries': galleries,
+        'albums': albums,
         'videos': videos,
         'images': images,
         'year_filter': year_filter,
         'years': years,
-        'back': dict(gallery_id=main.parent_id, home=holder.top_gallery_id == main.parent_id),
+        'back': dict(album_id=main.parent_id, home=gallery.top_album_id == main.parent_id),
     })
 
 
@@ -88,20 +89,20 @@ def image_view(request, uid):
     """
     Show image with description
     """
-    holder = get_gallery_user(request)
-    if not holder:
+    gallery = get_gallery(request)
+    if not gallery:
         return message_view(request, message='No user defined')
 
-    controller = ImageController(holder, request.user, uid)
-    image = controller.get_object()
-    if image is None:
+    controller = ImageController(gallery, request.user, uid)
+    if not controller.exists():
         return message_view(request, message='No such image')
+    image = controller.get_object()
 
     return render(request, 'core/image.html', {
-        'holder': holder,
-        'gallery': image.gallery,
+        'gallery': gallery,
+        'album': image.album,
         'image': image,
-        'back': dict(gallery_id=image.gallery_id),
+        'back': dict(album_id=image.album_id),
     })
 
 
@@ -111,21 +112,21 @@ def video_view(request, uid):
     """
     Show video with description
     """
-    holder = get_gallery_user(request)
-    if not holder:
+    gallery = get_gallery(request)
+    if not gallery:
         return message_view(request, message='No user defined')
 
-    controller = VideoController(holder, request.user, uid)
-    video = controller.get_object()
-    if video is None:
+    controller = VideoController(gallery, request.user, uid)
+    if not controller.exists():
         return message_view(request, message='No such video')
+    video = controller.get_object()
 
     return render(request, 'core/video.html', {
-        'holder': holder,
-        'gallery': video.gallery,
+        'gallery': gallery,
+        'album': video.album,
         'video': video,
-        'back': dict(gallery_id=video.gallery_id),
-    })
+        'back': dict(album_id=video.album_id),
+        })
 
 
 @decor_on(settings.VIEWER_DOWNLOAD_RESPONSE['CACHE'], cache_page, 60 * 60)
@@ -134,22 +135,21 @@ def download_video_thumbnail_view(request, uid):
     """
     Get video thumbnail from video hosting and cache it
     """
-    holder = get_gallery_user(request)
-    if not holder:
+    gallery = get_gallery(request)
+    if not gallery:
         raise Http404('No user defined')
 
-    controller = VideoController(holder, request.user, uid)
-    video = controller.get_object()
-    if video is None:
+    controller = VideoController(gallery, request.user, uid)
+    if not controller.exists():
         raise Http404('No such video')
 
     try:
         return controller.get_response('small')
     except ResizeOptionsError as e:
-        logger.error('id:%s, holder:%s \n %s', uid, holder, e)
+        logger.error('id:%s, gallery:%s \n %s', uid, gallery, e)
         return message_view(request, message=e)
     except FileError as e:
-        logger.error('id:%s, holder:%s \n %s', uid, holder, e)
+        logger.error('id:%s, gallery:%s \n %s', uid, gallery, e)
         raise Http404('Oops no video thumbnail found')
 
 
@@ -159,23 +159,22 @@ def download_image_view(request, size, uid):
     """
     Get image with special size
     """
-    holder = get_gallery_user(request)
-    if not holder:
+    gallery = get_gallery(request)
+    if not gallery:
         raise Http404('No user defined')
 
-    controller = ImageController(holder, request.user, uid)
-    image = controller.get_object()
-    if image is None:
+    controller = ImageController(gallery, request.user, uid)
+    if not controller.exists():
         raise Http404('No such image')
 
     try:
         return controller.get_response(size)
     except ResizeOptionsError as e:
-        logger.error('id:%s, holder:%s \n %s', uid, holder, e)
+        logger.error('id:%s, gallery:%s \n %s', uid, gallery, e)
         return message_view(request, message=e)
     except FileError as e:
-        logger.error('id:%s, holder:%s \n %s', uid, holder, e)
-        return redirect('/static/core/img/gallery.png')
+        logger.error('id:%s, gallery:%s \n %s', uid, gallery, e)
+        return redirect('/static/core/img/album.png')
 
 
 def message_view(request, title='Error', info=None, message=None):
@@ -194,32 +193,32 @@ def about_view(request):
     """
     Show about page
     """
-    holder = get_gallery_user(request)
-    if not holder:
+    gallery = get_gallery(request)
+    if not gallery:
         return message_view(request, message='No user defined')
 
     return render(request, 'core/about.html', {
-        'holder': holder,
-        'title': holder.about_title,
-        'text': holder.about_text,
+        'gallery': gallery,
+        'title': gallery.about_title,
+        'text': gallery.about_text,
     })
 
 
 def login_view(request):
     """
-    Proxy for `django.contrib.auth.views.login` + holder check
+    Proxy for `django.contrib.auth.views.login` + gallery check
     """
-    holder = get_gallery_user(request)
-    if not holder:
+    gallery = get_gallery(request)
+    if not gallery:
         return message_view(request, message='No user defined')
-    return login(request, template_name='core/login.html', extra_context=dict(holder=holder))
+    return login(request, template_name='core/login.html', extra_context=dict(gallery=gallery))
 
 
 def logout_view(request):
     """
-    Proxy for `django.contrib.auth.views.logout` + holder check
+    Proxy for `django.contrib.auth.views.logout` + gallery check
     """
-    holder = get_gallery_user(request)
-    if not holder:
+    gallery = get_gallery(request)
+    if not gallery:
         return message_view(request, message='No user defined')
     return logout(request, next_page='/')

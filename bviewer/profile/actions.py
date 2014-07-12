@@ -38,5 +38,5 @@ def bulk_time_update(model_admin, request, queryset):
 
 def update_time_from_exif(model_admin, request, queryset):
     for image in queryset:
-        storage = ImageStorage(image.gallery.user)
+        storage = ImageStorage(image.album.user)
         set_time_from_exif(storage, image, save=True)
