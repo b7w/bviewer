@@ -4,6 +4,17 @@ Release notes
 
 .. index:: Release notes
 
+| **v1.1**
+| Change database architecture. Need database scheme update.
+
+| ``The changes in database to heavy,
+  it is recommended to dump data and create structure from scratch``
+
+* Refactor all *gallery* to *album*
+* Split proxy user model. Now user can have multiple galleries.
+* Add access rules to allow users view hidden and private albums
+
+
 | **v1.0.9** - 4.06.2014
 | Add some features to profile and improve mobile styles.
 

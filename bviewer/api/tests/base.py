@@ -11,8 +11,7 @@ class BaseResourceTestCase(TestCase):
         settings.TEST = True
 
         self.client = ResourceClient()
-        self.data = TestData()
-        self.data.load_all()
+        self.data = TestData().load_all()
 
     def login_user(self, user):
         self.assertTrue(self.client.login(username=user.username, password=TestData.PASSWORD))

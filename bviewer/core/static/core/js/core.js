@@ -73,7 +73,7 @@ var core = {
             else
                 height = height + jQuery(window).height() / 2;
 
-            jQuery('.gallery img[data-src]').each(function (i, img) {
+            jQuery('.album img[data-src]').each(function (i, img) {
                 var image = jQuery(img);
                 if (image.offset().top < height) {
                     image.attr('src', image.attr('data-src'));

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
 from mock import Mock
 
 from django.conf import settings
 from django.test import TestCase
 
-from bviewer.core.controllers import domain_match, get_gallery_user
-from bviewer.core.models import ProxyUser
+from bviewer.core.controllers import domain_match, get_gallery
+from bviewer.core.models import Gallery
 
 
 def request_mock(host, user=None):
@@ -36,30 +37,31 @@ class UtilsTestCase(TestCase):
         self.assertTrue(match)
         self.assertEqual(match.groups(), (None, '172.17.1.10', '80'))
 
-    def test_gallery_user(self):
+    def test_album_user(self):
         """
-        Tests get_gallery_user
+        Tests get_album_user
         """
-        settings.VIEWER_USER_ID = None
-        user = ProxyUser.objects.create(username='User')
+        settings.VIEWER_GALLERY_ID = None
+        user = User.objects.create_user('User', 'user@user.com', 'test')
+        gallery = Gallery.objects.create(user=user)
 
         request = request_mock('user.example.com')
-        holder = get_gallery_user(request)
-        self.assertEqual(holder, user)
+        obj = get_gallery(request)
+        self.assertEqual(obj, gallery)
 
         request = request_mock('www.user.example.com:8000')
-        holder = get_gallery_user(request)
-        self.assertEqual(holder, user)
+        obj = get_gallery(request)
+        self.assertEqual(obj, gallery)
 
         request = request_mock('user.example.com')
-        holder = get_gallery_user(request)
-        self.assertEqual(holder, user)
+        obj = get_gallery(request)
+        self.assertEqual(obj, gallery)
 
         request = request_mock('example.com')
-        holder = get_gallery_user(request)
-        self.assertIsNone(holder)
+        obj = get_gallery(request)
+        self.assertIsNone(obj)
 
-        settings.VIEWER_USER_ID = user.id
+        settings.VIEWER_GALLERY_ID = gallery.id
         request = request_mock('example.com')
-        holder = get_gallery_user(request)
-        self.assertEqual(holder, user)
+        obj = get_gallery(request)
+        self.assertEqual(obj, gallery)

@@ -5,7 +5,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.encoding import smart_text
 
-from bviewer.core.controllers import get_gallery_user, GalleryController
+from bviewer.core.controllers import get_gallery, AlbumController
 from bviewer.core.exceptions import FileError
 from bviewer.core.files.response import download_response
 from bviewer.core.files.storage import ImageStorage
@@ -21,16 +21,16 @@ logger = logging.getLogger(__name__)
 @login_required
 @permission_required('core.user_holder')
 def images_view(request, uid):
-    holder = get_gallery_user(request)
-    if not holder:
+    gallery = get_gallery(request)
+    if not gallery:
         raise Http404()
 
-    controller = GalleryController(holder, request.user, uid=uid)
+    controller = AlbumController(gallery, request.user, uid=uid)
     if not controller.exists():
-        return message_view(request, message='No such gallery')
+        return message_view(request, message='No such album')
 
     images = controller.get_images()
-    storage = ImageStorage(holder)
+    storage = ImageStorage(gallery)
     path = request.GET.get('p', '')
     try:
         image_paths = storage.list(path, saved_images=images)
@@ -39,7 +39,7 @@ def images_view(request, uid):
         logger.exception(e)
         return message_view(request, message=smart_text(e))
     return render(request, 'profile/images.html', {
-        'gallery': controller.get_object(),
+        'album': controller.get_object(),
         'folder': folder,
         'title': 'Select images',
     })
@@ -47,14 +47,14 @@ def images_view(request, uid):
 
 @login_required
 @permission_required('core.user_holder')
-def gallery_pre_cache(request, uid):
-    holder = get_gallery_user(request)
-    if not holder:
+def album_pre_cache(request, uid):
+    gallery = get_gallery(request)
+    if not gallery:
         raise Http404()
 
-    controller = GalleryController(holder, request.user, uid=uid)
+    controller = AlbumController(gallery, request.user, uid=uid)
     if not controller.exists():
-        return message_view(request, message='No such gallery')
+        return message_view(request, message='No such album')
 
     try:
         controller.pre_cache()
@@ -69,7 +69,7 @@ def gallery_pre_cache(request, uid):
 def download_image(request):
     if request.GET.get('p', None):
         path = request.GET['p']
-        user = get_gallery_user(request)
+        user = get_gallery(request)
         storage = ImageStorage(user)
         options = ImageOptions.from_settings('tiny')
         image_path = storage.get_path(path, options)

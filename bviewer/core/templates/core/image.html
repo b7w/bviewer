@@ -1,12 +1,12 @@
 {% extends 'core/base.html' %}
 
-{% block title %}{{ gallery.title }}{% endblock %}
+{% block title %}{{ album.title }}{% endblock %}
 
 {% block main %}
-    <div class="gallery-title">
-        <h2>{{ gallery.title }}</h2>
+    <div class="album-title">
+        <h2>{{ album.title }}</h2>
 
-        <p class="description pull-left">{{ gallery.description|linebreaksbr }}</p>
+        <p class="description pull-left">{{ album.description|linebreaksbr }}</p>
 
         <p class="pull-right">
             <a href="{% url 'core.download' 'full' image.id %}">Download full image</a>

@@ -9,6 +9,10 @@ class AdvanceTestCase(BaseResourceTestCase):
         self.login_user(self.data.user_b7w)
         response = self.client.rest_get('/api/v1/gallery/?user__self')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.objects), 1)
+
+        response = self.client.rest_get('/api/v1/album/?user__self')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.objects), 5)
 
         response = self.client.rest_get('/api/v1/image/?user__self')

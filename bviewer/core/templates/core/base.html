@@ -26,7 +26,7 @@
 <nav class="nav-fixed">
     <div class="container">
         <div class="nav">
-            <a class="view-full brand" href="{% url 'core.home' %}">Believe Viewer</a>
+            <a class="view-full brand" href="{% url 'core.home' %}">BelieveViewer</a>
 
             <ul class="pull-left">
                 <li><a class="view-middle-hide" href="{% url 'core.home' %}">Home</a></li>
@@ -38,7 +38,7 @@
                     {% if back.home %}
                         <li><a href="{% url 'core.home' %}">Back</a></li>
                     {% else %}
-                        <li><a href="{% url 'core.gallery' back.gallery_id %}">Back</a></li>
+                        <li><a href="{% url 'core.album' back.album_id %}">Back</a></li>
                     {% endif %}
                     <li class="divider-vertical"></li>
                 {% endif %}
@@ -67,7 +67,7 @@
 <footer>
     <div class="container">
         <p>
-            Copyright &copy; {% now "Y" %} <a href="mailto:{{ holder.email }}">{{ holder.username }}</a>
+            Copyright &copy; {% now "Y" %} <a href="mailto:{{ gallery.user.email }}">{{ gallery.user.username }}</a>
         </p>
 
         <p>

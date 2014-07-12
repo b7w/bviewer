@@ -4,9 +4,9 @@ from django.utils.encoding import smart_text
 from bviewer.core.tests.base import BaseViewTestCase
 
 
-class PrivateGalleriesTestCase(BaseViewTestCase):
+class PrivateAlbumsTestCase(BaseViewTestCase):
     """
-    Create private gallery and not.
+    Create private album and not.
     Test that only owner have access to private.
     """
 
@@ -23,10 +23,10 @@ class PrivateGalleriesTestCase(BaseViewTestCase):
         self.assertContent(url, 'Second')
         self.assertContent(url, 'Third')
 
-    def test_gallery(self):
-        url_first = self.reverse('core.gallery', self.data.gallery1.id)
+    def test_album(self):
+        url_first = self.reverse('core.album', self.data.album1.id)
         self.assertContent(url_first, 'First')
-        url_second = self.reverse('core.gallery', self.data.gallery2.id)
+        url_second = self.reverse('core.album', self.data.album2.id)
         self.assertContent(url_second, 'Error')
 
         self.login()
