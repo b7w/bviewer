@@ -43,7 +43,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'BelieveViewer'
-copyright = '2013, B7W'
+copyright = '2014, B7W'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

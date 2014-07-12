@@ -5,6 +5,9 @@ Frequently Asked Questions
 .. index:: FAQ
 
 
+| For any questions please write email bviewer@isudo.ru
+
+
 General questions
 =================
 
@@ -39,22 +42,6 @@ Are there any comments?
   If you want to talk, do it in social networks.
 
 
-Registration? Privacy?
-----------------------
-
-.. index:: Registration? Privacy?
-
-| It is small service and if we ask users to make account they go away.
-  Also permission management is hard work.
-  So account available only for gallery holders.
-
-| But there are some ways to stay private.
-  Set album hidden, available only via secret link.
-  And set it private, available only for holder.
-
-| Like album, images have visibility settings.
-  They inherit it from album. And there is no way to download it
-  if you have not such permission. There aren't directs links.
 
 Management questions
 ====================
@@ -71,4 +58,5 @@ Where image upload?
   The idea is that your hole image storage mounted from somewhere.
   Today images have big size, and it is too expensive to store it twice.
 
-| At all there is no complex management system. Just files on disk -> nice view, that's all
+| Maybe some day it will be support connecting to
+  Yandex.Disk/Amazon S3/DropBox/Google Drive
