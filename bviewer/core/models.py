@@ -76,7 +76,7 @@ class Gallery(models.Model):
     description = models.CharField(max_length=256)
 
     url = models.CharField(max_length=16, unique=True)
-    home = models.CharField(max_length=256, blank=True, default='')
+    home = models.CharField(max_length=512, blank=True, default='')
 
     cache_size = models.PositiveIntegerField(default=32,
                                              validators=[MinValueValidator(CACHE_SIZE_MIN), MaxValueValidator(CACHE_SIZE_MAX)])
@@ -168,7 +168,7 @@ class Album(models.Model):
 class Image(models.Model):
     id = models.CharField(max_length=32, default=uuid_pk(length=12), primary_key=True)
     album = models.ForeignKey(Album)
-    path = models.CharField(max_length=256)
+    path = models.CharField(max_length=512)
     time = models.DateTimeField(default=timezone.now)
 
     objects = ProxyManager()

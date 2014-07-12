@@ -27,11 +27,10 @@ API Reference
 * :doc:`Settings </ref/settings>`
 
 
-Releases
-========
+Notes
+=====
 
-* :doc:`Release notes </releases/notes>`
-* :doc:`ToDo </releases/todo>`
+* :doc:`Release notes </notes/release>`
 
 
 Indices and tables

@@ -7,14 +7,12 @@ Release notes
 | **v1.1 dev**
 | Change database architecture. Need database scheme update.
 
-| ``ALTER TABLE core_profile RENAME COLUMN top_gallery_id TO top_album_id;``
-| ``ALTER TABLE core_gallery RENAME COLUMN gallery_sorting TO album_sorting;``
-| ``ALTER TABLE core_image RENAME COLUMN gallery_id TO album_id;``
-| ``ALTER TABLE core_video RENAME COLUMN gallery_id TO album_id;``
-| ``ALTER TABLE core_gallery RENAME TO core_album;``
-| ``ALTER TABLE slideshow_slideshow RENAME COLUMN gallery_id TO album_id;``
+| ``The changes in database to heavy,
+  it is recommended to dump data and create structure from scratch``
 
 * Refactor all *gallery* to *album*
+* Split proxy user model. Now user can have multiple galleries.
+* Add access rules to allow users view hidden and private albums
 
 
 | **v1.0.9** - 4.06.2014
