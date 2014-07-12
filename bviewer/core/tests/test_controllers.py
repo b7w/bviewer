@@ -7,6 +7,20 @@ from bviewer.core.tests.data import TestData
 
 
 class ClearControllersTestCase(TestCase):
+    def test_album_controller_params(self):
+        data = TestData().load_users().load_galleries()
+        gallery = data.gallery_b7w
+        top_album = gallery.top_album
+
+        controller = AlbumController(gallery, gallery.user, uid=top_album.id)
+        self.assertTrue(controller.is_owner())
+        self.assertTrue(controller.user_has_access())
+
+        controller = AlbumController(gallery, None, uid=top_album.id)
+        self.assertFalse(controller.is_owner())
+        self.assertFalse(controller.user_has_access())
+
+
     def test_album_controller_all_sub_albums(self):
         """
         Tests AlbumController.get_all_sub_albums
