@@ -14,8 +14,8 @@ from bviewer.core.views import message_view
 
 logger = logging.getLogger(__name__)
 
-NO_USER_DEFINED = 'No user defined'
-NO_GALLERY_FOUND = 'No album found'
+GALLERY_NOT_FOUND = 'No gallery found'
+ALBUM_NOT_FOUND = 'No album found'
 NOT_ALBUM = 'It is not album with images'
 NOT_ALLOW_ARCHIVING = 'Archiving is disabled for this album'
 
@@ -27,11 +27,11 @@ def index_view(request, gid):
     """
     gallery = get_gallery(request)
     if not gallery:
-        return message_view(request, message=NO_USER_DEFINED)
+        return message_view(request, message=GALLERY_NOT_FOUND)
 
     controller = AlbumController(gallery, request.user, uid=gid)
     if not controller.exists():
-        return message_view(request, message=NO_GALLERY_FOUND)
+        return message_view(request, message=ALBUM_NOT_FOUND)
 
     if not controller.is_album():
         return message_view(request, message=NOT_ALBUM)
@@ -67,11 +67,11 @@ def status_view(request, gid, uid):
     """
     gallery = get_gallery(request)
     if not gallery:
-        raise Http404(NO_USER_DEFINED)
+        raise Http404(GALLERY_NOT_FOUND)
 
     controller = AlbumController(gallery, request.user, gid)
     if not controller.exists():
-        return HttpResponse(json.dumps(dict(error=NO_GALLERY_FOUND)))
+        return HttpResponse(json.dumps(dict(error=ALBUM_NOT_FOUND)))
 
     if not controller.is_album():
         return HttpResponse(json.dumps(dict(error=NOT_ALBUM)))
@@ -92,11 +92,11 @@ def download_view(request, gid, uid):
     """
     gallery = get_gallery(request)
     if not gallery:
-        raise Http404(NO_USER_DEFINED)
+        raise Http404(GALLERY_NOT_FOUND)
 
     controller = AlbumController(gallery, request.user, uid=gid)
     if not controller.exists():
-        raise Http404(NO_GALLERY_FOUND)
+        raise Http404(ALBUM_NOT_FOUND)
 
     if not controller.is_album():
         return message_view(request, message=NOT_ALBUM)
