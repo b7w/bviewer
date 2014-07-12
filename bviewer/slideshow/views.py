@@ -9,6 +9,8 @@ from bviewer.core.views import message_view
 
 logger = logging.getLogger(__name__)
 
+GALLERY_NOT_FOUND = 'No gallery found'
+
 
 def index_view(request):
     """
@@ -16,7 +18,7 @@ def index_view(request):
     """
     gallery = get_gallery(request)
     if not gallery:
-        return message_view(request, message='No user defined')
+        return message_view(request, message=GALLERY_NOT_FOUND)
 
     controller = AlbumController(gallery, request.user, uid=gallery.top_album_id)
     if not controller.exists():
@@ -38,7 +40,7 @@ def album_view(request, album_id):
     """
     gallery = get_gallery(request)
     if not gallery:
-        return message_view(request, message='No user defined')
+        return message_view(request, message=GALLERY_NOT_FOUND)
 
     controller = AlbumController(gallery, request.user, uid=album_id)
     if not controller.exists():
