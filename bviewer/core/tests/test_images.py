@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from mock import Mock
 from django.utils.timezone import utc
 
 from bviewer.core.images import CacheImage
@@ -49,5 +50,5 @@ class ExifTest(BaseImageStorageTestCase):
         self.assertIsNone(exif.ctime)
 
         exif = self.storage.exif(self.path)
-        exif._data = dict(DateTimeOriginal='2013:04:14 12:00:01')
+        exif._tags = {'EXIF DateTimeOriginal': Mock(values='2013:04:14 12:00:01')}
         self.assertEqual(exif.ctime, datetime(2013, 4, 14, 12, 0, 1, tzinfo=utc))

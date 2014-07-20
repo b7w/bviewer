@@ -3,6 +3,7 @@ django>=1.6,<1.7
 django-rq
 djangorestframework>=2.3,<2.4
 django-filter
+exifread
 redis
 pytz
 
