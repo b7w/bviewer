@@ -4,7 +4,13 @@ Release notes
 
 .. index:: Release notes
 
-| **v1.1**
+| **v1.1.1 dev**
+| Add registration
+
+* Fix api for users
+
+
+| **v1.1 - 12.07.2014**
 | Change database architecture. Need database scheme update.
 
 | ``The changes in database to heavy,
