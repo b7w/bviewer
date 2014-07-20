@@ -3,9 +3,11 @@ django>=1.6,<1.7
 django-rq
 djangorestframework>=2.3,<2.4
 django-filter
-exifread
 redis
 pytz
+
+# python 3 support only in develop
+-e git+https://github.com/ianare/exif-py.git@develop#egg=ExifRead
 
 # build
 pillow
