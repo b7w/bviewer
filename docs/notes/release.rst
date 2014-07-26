@@ -8,6 +8,7 @@ Release notes
 | Add registration
 
 * Fix api for users
+* Add album and image count on views
 
 
 | **v1.1 - 12.07.2014**
