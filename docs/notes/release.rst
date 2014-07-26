@@ -8,6 +8,7 @@ Release notes
 | Add registration
 
 * Fix api for users
+* Fix next/previous image on shadow box on ipad
 * Add album and image count on views
 
 
