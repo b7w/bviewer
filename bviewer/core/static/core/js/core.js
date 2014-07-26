@@ -1,6 +1,10 @@
 var core = {
     shadowbox: function () {
         var isMobile = window.matchMedia('only screen and (max-width: 480px)').matches;
+        // The trick for jQuery.delegate
+        if (/ip(hone|od)|ipad/i.test(navigator.userAgent)) {
+            jQuery("body").css("cursor", "pointer");
+        }
 
         link2id = function (item) {
             return jQuery(item).parent().parent().attr('id')
