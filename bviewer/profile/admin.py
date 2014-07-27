@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 from collections import Counter
-
 from django.contrib.admin import AdminSite, ModelAdmin, TabularInline
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
@@ -197,8 +196,6 @@ class ProfileAlbumAdmin(ProfileModelAdmin):
         return super(ProfileAlbumAdmin, self).queryset(request).filter(gallery__user=request.user)
 
     def save_model(self, request, obj, form, change):
-        if not obj.parent:
-            obj.parent = obj.gallery.top_album
         thumbnail_id = form.data['thumbnail_id']
         if thumbnail_id != 'None':
             obj.thumbnail_id = thumbnail_id
