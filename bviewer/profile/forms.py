@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
 from datetime import timedelta
-
 from django.contrib.auth.forms import UserChangeForm
 from django.core.exceptions import ValidationError
 from django.forms import Form, ModelForm, ChoiceField, CharField, MultipleHiddenInput
@@ -72,12 +71,19 @@ class AdminAlbumForm(ModelForm):
             self.fields['parent'].queryset = Album.objects \
                 .filter(gallery__user=self.instance.gallery.user, gallery=self.instance.gallery)
 
-    def clean_parent(self):
+    def clean_gallery(self):
         gallery = self.cleaned_data['gallery']
+        if self.instance.id == self.instance.gallery.top_album_id \
+                and self.instance.gallery_id != gallery.id:
+            raise ValidationError('You can not change gallery top album')
+        return gallery
+
+    def clean_parent(self):
+        gallery = self.cleaned_data.get('gallery')
         album = self.cleaned_data['parent']
         if 'gallery' in self.changed_data:
-            return gallery.top_album
-        if album.gallery != gallery:
+            return None
+        if gallery and album and album.gallery != gallery:
             raise ValidationError('Album must be from {0} gallery'.format(gallery))
         return album
 
