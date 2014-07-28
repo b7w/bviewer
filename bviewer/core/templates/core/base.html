@@ -43,6 +43,7 @@
                     <li class="divider-vertical"></li>
                 {% endif %}
                 {% if request.user.is_authenticated %}
+                    <li><a href="#">{{ request.user.username }}</a></li>
                     {% if perms.core.user_holder %}
                         <li class="view-full"><a href="{% url 'profile:index' %}">Profile</a></li>
                     {% endif %}
