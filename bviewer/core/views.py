@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
 import logging
-
 from django.conf import settings
 from django.contrib.auth.views import login, logout
 from django.http import Http404
@@ -10,6 +10,7 @@ from django.views.decorators.vary import vary_on_cookie
 
 from bviewer.core.controllers import AlbumController, ImageController, VideoController, get_gallery
 from bviewer.core.exceptions import ResizeOptionsError, FileError
+from bviewer.core.forms import RegistrationForm
 from bviewer.core.utils import decor_on, get_year_parameter
 
 
@@ -224,3 +225,25 @@ def logout_view(request):
     if not gallery:
         return message_view(request, message=GALLERY_NOT_FOUND)
     return logout(request, next_page='/')
+
+
+def registration_view(request):
+    """
+    Register view
+    """
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password1']
+            user = User(username=username, email=email, is_active=False)
+            user.set_password(password)
+            user.save()
+            return redirect('/')
+
+    else:
+        form = RegistrationForm()
+    return render(request, 'core/registration.html', {
+        'form': form
+    })
