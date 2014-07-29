@@ -5,11 +5,14 @@ Release notes
 .. index:: Release notes
 
 | **v1.1.1 dev**
-| Add registration
+| Add registration. Change user access behavior. Need database scheme update.
+
+| ``ALTER TABLE core_access ADD is_active BOOL DEFAULT FALSE NOT NULL;``
 
 * Fix api for users
 * Fix next/previous image on shadow box on ipad
 * Add album and image count on views
+* Add form for registration request
 
 
 | **v1.1 - 12.07.2014**
