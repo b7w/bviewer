@@ -11,7 +11,7 @@ class UserSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('detail', 'id', 'username', 'date_joined', 'last_login', 'about_title', 'about_text',)
+        fields = ('detail', 'id', 'username', 'date_joined', 'last_login', )
 
 
 class GallerySerializer(ModelSerializer):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
 import logging
-
 from django.conf import settings
 from django.contrib.auth.views import login, logout
 from django.http import Http404
@@ -9,11 +9,15 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 
 from bviewer.core.controllers import AlbumController, ImageController, VideoController, get_gallery
+from bviewer.core.dao import user_dao
 from bviewer.core.exceptions import ResizeOptionsError, FileError
+from bviewer.core.forms import RegistrationForm
 from bviewer.core.utils import decor_on, get_year_parameter
 
 
 logger = logging.getLogger(__name__)
+
+GALLERY_NOT_FOUND = 'No gallery found'
 
 
 @cache_page(60 * 60)
@@ -24,11 +28,11 @@ def index_view(request):
     """
     gallery = get_gallery(request)
     if not gallery:
-        return message_view(request, message='No user defined')
+        return message_view(request, message=GALLERY_NOT_FOUND)
 
     controller = AlbumController(gallery, request.user, uid=gallery.top_album_id)
     if not controller.exists():
-        return message_view(request, message='No main album')
+        return message_view(request, message='No main album found')
 
     year_filter = get_year_parameter(request)
 
@@ -53,7 +57,7 @@ def album_view(request, uid):
     """
     gallery = get_gallery(request)
     if not gallery:
-        return message_view(request, message='No user defined')
+        return message_view(request, message=GALLERY_NOT_FOUND)
 
     controller = AlbumController(gallery, request.user, uid=uid)
     if not controller.exists():
@@ -91,7 +95,7 @@ def image_view(request, uid):
     """
     gallery = get_gallery(request)
     if not gallery:
-        return message_view(request, message='No user defined')
+        return message_view(request, message=GALLERY_NOT_FOUND)
 
     controller = ImageController(gallery, request.user, uid)
     if not controller.exists():
@@ -114,7 +118,7 @@ def video_view(request, uid):
     """
     gallery = get_gallery(request)
     if not gallery:
-        return message_view(request, message='No user defined')
+        return message_view(request, message=GALLERY_NOT_FOUND)
 
     controller = VideoController(gallery, request.user, uid)
     if not controller.exists():
@@ -126,7 +130,7 @@ def video_view(request, uid):
         'album': video.album,
         'video': video,
         'back': dict(album_id=video.album_id),
-        })
+    })
 
 
 @decor_on(settings.VIEWER_DOWNLOAD_RESPONSE['CACHE'], cache_page, 60 * 60)
@@ -137,7 +141,7 @@ def download_video_thumbnail_view(request, uid):
     """
     gallery = get_gallery(request)
     if not gallery:
-        raise Http404('No user defined')
+        raise Http404(GALLERY_NOT_FOUND)
 
     controller = VideoController(gallery, request.user, uid)
     if not controller.exists():
@@ -161,7 +165,7 @@ def download_image_view(request, size, uid):
     """
     gallery = get_gallery(request)
     if not gallery:
-        raise Http404('No user defined')
+        raise Http404(GALLERY_NOT_FOUND)
 
     controller = ImageController(gallery, request.user, uid)
     if not controller.exists():
@@ -195,7 +199,7 @@ def about_view(request):
     """
     gallery = get_gallery(request)
     if not gallery:
-        return message_view(request, message='No user defined')
+        return message_view(request, message=GALLERY_NOT_FOUND)
 
     return render(request, 'core/about.html', {
         'gallery': gallery,
@@ -210,7 +214,7 @@ def login_view(request):
     """
     gallery = get_gallery(request)
     if not gallery:
-        return message_view(request, message='No user defined')
+        return message_view(request, message=GALLERY_NOT_FOUND)
     return login(request, template_name='core/login.html', extra_context=dict(gallery=gallery))
 
 
@@ -220,5 +224,28 @@ def logout_view(request):
     """
     gallery = get_gallery(request)
     if not gallery:
-        return message_view(request, message='No user defined')
+        return message_view(request, message=GALLERY_NOT_FOUND)
     return logout(request, next_page='/')
+
+
+def registration_view(request):
+    """
+    Register view
+    """
+    gallery = get_gallery(request)
+    if not gallery:
+        return message_view(request, message=GALLERY_NOT_FOUND)
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password1']
+            user_dao.create_gallery_user(gallery, username, email, password)
+            return redirect('/')
+
+    else:
+        form = RegistrationForm()
+    return render(request, 'core/registration.html', {
+        'form': form
+    })

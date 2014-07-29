@@ -66,7 +66,7 @@ Models
 .. index:: Access model
 .. _access-model:
 
-| *Access model*. Add access to users for hidden and private galleries.
+| *Access model*. Add access to users for hidden and private albums. Also map users for galleries.
 
 .. code-block:: python
 

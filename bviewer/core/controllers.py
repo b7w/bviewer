@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
 import re
-
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
@@ -73,8 +72,8 @@ class BaseController(object):
         if self.is_owner():
             return True
         if self.user and self.user.is_authenticated():
-            obj = Access.objects.safe_get(user=self.user, gallery=self.gallery)
-            return bool(obj)
+            obj = Access.objects.filter(user=self.user, gallery=self.gallery, is_active=True)
+            return obj.exists()
         return False
 
     def exists(self):

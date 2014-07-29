@@ -24,7 +24,11 @@ Requirements
 
 .. note::
 
-    App tested only with ubuntu 12.04, python 2.7 / 3.2, postgres 9 and uwsgi & nginx.
+    App tested only with ubuntu 12.04, python 2.7, postgres 9 and uwsgi & nginx.
+
+.. note::
+
+    Python 3 is not supported fully, there is some problems with libraries.
 
 
 Database driver and image library

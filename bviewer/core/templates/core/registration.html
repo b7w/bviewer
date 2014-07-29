@@ -1,15 +1,15 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Registration{% endblock %}
 
 {% block main %}
     <div class="message">
         <div>
-            <h1>Login
-                <span style="font-size: small;">authenticate please</span>
+            <h1>Request
+                <span style="font-size: small;">for registration</span>
             </h1>
         </div>
-        <form action="{% url 'core.login' %}" method="post">{% csrf_token %}
+        <form action="{% url 'core.registration' %}" method="post">{% csrf_token %}
             <ul class="unstyled">
                 {% for error in form.non_field_errors %}
                     <li class="error">{{ error|escape }}</li>
@@ -17,7 +17,10 @@
                 {% for error in form.username.errors %}
                     <li class="error">Username: {{ error|escape }}</li>
                 {% endfor %}
-                {% for error in form.password.errors %}
+                {% for error in form.email.errors %}
+                    <li class="error">Email: {{ error|escape }}</li>
+                {% endfor %}
+                {% for error in form.password1.errors %}
                     <li class="error">Password: {{ error|escape }}</li>
                 {% endfor %}
             </ul>
@@ -27,12 +30,19 @@
                            value="{{ form.username.value|default:"" }}">
                 </div>
                 <div>
-                    <input id="password" type="password" name="password" placeholder="Password">
+                    <input id="email" type="email" name="email" placeholder="Email"
+                           value="{{ form.email.value|default:"" }}">
+                </div>
+                <div>
+                    <input id="password1" type="password" name="password1" placeholder="Password">
+                </div>
+                <div>
+                    <input id="password2" type="password" name="password2" placeholder="Repeat password">
                 </div>
                 <div>
                     <input type="hidden" name="next" value="{{ next|default:'/' }}"/>
                 </div>
-                <button type="submit">Sign in</button>
+                <button type="submit">Send</button>
             </fieldset>
             <script>
                 document.getElementById('username').focus();
