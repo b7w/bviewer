@@ -110,7 +110,7 @@ class ControllersTestCase(TestCase):
         gallery = self.data.gallery_b7w
         album_id = gallery.top_album.id
 
-        Access.objects.create(user=self.data.user_keks, gallery=gallery)
+        Access.objects.create(user=self.data.user_keks, gallery=gallery, is_active=True)
         cnt = AlbumController(gallery, gallery.user, album_id)
         self.assertEqual(4, len(cnt.get_albums()))
         self.assertEqual(7, len(cnt.get_all_sub_albums()))

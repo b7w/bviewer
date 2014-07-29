@@ -6,6 +6,9 @@ django-filter
 redis
 pytz
 
+# python 3 support only in develop
+-e git+https://github.com/ianare/exif-py.git@develop#egg=ExifRead
+
 # build
 pillow
 psycopg2
