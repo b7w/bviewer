@@ -69,10 +69,23 @@ profile.register(User, ProfileUserAdmin)
 class ProfileAccessAdmin(ProfileModelAdmin):
     list_select_related = True
 
-    list_display = ('user', 'gallery')
-    list_filter = ('user', 'gallery')
+    list_display = ('user', 'gallery', 'is_active', )
+    list_filter = ('user', 'gallery', 'is_active', )
 
     ordering = ('gallery',)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def save_model(self, request, obj, form, change):
+        if change and 'is_active' in form.changed_data:
+            if obj.is_active and not obj.user.is_active:
+                obj.user.is_active = True
+                obj.user.save()
+        super(ProfileAccessAdmin, self).save_model(request, obj, form, change)
 
 
 profile.register(Access, ProfileAccessAdmin)
@@ -82,6 +95,7 @@ class AccessInline(TabularInline):
     model = Access
     verbose_name = 'Visible to user'
     verbose_name_plural = 'Visible to users'
+    can_delete = False
     extra = 0
 
 

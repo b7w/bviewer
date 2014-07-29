@@ -54,6 +54,7 @@ class ProxyManager(models.Manager):
 class Access(models.Model):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     gallery = models.ForeignKey('Gallery', on_delete=models.DO_NOTHING)
+    is_active = models.BooleanField(default=False)
 
     objects = ProxyManager()
 

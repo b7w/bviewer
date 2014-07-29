@@ -9,6 +9,7 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 
 from bviewer.core.controllers import AlbumController, ImageController, VideoController, get_gallery
+from bviewer.core.dao import user_dao
 from bviewer.core.exceptions import ResizeOptionsError, FileError
 from bviewer.core.forms import RegistrationForm
 from bviewer.core.utils import decor_on, get_year_parameter
@@ -231,15 +232,16 @@ def registration_view(request):
     """
     Register view
     """
+    gallery = get_gallery(request)
+    if not gallery:
+        return message_view(request, message=GALLERY_NOT_FOUND)
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data['username']
             email = form.cleaned_data['email']
             password = form.cleaned_data['password1']
-            user = User(username=username, email=email, is_active=False)
-            user.set_password(password)
-            user.save()
+            user_dao.create_gallery_user(gallery, username, email, password)
             return redirect('/')
 
     else:
