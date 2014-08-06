@@ -15,9 +15,21 @@ setup(
         'django-rq',
         'djangorestframework>=2.3,<2.4',
         'django-filter',
+        'redis',
         'pytz',
+        'ExifRead==2.0',
+        # to build
         'pillow',
         'psycopg2',
+        # for dev
+        'django-debug-toolbar',
+        'fabric',
+        'mock',
+        'mockredispy',
+        'sphinx',
+    ],
+    dependency_links=[
+        "git+https://github.com/ianare/exif-py.git@develop#egg=ExifRead-2.0"
     ],
     packages=['bviewer', 'bviewer.api', 'bviewer.api.tests', 'bviewer.core', 'bviewer.core.files', 'bviewer.core.tests',
               'bviewer.core.management', 'bviewer.core.management.commands', 'bviewer.archive', 'bviewer.profile',
