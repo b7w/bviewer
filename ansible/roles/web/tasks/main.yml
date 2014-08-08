@@ -1,0 +1,11 @@
+---
+
+- include: source.yml
+
+- include: redis.yml
+
+- include: django.yml
+
+- include: uwsgi.yml
+
+- include: nginx.yml

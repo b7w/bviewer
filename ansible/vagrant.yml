@@ -1,0 +1,14 @@
+---
+
+- name: Provision a vagrant machine
+  hosts: vagrant
+  sudo: yes
+  sudo_user: root
+  remote_user: vagrant
+  vars_files:
+    - vars/vagrant.yml
+    - vars/base.yml
+  roles:
+    - base
+    - db
+    - web

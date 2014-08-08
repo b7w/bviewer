@@ -1,0 +1,20 @@
+---
+
+- name: Install uWSGI
+  pip: name=uwsgi executable=pip3
+
+- name: Ensure that diretories exists
+  file: path="/etc/uwsgi" owner="{{ app.user }}" state=directory
+
+- name: Create the uWSGI config file
+  template: src=uwsgi.ini
+            dest=/etc/uwsgi/{{ app.name }}.ini
+            backup=yes
+
+- name: Create the uWSGI upstart config file
+  template: src=uwsgi.init.conf
+            dest=/etc/init/uwsgi.init.conf
+            backup=yes
+
+- name: Ensure uWSGI service is started
+  service: name=uwsgi state=started enabled=yes

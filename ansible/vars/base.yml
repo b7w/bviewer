@@ -1,0 +1,27 @@
+---
+
+system:
+  apt_update_cache: no
+
+app:
+  name: "bviewer"
+  domains: null
+  revision: "dev"
+  user: "bviewer"
+  path: "/home/bviewer/source"
+  cache_path: "/home/bviewer/cache"
+  log_path: "/home/bviewer/logs"
+
+db:
+  name: "bviewer"
+  user: "bviewer"
+  password: "roor"
+  host: "127.0.0.1"
+  port: ""
+
+email:
+  user: ""
+  password: ""
+
+share:
+  path: "/media/"

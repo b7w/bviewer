@@ -1,0 +1,12 @@
+---
+
+- name: Ensure redis ppa is installed
+  apt_repository: repo='ppa:rwky/redis'
+  tags: packages
+
+- name: Install Redis
+  apt: name=redis-server update_cache={{ system.apt_update_cache }} state=installed
+  tags: packages
+
+- name: Ensure the Redis service is running
+  service: name='redis-server' state=started enabled=yes
