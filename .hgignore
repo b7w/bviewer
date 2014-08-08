@@ -7,6 +7,9 @@ bviewer/settings/dev/\w*\.py
 \.pyo
 
 \.idea/
+ansible/\.vagrant/
+ansible/vagrant_ansible_inventory_default
+app\.conf\.py
 
 cache/
 tests/

@@ -1,0 +1,23 @@
+---
+
+- name: Create the app group
+  group: name="{{ app.user }}" state=present
+
+- name: Create the app user
+  user: name="{{ app.user }}" group="{{ app.user }}" state=present
+
+- name: Ensure that diretories exists
+  file: path="{{ item }}" owner="{{ app.user }}" group="www-data" state=directory
+  with_items:
+    - "{{ app.cache_path }}"
+    - "{{ app.log_path }}"
+    - "{{ share.path }}"
+
+- name: Ensure source code at proper revision
+  hg: repo=https://bitbucket.org/b7w/bviewer dest={{ app.path }} revision={{ app.revision }} purge=yes
+
+- name: Ensure that the app file permissions are set properly
+  file: path={{ app.path }}
+        recurse=yes
+        owner={{ app.user }}
+  notify: restart app

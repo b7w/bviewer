@@ -1,0 +1,28 @@
+---
+
+- name: Install psycopg2
+  pip: name=psycopg2 executable=pip3
+
+- name: Install app
+  shell: python3 setup.py install
+  args:
+    chdir: "{{ app.path }}"
+  tags: django
+
+- name: Create the app configuration file
+  template: src=app.conf.py
+            dest="{{ app.path }}/bviewer/settings/local.py"
+            backup=yes
+  tags: django
+
+- name: Run the Django syncdb command
+  shell: python3 manage.py syncdb --noinput
+  args:
+    chdir: "{{ app.path }}"
+  tags: django
+
+- name: Run Django collectstatic
+  shell: python3 manage.py collectstatic --noinput
+  args:
+    chdir: "{{ app.path }}"
+  tags: django

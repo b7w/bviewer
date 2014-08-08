@@ -1,0 +1,13 @@
+---
+
+- name: restart app
+  service: name=uwsgi state=restarted enabled=yes
+
+- name: restart nginx
+  service: name=nginx state=restarted enabled=yes
+
+- name: reload nginx
+  service: name=nginx state=reloaded
+
+- name: restart redis
+  service: name='redis-server' state=restarted enabled=yes

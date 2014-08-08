@@ -2,24 +2,25 @@
 #
 # Sample for 'local.py' settings
 #
-import os
 
-from bviewer.settings.django import *
+from bviewer.settings.project import *
+
+DEBUG = False
+TEMPLATE_DEBUG = DEBUG
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'Believe',
-        'USER': 'Test',
-        'PASSWORD': 'root',
-        'HOST': 'localhost',
-        'PORT': '',
+        'NAME': '{{ db.name }}',
+        'USER': '{{ db.user }}',
+        'PASSWORD': '{{ db.password }}',
+        'HOST': '{{ db.host }}',
+        'PORT': '{{ db.port }}',
         'TEST_NAME': 'Test',
     }
 }
 
-# https://docs.djangoproject.com/en/dev/topics/logging/#configuring-logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -30,16 +31,11 @@ LOGGING = {
         },
     },
     'handlers': {
-        'log-file': {
-            'level': 'ERROR',
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.join(PROJECT_PATH, "tmp/app.log"),
-            'mode': 'a',
-            'formatter': 'simple',
-        },
-        'console': {
+        'error': {
             'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': "{{ app.log_path }}/error.app.log",
+            'mode': 'a',
             'formatter': 'simple'
         },
         'mail_admins': {
@@ -49,13 +45,13 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['log-file'],
+            'handlers': ['mail_admins', 'error'],
             'level': 'ERROR',
             'propagate': True,
         },
         'bviewer': {
-            'handlers': ['log-file'],
-            'level': 'INFO',
+            'handlers': ['mail_admins', 'error'],
+            'level': 'ERROR',
             'propagate': True,
         },
     }
@@ -69,11 +65,13 @@ CACHES = {
 
 FORCE_SCRIPT_NAME = ''
 
-# app config
-VIEWER_CACHE_PATH = os.path.join(PROJECT_PATH, 'cache')
-VIEWER_STORAGE_PATH = PROJECT_PATH
+VIEWER_CACHE_PATH = '{{ app.cache_path }}'
+VIEWER_STORAGE_PATH = '{{ share.path }}'
 
+
+#
 # RQ configs
+#
 RQ_QUEUES = {
     'default': {
         'HOST': 'localhost',
@@ -87,5 +85,17 @@ RQ_QUEUES = {
     },
 }
 
-# https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-ALLOWED_HOSTS
-ALLOWED_HOSTS = ('.dev.loc', )
+
+#
+# Run service configs
+#
+ALLOWED_HOSTS = '{{ app.domains }}'.split()
+
+
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = '{{ email.user }}'
+EMAIL_HOST_PASSWORD = '{{ email.user }}'
+EMAIL_USE_TLS = True
+
+EXTRA_HTML = ""

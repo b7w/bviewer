@@ -1,0 +1,7 @@
+---
+
+app:
+  domains: "int.bviewer.loc 172.17.1.104"
+
+db:
+  password: "root"

@@ -1,0 +1,19 @@
+---
+
+- name: Install Nginx
+  apt: name=nginx update_cache={{ system.apt_update_cache }} state=installed
+  tags: packages
+
+- name: Create the Nginx configuration file
+  template: src=nginx.conf
+            dest=/etc/nginx/sites-enabled/{{ app.name }}
+            backup=yes
+  notify: reload nginx
+
+- name: Ensure that the default site is disabled
+  command: rm /etc/nginx/sites-enabled/default
+           removes=/etc/nginx/sites-enabled/default
+  notify: reload nginx
+
+- name: Ensure Nginx service is started
+  service: name=nginx state=started enabled=yes
