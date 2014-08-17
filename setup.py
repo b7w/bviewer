@@ -21,12 +21,6 @@ setup(
         # to build
         'pillow',
         'psycopg2',
-        # for dev
-        'django-debug-toolbar',
-        'fabric',
-        'mock',
-        'mockredispy',
-        'sphinx',
     ],
     dependency_links=[
         "git+https://github.com/ianare/exif-py.git@develop#egg=ExifRead-2.0"

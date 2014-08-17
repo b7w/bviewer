@@ -1,0 +1,5 @@
+{
+    "revision": "dev",
+    "secret_key": "test",
+    "domains": "4.4.4.4"
+}
