@@ -7,6 +7,9 @@ bviewer/settings/dev/\w*\.py
 \.pyo
 
 \.idea/
+\configs/.vagrant/
+\configs/app.conf.py
+\configs/deploy.json
 
 cache/
 tests/

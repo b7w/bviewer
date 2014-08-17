@@ -1,79 +1,150 @@
 # -*- coding: utf-8 -*-
-#
-# Simple fab file to help start, run and test application
-#
-from fabric.api import run
-from fabric.context_managers import cd, hide
-from fabric.operations import sudo
-from fabric.utils import puts
+import json
+from os import path
+from functools import partial
+
+from fabric.decorators import task
+from fabric.context_managers import cd, settings, hide, shell_env
+from fabric.contrib.files import exists, upload_template
+from fabric.operations import sudo, put
 
 
-__all__ = ['test', 'clear', 'static', 'requirements', 'update', ]
+def load_config():
+    class Config(dict):
+        __getattr__ = dict.__getitem__
+
+    conf = Config(
+        secret_key=NotImplemented,
+        domains=NotImplemented,
+        revision='default',
+        user='bviewer',
+        source_path='/home/bviewer/source',
+        config_path='/home/bviewer/configs',
+        log_path='/home/bviewer/logs',
+        run_path='/var/run/bviewer',
+        cache_path='/home/bviewer/cache',
+        share_path='/home/bviewer/share',
+    )
+    with open('configs/deploy.json') as f:
+        result = json.load(f)
+        conf.update(result)
+    return conf
 
 
-def test(path, user='believe'):
+config = load_config()
+
+# Helpers
+upload = partial(upload_template, context=config, use_jinja=True, template_dir='configs', use_sudo=True)
+
+
+def pip_env():
+    return shell_env(PYTHON_EGG_CACHE='/home/{0}/.python-eggs'.format(config.user))
+
+
+def stat(path, user=config.user, group=config.user, mode=640):
+    sudo('chown -R {0}:{1} {2}'.format(user, group, path))
+    sudo('find {0} -type f -exec chmod {1} {{}} +'.format(path, mode))
+
+
+def mkdir(path, user=config.user, group=config.user, mode=640):
+    if not exists(path):
+        sudo('mkdir --parents {0}'.format(path))
+        stat(path, user, group, mode)
+
+
+# Tasks
+@task
+def install_libs():
+    packages = ['build-essential', 'htop', 'mercurial', 'git', 'python3-dev', 'python3-pip', ]
+    libs = ['libjpeg-dev', 'libfreetype6-dev', 'zlib1g-dev', 'libpq-dev', ]
+    requirements = packages + libs
+    sudo('apt-get update -q')
+    sudo('apt-get upgrade -yq')
+    for lib in requirements:
+        sudo('apt-get install -yq {0}'.format(lib))
+
+
+@task
+def set_up():
+    # Create user
+    with settings(warn_only=True):
+        result = sudo('id -u {0}'.format(config.user))
+    if result.return_code == 1:
+        sudo('adduser {0} --shell=/bin/false --group --system  --disabled-password --disabled-login'.format(config.user))
+
+    # create folders
+    mkdir(config.config_path)
+    mkdir(config.log_path)
+    mkdir(config.cache_path, group='www-data', mode=770)
+    # no stat!
+    sudo('mkdir --parents {0}'.format(config.share_path))
+
+
+@task
+def install_app():
+    if exists(config.source_path):
+        with cd(config.source_path):
+            sudo('hg pull', user=config.user)
+            sudo('hg up --clean {0}'.format(config.revision), user=config.user)
+    else:
+        cmd = 'hg clone --branch {0} https://bitbucket.org/b7w/bviewer {1}'
+        sudo(cmd.format(config.revision, config.source_path), user=config.user)
+
+    # Install app
+    with pip_env():
+        with cd(config.source_path):
+            config_path = path.join(config.source_path, 'bviewer/settings/local.py')
+            with hide('stdout'):
+                sudo('python3 setup.py install --quiet')
+            upload('app.conf.py', config_path)
+            stat(config_path, mode=400)
+            sudo('python3 manage.py syncdb --noinput', user=config.user)
+            sudo('python3 manage.py collectstatic --noinput --verbosity=1', user=config.user)
+
+    stat(path.join(config.source_path, 'static'), group='www-data')
+
+
+@task
+def install_redis():
+    # sudo('add-apt-repository --yes ppa:rwky/redis')
+    sudo('apt-get install -yq redis-server')
+
+
+@task
+def install_uwsgi():
+    with pip_env():
+        sudo('pip3 install --upgrade --quiet uwsgi')
+        upload('uwsgi.init.conf', '/etc/init/uwsgi.conf')
+        upload('uwsgi.ini', path.join(config.config_path, 'uwsgi.ini'))
+
+    sudo('service uwsgi restart', warn_only=True)
+
+
+@task
+def install_nginx():
+    sudo('apt-get install -yq nginx')
+    upload('nginx.conf', '/etc/nginx/sites-enabled/bviewer.conf', backup=False)
+    enabled = '/etc/nginx/sites-enabled/default'
+    if exists(enabled):
+        sudo('rm {0}'.format(enabled))
+    sudo('service nginx restart')
+
+
+@task
+def deploy():
+    set_up()
+    install_libs()
+    install_app()
+    install_redis()
+    install_uwsgi()
+    install_nginx()
+
+
+@task
+def copy_resources():
     """
-    Runs app tests, just a proxy command
+    Copy tests images
     """
-    puts('Runs app tests')
-    with cd(path):
-        puts('Core module tests ')
-        sudo('python manage.py test core --settings=bviewer.settings.test', user=user)
-        puts('API module tests ')
-        sudo('python manage.py test api --settings=bviewer.settings.test', user=user)
-        puts('Archive module tests ')
-        sudo('python manage.py test archive --settings=bviewer.settings.test', user=user)
-
-
-def clear(path):
-    """
-    Delete cache, just a proxy command
-    """
-    puts('Delete all cache')
-    with cd(path):
-        puts('Core module tests ')
-        sudo('rm -rf cache')
-        sudo('rm -rf tests')
-
-
-def static(path, user='believe'):
-    """
-    Collect and gzip static files.
-    """
-    puts('Collect and gzip static files')
-    with cd(path):
-        sudo('python manage.py collectstatic --noinput', user=user)
-
-        with hide('running', 'stdout'):
-            puts('run: gzip -6 -c ...')
-
-            paths = sudo('find static -name "*.js" -type f')
-            for js_path in paths.split():
-                sudo('gzip -6 -c {0} > {0}.gz'.format(js_path), user=user)
-            paths = run('find static -name "*.css" -type f')
-            for css_path in paths.split():
-                sudo('gzip -6 -c {0} > {0}.gz'.format(css_path), user=user)
-
-            sudo('find static -type f -exec chmod 644 {} \;', user=user)
-
-
-def requirements(path):
-    """
-    Run pip install -r requirements.txt
-    """
-    with cd(path):
-        sudo('pip install -r requirements.txt')
-
-
-def update(path, rev='default', user='believe'):
-    """
-    Update hg to rev='default'
-    """
-    puts('Update hg to revision {0}'.format(rev))
-    with cd(path):
-        sudo('hg pull', user=user)
-        sudo('hg update -r {0}'.format(rev), user=user)
-
-    static(path, user=user)
-    requirements(path)
-    sudo('service uwsgi restart')
+    mkdir(config.share_path)
+    put('resources', config.share_path, use_sudo=True)
+    stat(config.share_path)
