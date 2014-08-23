@@ -65,7 +65,7 @@ def install_libs():
 
 
 @task
-def set_up():
+def setup_env():
     # Create user
     with settings(warn_only=True):
         result = sudo('id -u {0}'.format(config.user))
@@ -105,6 +105,13 @@ def install_app():
 
 
 @task
+def setup_cron():
+    crontab_path = path.join(config.config_path, 'crontab.txt')
+    upload('crontab.txt', crontab_path)
+    sudo('crontab {0}'.format(crontab_path), user=config.user)
+
+
+@task
 def install_redis():
     # sudo('add-apt-repository --yes ppa:rwky/redis')
     sudo('apt-get install -yq redis-server')
@@ -132,9 +139,10 @@ def install_nginx():
 
 @task
 def deploy():
-    set_up()
-    install_libs()
+    setup_env()
+    #install_libs()
     install_app()
+    setup_cron()
     install_redis()
     install_uwsgi()
     install_nginx()

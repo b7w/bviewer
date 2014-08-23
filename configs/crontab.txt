@@ -1,0 +1,4 @@
+
+00 * * * *     python3  {{ source_path }}/manage.py clearcache
+
+# EOF
