@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from fabric.colors import green
 import json
 from os import path
 from functools import partial
@@ -55,10 +56,12 @@ def mkdir(path, user=config.user, group=config.user, mode=640):
 # Tasks
 @task
 def install_libs():
+    print(green('# Install packages and libs'))
     packages = ['build-essential', 'htop', 'mercurial', 'git', 'python3-dev', 'python3-pip', ]
     libs = ['libjpeg-dev', 'libfreetype6-dev', 'zlib1g-dev', 'libpq-dev', ]
     requirements = packages + libs
-    sudo('apt-get update -q')
+    with hide('stdout'):
+        sudo('apt-get update -q')
     sudo('apt-get upgrade -yq')
     for lib in requirements:
         sudo('apt-get install -yq {0}'.format(lib))
@@ -66,6 +69,7 @@ def install_libs():
 
 @task
 def setup_env():
+    print(green('# Setup environment'))
     # Create user
     with settings(warn_only=True):
         result = sudo('id -u {0}'.format(config.user))
@@ -82,6 +86,7 @@ def setup_env():
 
 @task
 def install_app():
+    print(green('# Install application'))
     if exists(config.source_path):
         with cd(config.source_path):
             sudo('hg pull', user=config.user)
@@ -106,6 +111,7 @@ def install_app():
 
 @task
 def setup_cron():
+    print(green('# Setup cron'))
     crontab_path = path.join(config.config_path, 'crontab.txt')
     upload('crontab.txt', crontab_path)
     sudo('crontab {0}'.format(crontab_path), user=config.user)
@@ -113,12 +119,14 @@ def setup_cron():
 
 @task
 def install_redis():
+    print(green('# Install redis'))
     # sudo('add-apt-repository --yes ppa:rwky/redis')
     sudo('apt-get install -yq redis-server')
 
 
 @task
 def install_uwsgi():
+    print(green('# Install uwsgi'))
     with pip_env():
         sudo('pip3 install --upgrade --quiet uwsgi')
         upload('uwsgi.init.conf', '/etc/init/uwsgi.conf')
@@ -129,6 +137,7 @@ def install_uwsgi():
 
 @task
 def install_nginx():
+    print(green('# Install nginx'))
     sudo('apt-get install -yq nginx')
     upload('nginx.conf', '/etc/nginx/sites-enabled/bviewer.conf', backup=False)
     enabled = '/etc/nginx/sites-enabled/default'
@@ -139,8 +148,9 @@ def install_nginx():
 
 @task
 def deploy():
+    print(green('## Deploy'))
     setup_env()
-    #install_libs()
+    install_libs()
     install_app()
     setup_cron()
     install_redis()
@@ -153,6 +163,7 @@ def copy_resources():
     """
     Copy tests images
     """
+    print(green('# Copy resources'))
     mkdir(config.share_path)
     put('resources', config.share_path, use_sudo=True)
     stat(config.share_path)
