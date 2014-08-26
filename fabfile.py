@@ -19,6 +19,8 @@ def load_config():
         domains=NotImplemented,
         revision='default',
         user='bviewer',
+        python_version='3.4.1',
+        python_home='/home/bviewer/python',
         source_path='/home/bviewer/source',
         config_path='/home/bviewer/configs',
         log_path='/home/bviewer/logs',
@@ -26,6 +28,7 @@ def load_config():
         cache_path='/home/bviewer/cache',
         share_path='/home/bviewer/share',
     )
+    conf['python_path'] = path.join(conf.python_home, conf.python_version, 'bin')
     with open('configs/deploy.json') as f:
         result = json.load(f)
         conf.update(result)
@@ -53,18 +56,27 @@ def mkdir(path, user=config.user, group=config.user, mode=640):
         stat(path, user, group, mode)
 
 
+def python(cmd, **kwargs):
+    binary = path.join(config.python_path, 'python3')
+    return sudo('{} {}'.format(binary, cmd), **kwargs)
+
+
+def pip(cmd, **kwargs):
+    binary = path.join(config.python_path, 'pip3')
+    return sudo('{} {}'.format(binary, cmd), **kwargs)
+
+
 # Tasks
 @task
 def install_libs():
     print(green('# Install packages and libs'))
-    packages = ['build-essential', 'htop', 'mercurial', 'git', 'python3-dev', 'python3-pip', ]
-    libs = ['libjpeg-dev', 'libfreetype6-dev', 'zlib1g-dev', 'libpq-dev', ]
-    requirements = packages + libs
+    requirements = 'build-essential htop mercurial git ' \
+                   'libsqlite3-dev sqlite3 bzip2 libbz2-dev ' \
+                   'libjpeg-dev libfreetype6-dev zlib1g-dev libpq-dev'
     with hide('stdout'):
         sudo('apt-get update -q')
     sudo('apt-get upgrade -yq')
-    for lib in requirements:
-        sudo('apt-get install -yq {0}'.format(lib))
+    sudo('apt-get install -yq {0}'.format(requirements))
 
 
 @task
@@ -85,6 +97,25 @@ def setup_env():
 
 
 @task
+def install_python():
+    print(green('# Install python'))
+    ver = config.python_version
+    ver_path = path.join(config.python_home, ver)
+    arch_path = path.join(config.python_home, 'Python-{0}.tar.xz'.format(ver))
+    mkdir(config.python_home)
+    if not exists(ver_path) or exists(arch_path):
+        with cd(config.python_home):
+            sudo('wget --no-verbose https://www.python.org/ftp/python/{0}/Python-{0}.tar.xz'.format(ver))
+            with hide('stdout'):
+                sudo('tar xJf Python-{0}.tar.xz'.format(ver))
+                with cd(path.join(config.python_home, 'Python-{0}'.format(ver))):
+                    sudo('./configure --prefix={0}'.format(ver_path))
+                    sudo('make && sudo make install')
+            sudo('rm -rf Python-{0}'.format(ver))
+            sudo('rm -rf Python-{0}.tar.xz'.format(ver))
+
+
+@task
 def install_app():
     print(green('# Install application'))
     if exists(config.source_path):
@@ -100,11 +131,11 @@ def install_app():
         with cd(config.source_path):
             config_path = path.join(config.source_path, 'bviewer/settings/local.py')
             with hide('stdout'):
-                sudo('python3 setup.py install --quiet')
+                python('setup.py install --quiet')
             upload('app.conf.py', config_path)
             stat(config_path, mode=400)
-            sudo('python3 manage.py syncdb --noinput', user=config.user)
-            sudo('python3 manage.py collectstatic --noinput --verbosity=1', user=config.user)
+            python('manage.py syncdb --noinput', user=config.user)
+            python('manage.py collectstatic --noinput --verbosity=1', user=config.user)
 
     stat(path.join(config.source_path, 'static'), group='www-data')
 
@@ -128,7 +159,7 @@ def install_redis():
 def install_uwsgi():
     print(green('# Install uwsgi'))
     with pip_env():
-        sudo('pip3 install --upgrade --quiet uwsgi')
+        pip('install --upgrade --quiet uwsgi')
         upload('uwsgi.init.conf', '/etc/init/uwsgi.conf')
         upload('uwsgi.ini', path.join(config.config_path, 'uwsgi.ini'))
 
@@ -151,6 +182,7 @@ def deploy():
     print(green('## Deploy'))
     setup_env()
     install_libs()
+    install_python()
     install_app()
     setup_cron()
     install_redis()
