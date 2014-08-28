@@ -17,6 +17,7 @@ def load_config():
     conf = Config(
         secret_key=NotImplemented,
         domains=NotImplemented,
+        shares=[],
         revision='default',
         user='bviewer',
         python_version='3.4.1',
@@ -70,7 +71,7 @@ def pip(cmd, **kwargs):
 @task
 def install_libs():
     print(green('# Install packages and libs'))
-    requirements = 'build-essential htop mercurial git ' \
+    requirements = 'build-essential cifs-utils htop mercurial git ' \
                    'libsqlite3-dev sqlite3 bzip2 libbz2-dev ' \
                    'libjpeg-dev libfreetype6-dev zlib1g-dev libpq-dev'
     with hide('stdout'):
@@ -92,8 +93,6 @@ def setup_env():
     mkdir(config.config_path)
     mkdir(config.log_path)
     mkdir(config.cache_path, group='www-data', mode=770)
-    # no stat!
-    sudo('mkdir --parents {0}'.format(config.share_path))
 
 
 @task
@@ -149,6 +148,21 @@ def setup_cron():
 
 
 @task
+def mount_shares():
+    print(green('# Mount shares'))
+    uid = sudo('id -u {0}'.format(config.user))
+    gid = sudo('id -u {0}'.format('www-data'))
+    # no stat!
+    sudo('mkdir --parents {0}'.format(config.share_path))
+    for item in config.shares:
+        # item['from'] = item['from'].replace(' ', '\\040')
+        item['to'] = item['to'].format(**config)
+        item['options'] = item['options'] + ',uid={0},uid={1}'.format(uid, gid)
+    upload('share.init.conf', '/etc/init/share.conf')
+    sudo('service share start')
+
+
+@task
 def install_redis():
     print(green('# Install redis'))
     # sudo('add-apt-repository --yes ppa:rwky/redis')
@@ -185,6 +199,7 @@ def deploy():
     install_python()
     install_app()
     setup_cron()
+    mount_shares()
     install_redis()
     install_uwsgi()
     install_nginx()
