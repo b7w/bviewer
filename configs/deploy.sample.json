@@ -1,5 +1,11 @@
 {
-    "revision": "dev",
-    "secret_key": "test",
-    "domains": "4.4.4.4"
+    "secret_key": "https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-SECRET_KEY",
+    "domains": "4.4.4.4 bviewer.loc",
+    "shares": [
+        {
+            "from": "//share.loc/images",
+            "to": "{share_path}/images",
+            "options": "user=share,pass=share,rw"
+        }
+    ]
 }
