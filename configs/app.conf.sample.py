@@ -4,7 +4,7 @@ from bviewer.settings.project import *
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
-SECRET_KEY = '{{ secret_key }}'
+SECRET_KEY = '2pn61g9w5$kvey611z2ua31szq(7)t0m0)$w#o)p@)ycj&93!!'
 
 DATABASES = {
     'default': {
