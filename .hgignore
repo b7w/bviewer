@@ -10,6 +10,7 @@ bviewer/settings/dev/\w*\.py
 \configs/.vagrant/
 \configs/app.conf.py
 \configs/deploy.json
+\configs/nginx.ssl.*
 
 cache/
 tests/
