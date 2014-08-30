@@ -159,7 +159,7 @@ def mount_shares():
         item['to'] = item['to'].format(**config)
         item['options'] = item['options'] + ',uid={0},uid={1}'.format(uid, gid)
     upload('share.init.conf', '/etc/init/share.conf')
-    sudo('service share start')
+    sudo('service share start', warn_only=True)
 
 
 @task
@@ -185,6 +185,12 @@ def install_nginx():
     print(green('# Install nginx'))
     sudo('apt-get install -yq nginx')
     upload('nginx.conf', '/etc/nginx/sites-enabled/bviewer.conf', backup=False)
+    certificate_crt = path.join(config.config_path, 'nginx.ssl.crt')
+    certificate_key = path.join(config.config_path, 'nginx.ssl.key')
+    upload('nginx.ssl.crt', certificate_crt, backup=False)
+    upload('nginx.ssl.key', certificate_key, backup=False)
+    stat(certificate_crt, user='root', mode=440)
+    stat(certificate_key, user='root', mode=440)
     enabled = '/etc/nginx/sites-enabled/default'
     if exists(enabled):
         sudo('rm {0}'.format(enabled))
