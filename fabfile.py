@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-from fabric.colors import green
 import json
 from os import path
 from functools import partial
 
+from fabric.utils import abort
+from fabric.colors import green
 from fabric.decorators import task
 from fabric.context_managers import cd, settings, hide, shell_env
 from fabric.contrib.files import exists, upload_template
@@ -41,6 +42,10 @@ config = load_config()
 upload = partial(upload_template, context=config, use_jinja=True, template_dir='configs', use_sudo=True)
 
 
+def echo(msg):
+    print(green(msg))
+
+
 def pip_env():
     return shell_env(PYTHON_EGG_CACHE='/home/{0}/.python-eggs'.format(config.user))
 
@@ -69,7 +74,7 @@ def pip(cmd, **kwargs):
 # Tasks
 @task
 def install_libs():
-    print(green('# Install packages and libs'))
+    echo('# Install packages and libs')
     requirements = 'build-essential cifs-utils htop mercurial git ' \
                    'libsqlite3-dev sqlite3 bzip2 libbz2-dev ' \
                    'libjpeg-dev libfreetype6-dev zlib1g-dev libpq-dev'
@@ -81,7 +86,7 @@ def install_libs():
 
 @task
 def setup_env():
-    print(green('# Setup environment'))
+    echo('# Setup environment')
     # Create user
     with settings(warn_only=True):
         result = sudo('id -u {0}'.format(config.user))
@@ -96,7 +101,7 @@ def setup_env():
 
 @task
 def install_python():
-    print(green('# Install python'))
+    echo('# Install python')
     ver = config.python_version
     ver_path = path.join(config.python_home, ver)
     arch_path = path.join(config.python_home, 'Python-{0}.tar.xz'.format(ver))
@@ -115,7 +120,7 @@ def install_python():
 
 @task
 def install_app():
-    print(green('# Install application'))
+    echo('# Install application')
     if exists(config.source_path):
         with cd(config.source_path):
             sudo('hg pull', user=config.user)
@@ -140,7 +145,7 @@ def install_app():
 
 @task
 def setup_cron():
-    print(green('# Setup cron'))
+    echo('# Setup cron')
     crontab_path = path.join(config.config_path, 'crontab.txt')
     upload('crontab.txt', crontab_path)
     sudo('crontab {0}'.format(crontab_path), user=config.user)
@@ -148,7 +153,7 @@ def setup_cron():
 
 @task
 def mount_shares():
-    print(green('# Mount shares'))
+    echo('# Mount shares')
     uid = sudo('id -u {0}'.format(config.user))
     gid = sudo('id -u {0}'.format('www-data'))
     # no stat!
@@ -158,19 +163,21 @@ def mount_shares():
         item['to'] = item['to'].format(**config)
         item['options'] = item['options'] + ',uid={0},uid={1}'.format(uid, gid)
     upload('share.init.conf', '/etc/init/share.conf')
-    sudo('service share start')
+    result = sudo('service share start', warn_only=True)
+    if 'failed' in result:
+        abort(result)
 
 
 @task
 def install_redis():
-    print(green('# Install redis'))
+    echo('# Install redis')
     # sudo('add-apt-repository --yes ppa:rwky/redis')
     sudo('apt-get install -yq redis-server')
 
 
 @task
 def install_uwsgi():
-    print(green('# Install uwsgi'))
+    echo('# Install uwsgi')
     with pip_env():
         pip('install --upgrade --quiet uwsgi')
         upload('uwsgi.init.conf', '/etc/init/uwsgi.conf')
@@ -181,7 +188,7 @@ def install_uwsgi():
 
 @task
 def install_nginx():
-    print(green('# Install nginx'))
+    echo('# Install nginx')
     sudo('apt-get install -yq nginx')
     upload('nginx.conf', '/etc/nginx/sites-enabled/bviewer.conf', backup=False)
     certificate_crt = path.join(config.config_path, 'nginx.ssl.crt')
@@ -198,7 +205,7 @@ def install_nginx():
 
 @task
 def deploy():
-    print(green('## Deploy'))
+    echo('## Deploy')
     setup_env()
     install_libs()
     install_python()
@@ -215,7 +222,7 @@ def copy_resources():
     """
     Copy tests images
     """
-    print(green('# Copy resources'))
+    echo('# Copy resources')
     mkdir(config.share_path)
     put('resources', config.share_path, use_sudo=True)
     stat(config.share_path)
