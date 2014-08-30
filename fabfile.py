@@ -158,7 +158,7 @@ def mount_shares():
         item['to'] = item['to'].format(**config)
         item['options'] = item['options'] + ',uid={0},uid={1}'.format(uid, gid)
     upload('share.init.conf', '/etc/init/share.conf')
-    sudo('service share start', warn_only=True)
+    sudo('service share start')
 
 
 @task
@@ -176,7 +176,7 @@ def install_uwsgi():
         upload('uwsgi.init.conf', '/etc/init/uwsgi.conf')
         upload('uwsgi.ini', path.join(config.config_path, 'uwsgi.ini'))
 
-    sudo('service uwsgi restart', warn_only=True)
+    sudo('service uwsgi restart')
 
 
 @task
