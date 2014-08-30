@@ -15,7 +15,6 @@ def load_config():
         __getattr__ = dict.__getitem__
 
     conf = Config(
-        secret_key=NotImplemented,
         domains=NotImplemented,
         shares=[],
         revision='default',
