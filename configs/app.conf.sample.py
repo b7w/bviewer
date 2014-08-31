@@ -9,12 +9,12 @@ SECRET_KEY = '2pn61g9w5$kvey611z2ua31szq(7)t0m0)$w#o)p@)ycj&93!!'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'test_believe',
-        'USER': 'test',
-        'PASSWORD': 'test',
-        'HOST': 'db.loc',
+        'NAME': 'bviewer',
+        'USER': 'bviewer',
+        'PASSWORD': 'root',
+        'HOST': '',
         'PORT': '',
-        'TEST_NAME': 'test_believe_tmp',
+        'TEST_NAME': 'bviewer_tmp',
     }
 }
 
@@ -56,9 +56,14 @@ LOGGING = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        'BACKEND': 'redis_cache.cache.RedisCache',
+        'LOCATION': '127.0.0.1:6379:1',
     },
 }
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+
 
 FORCE_SCRIPT_NAME = ''
 

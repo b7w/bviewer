@@ -80,7 +80,7 @@ def install_libs():
                    'libjpeg-dev libfreetype6-dev zlib1g-dev libpq-dev'
     with hide('stdout'):
         sudo('apt-get update -q')
-    sudo('apt-get upgrade -yq')
+    # sudo('apt-get upgrade -yq')
     sudo('apt-get install -yq {0}'.format(requirements))
 
 
@@ -154,6 +154,8 @@ def setup_cron():
 @task
 def mount_shares():
     echo('# Mount shares')
+    # May required for virtual machines
+    # sudo('apt-get install -yq linux-image-extra-virtual')
     uid = sudo('id -u {0}'.format(config.user))
     gid = sudo('id -u {0}'.format('www-data'))
     # no stat!
@@ -195,8 +197,8 @@ def install_nginx():
     certificate_key = path.join(config.config_path, 'nginx.ssl.key')
     upload('nginx.ssl.crt', certificate_crt, backup=False)
     upload('nginx.ssl.key', certificate_key, backup=False)
-    stat(certificate_crt, user='root', mode=440)
-    stat(certificate_key, user='root', mode=440)
+    stat(certificate_crt, user='root', group='www-data', mode=440)
+    stat(certificate_key, user='root', group='www-data', mode=440)
     enabled = '/etc/nginx/sites-enabled/default'
     if exists(enabled):
         sudo('rm {0}'.format(enabled))
