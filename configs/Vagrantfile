@@ -3,15 +3,28 @@
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
+$script = <<SCRIPT
+sudo apt-get install -yq fabric python-jinja2 postgresql
+sudo -u postgres psql -c"CREATE DATABASE bviewer;"
+sudo -u postgres psql -c"CREATE USER bviewer WITH password 'root';"
+sudo -u postgres psql -c"GRANT ALL privileges ON DATABASE bviewer TO bviewer;"
+cd /provision
+fab -H vagrant@localhost -p vagrant deploy
+SCRIPT
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  config.vm.box = "ubuntu/trusty32"
+    config.vm.box = "ubuntu/trusty32"
 
-  config.vm.network :private_network, ip: "4.4.4.4"
-  config.vm.network "public_network"
+    config.vm.network :private_network, ip: "4.4.4.4"
+    config.vm.network "public_network"
 
-  config.vm.provider :virtualbox do |vb|
+    config.vm.provider :virtualbox do |vb|
      vb.name = "bviewer"
      vb.memory = 512
-  end
+    end
+
+    config.vm.synced_folder "../", "/provision"
+    config.vm.provision "shell", inline: $script
+
 end
