@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from django.contrib.auth.models import User
 import logging
+
 from django.conf import settings
 from django.contrib.auth.views import login, logout
 from django.http import Http404
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 GALLERY_NOT_FOUND = 'No gallery found'
 
 
-@cache_page(60 * 60)
+@cache_page(60 * 2)
 @vary_on_cookie
 def index_view(request):
     """
@@ -49,7 +49,7 @@ def index_view(request):
     })
 
 
-@cache_page(60 * 60)
+@cache_page(60 * 2)
 @vary_on_cookie
 def album_view(request, uid):
     """
@@ -87,7 +87,7 @@ def album_view(request, uid):
     })
 
 
-@cache_page(60 * 60 * 24)
+@cache_page(60 * 8)
 @vary_on_cookie
 def image_view(request, uid):
     """
@@ -110,7 +110,7 @@ def image_view(request, uid):
     })
 
 
-@cache_page(60 * 60 * 24)
+@cache_page(60 * 8)
 @vary_on_cookie
 def video_view(request, uid):
     """
@@ -133,7 +133,7 @@ def video_view(request, uid):
     })
 
 
-@decor_on(settings.VIEWER_DOWNLOAD_RESPONSE['CACHE'], cache_page, 60 * 60)
+@decor_on(settings.VIEWER_DOWNLOAD_RESPONSE['CACHE'], cache_page, 60 * 8)
 @vary_on_cookie
 def download_video_thumbnail_view(request, uid):
     """
@@ -157,7 +157,7 @@ def download_video_thumbnail_view(request, uid):
         raise Http404('Oops no video thumbnail found')
 
 
-@decor_on(settings.VIEWER_DOWNLOAD_RESPONSE['CACHE'], cache_page, 60 * 60)
+@decor_on(settings.VIEWER_DOWNLOAD_RESPONSE['CACHE'], cache_page, 60 * 8)
 @vary_on_cookie
 def download_image_view(request, size, uid):
     """
@@ -193,6 +193,8 @@ def message_view(request, title='Error', info=None, message=None):
     })
 
 
+@cache_page(60 * 8)
+@vary_on_cookie
 def about_view(request):
     """
     Show about page
