@@ -161,7 +161,6 @@ def mount_shares():
     # no stat!
     sudo('mkdir --parents {0}'.format(config.share_path))
     for item in config.shares:
-        # item['from'] = item['from'].replace(' ', '\\040')
         item['to'] = item['to'].format(**config)
         item['options'] = item['options'] + ',uid={0},uid={1}'.format(uid, gid)
     upload('share.init.conf', '/etc/init/share.conf')
@@ -211,12 +210,12 @@ def deploy():
     setup_env()
     install_libs()
     install_python()
-    install_app()
-    setup_cron()
-    mount_shares()
     install_redis()
+    install_app()
     install_uwsgi()
     install_nginx()
+    setup_cron()
+    mount_shares()
 
 
 @task
