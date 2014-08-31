@@ -15,6 +15,7 @@ setup(
         'django-rq',
         'djangorestframework>=2.3,<2.4',
         'django-filter',
+        'django-redis',
         'redis',
         'pytz',
         'ExifRead==2.0',
