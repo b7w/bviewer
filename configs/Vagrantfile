@@ -6,10 +6,17 @@ VAGRANTFILE_API_VERSION = "2"
 $script = <<SCRIPT
 sudo apt-get install -yq fabric python-jinja2 postgresql
 sudo -u postgres psql -c"CREATE DATABASE bviewer;"
-sudo -u postgres psql -c"CREATE USER bviewer WITH password 'root';"
 sudo -u postgres psql -c"GRANT ALL privileges ON DATABASE bviewer TO bviewer;"
 cd /provision
 fab -H vagrant@localhost -p vagrant deploy
+sudo -u bviewer psql <<EOF
+BEGIN;
+INSERT INTO auth_user VALUES (1, 'pbkdf2_sha256\\$12000\\$JFOWdAEg1y3x\\$0d2VEZATrtfdVaB9xjxSBFERVFMw/etHQpyCuL4U05k=', now(), true, 'admin', '', '', 'admin@bv.loc', true, true, now());
+INSERT INTO auth_user VALUES (2, 'pbkdf2_sha256\\$12000\\$JFOWdAEg1y3x\\$0d2VEZATrtfdVaB9xjxSBFERVFMw/etHQpyCuL4U05k=', now(), false, 'demo', '', '', 'demo@bv.loc', false, true, now());
+INSERT INTO core_gallery VALUES (1, 2, 'Demo gallery', '4.4.4.4', '', 32, 256, 'f4333db0', 'Demo gallery', 'Demo preview of bviewer gallery!');
+INSERT INTO core_album VALUES ('f4333db0', NULL, 'Welcome', 1, 1, 1, true, 'Edit main album to change it', NULL, now());
+COMMIT;
+EOF
 SCRIPT
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
