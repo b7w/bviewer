@@ -37,8 +37,8 @@ class SlideShowProfile(SlideShowAdmin):
     def has_add_permission(self, request):
         return False
 
-    def queryset(self, request):
-        return super(SlideShowProfile, self).queryset(request).filter(album__user=request.user)
+    def get_queryset(self, request):
+        return super(SlideShowProfile, self).get_queryset(request).filter(album__user=request.user)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """
