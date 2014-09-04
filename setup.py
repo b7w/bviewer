@@ -9,9 +9,9 @@ if os.path.exists('bviewer/settings/local.py'):
 
 setup(
     name='bviewer',
-    version='v1.1.1',
+    version='v1.1.2 dev',
     install_requires=[
-        'django>=1.6,<1.7',
+        'django>=1.7,<1.8',
         'django-rq',
         'djangorestframework>=2.3,<2.4',
         'django-filter',

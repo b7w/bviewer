@@ -12,7 +12,7 @@ PROJECT_PATH = os.path.dirname(SOURCE_PATH)
 TMP_PATH = os.path.join(PROJECT_PATH, 'tmp')
 
 ADMINS = (
-# ('Your Name', 'your_email@example.com'),
+    # ('Your Name', 'your_email@example.com'),
 )
 
 MANAGERS = ADMINS
@@ -84,7 +84,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -186,3 +186,5 @@ LOGOUT_URL = '/logout/'
 SESSION_SAVE_EVERY_REQUEST = True
 
 REST_FRAMEWORK = {}
+
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
