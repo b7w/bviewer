@@ -59,8 +59,8 @@ class ProfileUserAdmin(UserAdmin):
         ('Important dates', {'fields': ('last_login', 'date_joined',)}),
     )
 
-    def queryset(self, request):
-        return super(ProfileUserAdmin, self).queryset(request).filter(id=request.user.id)
+    def get_queryset(self, request):
+        return super(ProfileUserAdmin, self).get_queryset(request).filter(id=request.user.id)
 
 
 profile.register(User, ProfileUserAdmin)
@@ -122,8 +122,8 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
     def has_add_permission(self, request):
         return False
 
-    def queryset(self, request):
-        return super(ProfileGalleryAdmin, self).queryset(request).filter(user=request.user)
+    def get_queryset(self, request):
+        return super(ProfileGalleryAdmin, self).get_queryset(request).filter(user=request.user)
 
     def get_form(self, request, obj=None, **kwargs):
         # Add default user
@@ -206,8 +206,8 @@ class ProfileAlbumAdmin(ProfileModelAdmin):
     thumbnails.allow_tags = True
     thumbnails.short_description = 'Album thumbnail'
 
-    def queryset(self, request):
-        return super(ProfileAlbumAdmin, self).queryset(request).filter(gallery__user=request.user)
+    def get_queryset(self, request):
+        return super(ProfileAlbumAdmin, self).get_queryset(request).filter(gallery__user=request.user)
 
     def save_model(self, request, obj, form, change):
         thumbnail_id = form.data['thumbnail_id']
@@ -262,8 +262,8 @@ class ProfileImageAdmin(ProfileModelAdmin):
 
     image_thumbnail_popup.allow_tags = True
 
-    def queryset(self, request):
-        return super(ProfileImageAdmin, self).queryset(request).filter(album__gallery__user=request.user)
+    def get_queryset(self, request):
+        return super(ProfileImageAdmin, self).get_queryset(request).filter(album__gallery__user=request.user)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """
@@ -295,8 +295,8 @@ class ProfileVideoAdmin(ProfileModelAdmin):
     def album_title(self, obj):
         return obj.album.title
 
-    def queryset(self, request):
-        return super(ProfileVideoAdmin, self).queryset(request).filter(album__gallery__user=request.user)
+    def get_queryset(self, request):
+        return super(ProfileVideoAdmin, self).get_queryset(request).filter(album__gallery__user=request.user)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """
