@@ -168,7 +168,8 @@ class ProfileAlbumAdmin(ProfileModelAdmin):
 
     def images(self, obj):
         if Album.objects.safe_get(id=obj.id):
-            url = reverse('profile.album', kwargs=dict(uid=obj.id))
+            params = dict(gallery_id=obj.gallery_id, album_id=obj.id)
+            url = reverse('profile.album', kwargs=params)
             path = self.images_expected_path(obj)
             count = Image.objects.filter(album=obj).count()
             return smart_text('<b><a href="{url}?p={p}">Select images on disk ({count})</a></b>') \
@@ -179,7 +180,8 @@ class ProfileAlbumAdmin(ProfileModelAdmin):
 
     def pre_cache(self, obj):
         if Album.objects.safe_get(id=obj.id):
-            url = reverse('profile.album.pre-cache', kwargs=dict(uid=obj.id))
+            params = dict(gallery_id=obj.gallery_id, album_id=obj.id)
+            url = reverse('profile.album.pre-cache', kwargs=params)
             return smart_text('<b><a href="{url}">Run pre cache task</a></b>').format(url=url)
         return smart_text('<b>Save album first</b>')
 
@@ -251,14 +253,16 @@ class ProfileImageAdmin(ProfileModelAdmin):
         return obj.album.title
 
     def image_thumbnail(self, obj):
-        url = reverse('core.download', kwargs=dict(size='small', uid=obj.id))
-        return smart_text('<img class="thumbnail" src="{0}">').format(url)
+        params = dict(gallery_id=obj.album.gallery_id)
+        url = reverse('profile.download', kwargs=params)
+        return smart_text('<img class="thumbnail" src="{0}">').format(url, obj.path)
 
     image_thumbnail.allow_tags = True
 
     def image_thumbnail_popup(self, obj):
-        url = reverse('core.download', kwargs=dict(size='tiny', uid=obj.id))
-        return smart_text('<img class="preview" src="{0}">').format(url)
+        params = dict(gallery_id=obj.album.gallery_id)
+        url = reverse('profile.download', kwargs=params)
+        return smart_text('<img class="preview" src="{0}?p={1}">').format(url, obj.path)
 
     image_thumbnail_popup.allow_tags = True
 

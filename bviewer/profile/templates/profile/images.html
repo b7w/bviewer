@@ -44,9 +44,9 @@
                 <label>Path:</label>
 
                 <span class="row-value">
-                    <a href="{% url 'profile.album' album.id %}" class="row-value">Home</a>
+                    <a href="{% url 'profile.album' gallery.id album.id %}" class="row-value">Home</a>
                     {% for name, path in folder.split_path %}
-                        › <a href="{% url 'profile.album' album.id %}?p={{ path }}">{{ name }}</a>
+                        › <a href="{% url 'profile.album' gallery.id album.id %}?p={{ path }}">{{ name }}</a>
                     {% endfor %}
                 </span>
             </div>
@@ -64,7 +64,7 @@
                 <label class="required" style="float: none;">Folder:</label>
                 <ul class="thumbnails">
                     <li data-bind="click: selectBack">
-                        <a href="{% url 'profile.album' album.id %}?p={{ folder.back }}" class="thumbnail">
+                        <a href="{% url 'profile.album' gallery.id album.id %}?p={{ folder.back }}" class="thumbnail">
                             <img src="{% static 'core/img/album.png' %}">
 
                             <p class="caption">back</p>
@@ -72,7 +72,7 @@
                     </li>
                     {% for dir in folder.dirs %}
                         <li>
-                            <a href="{% url 'profile.album' album.id %}?p={{ dir.path }}" class="thumbnail">
+                            <a href="{% url 'profile.album' gallery.id album.id %}?p={{ dir.path }}" class="thumbnail">
                                 <img src="{% static 'core/img/album.png' %}">
 
                                 <p class="caption">{{ dir.name }}</p>
@@ -86,7 +86,7 @@
                                        data-id="{{ file.id }}"
                                        data-value="{{ file.path }}"
                                        {% if file.saved %}checked{% endif %}>
-                                <img src="{% url 'profile.download' %}?p={{ file.path }}">
+                                <img src="{% url 'profile.download' gallery.id %}?p={{ file.path }}">
 
                                 <p class="caption">{{ file.name }}</p>
                             </a>
