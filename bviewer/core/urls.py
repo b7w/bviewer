@@ -11,6 +11,7 @@ urlpatterns = patterns('bviewer.core.views',
     url(r'^album/(?P<uid>[\w]+)/$', 'album_view', name='core.album'),
     url(r'^image/(?P<uid>\w+)/$', 'image_view', name='core.image'),
     url(r'^video/(?P<uid>\w+)/$', 'video_view', name='core.video'),
+    url(r'^video/(?P<uid>\w+)/url/$', 'video_redirect_view', name='core.video.url'),
     url(r'^video/(?P<uid>\w+)/thumbnail/$', 'download_video_thumbnail_view', name='core.video.thumbnail'),
     url(r'^download/(?P<size>\w+)/(?P<uid>\w+).jpg$', 'download_image_view', name='core.download'),
 )

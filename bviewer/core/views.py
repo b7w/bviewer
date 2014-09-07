@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import logging
-
 from django.conf import settings
 from django.contrib.auth.views import login, logout
 from django.http import Http404
@@ -155,6 +154,24 @@ def download_video_thumbnail_view(request, uid):
     except FileError as e:
         logger.error('id:%s, gallery:%s \n %s', uid, gallery, e)
         raise Http404('Oops no video thumbnail found')
+
+
+@cache_page(60 * 8)
+@vary_on_cookie
+def video_redirect_view(request, uid):
+    """
+    Show video with description
+    """
+    gallery = get_gallery(request)
+    if not gallery:
+        return message_view(request, message=GALLERY_NOT_FOUND)
+
+    controller = VideoController(gallery, request.user, uid)
+    if not controller.exists():
+        return message_view(request, message='No such video')
+    video = controller.get_object()
+
+    return redirect(controller.video_url(video))
 
 
 @decor_on(settings.VIEWER_DOWNLOAD_RESPONSE['CACHE'], cache_page, 60 * 8)
