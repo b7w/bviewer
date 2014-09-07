@@ -5,7 +5,6 @@
 #   test -> local -> project -> django
 #   debug -> local -> project -> django
 #
-# sample.py - sample for local.py.
 #
 # run '--settings=bviewer.settings' for use `local` settings.
 # run '--settings=bviewer.settings.test' for use `test` settings.
