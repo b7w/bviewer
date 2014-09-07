@@ -12,7 +12,7 @@ Application cache
 .. _application-cache:
 
 | To clear images and zip archives cache run first command.
-  Old files will be deleted if hole size will be bigger than :ref:`user available <proxy-user-model>`.
+  Old files will be deleted if hole size will be bigger than :ref:`gallery available <gallery-model>`.
   To remove users cache directories run second.
 
 .. code-block:: python
@@ -20,10 +20,21 @@ Application cache
     python manage.py clearcache
     python manage.py clearcache full
 
-| It is better to run first command every hour.
-  Open crontab file and add line to the end.
+| By default this command run every hour.
 
-.. code-block:: bash
 
-    sudo vim /etc/crontab
-    00 *  * * *     believe   python  /home/believe/viewer/manage.py clearcache
+Check images
+============
+
+.. index:: Check images
+.. _check-images:
+
+| To detect images that not available on storage run `checkimages` command.
+  It iterate all holders images and check that path exists.
+  After send report to email if not found at least one.
+
+.. code-block:: python
+
+    python manage.py checkimages
+
+| By default that command run at 00:00 every day.
