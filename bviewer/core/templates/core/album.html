@@ -27,7 +27,7 @@
         {% for item in videos %}
             <li id="{{ item.id }}" class="preview">
                 <div class="preview-body">
-                    <a class="shadowbox" href="{{ item.url }}"
+                    <a class="shadowbox" href="{% url 'core.video.url' item.id %}"
                        rel="shadowbox[videos];width=960;height=540;title={{ item.title }}">
                         <img data-src="{% url 'core.video.thumbnail' item.id %}">
                     </a>

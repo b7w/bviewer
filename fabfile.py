@@ -137,7 +137,7 @@ def install_app():
                 python('setup.py install --quiet')
             upload('app.conf.py', config_path)
             stat(config_path, mode=400)
-            python('manage.py syncdb --noinput', user=config.user)
+            python('manage.py migrate --noinput', user=config.user)
             python('manage.py collectstatic --noinput --verbosity=1', user=config.user)
 
     stat(path.join(config.source_path, 'static'), group='www-data')

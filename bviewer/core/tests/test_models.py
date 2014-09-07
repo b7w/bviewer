@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from bviewer.core.controllers import VideoController
+
 try:
     from httplib import HTTPConnection
     from urlparse import urlsplit
@@ -45,7 +47,8 @@ class ModelTestCase(TestCase):
         album = data.gallery_b7w.top_album
 
         video1 = Video.objects.create(album=album, uid='56433514', type=Video.VIMIO)
-        self.assertHttpOk(video1.thumbnail_url)
+        VideoController.thumbnail_url(video1)
+        self.assertHttpOk(VideoController.thumbnail_url(video1))
 
         video2 = Video.objects.create(album=album, uid='7dGGPlZlPQw', type=Video.YOUTUBE)
-        self.assertHttpOk(video2.thumbnail_url)
+        self.assertHttpOk(VideoController.thumbnail_url(video2))

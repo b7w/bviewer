@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
+import json
 import logging
 import re
+from urllib.error import URLError
+from urllib.request import urlopen
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
 from django.utils.encoding import smart_text
+from django.utils.html import escape
 
-from bviewer.core.exceptions import FileError
+from bviewer.core.exceptions import FileError, HttpError, ViewerError
 from bviewer.core.files.response import download_response
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.images import CacheImage
@@ -248,12 +252,41 @@ class ImageController(MediaController):
 class VideoController(MediaController):
     MODEL = Video
 
+    @staticmethod
+    def video_url(obj):
+        """
+        Build escaped url to video
+        """
+        if obj.type == obj.VIMIO:
+            return escape('http://player.vimeo.com/video/{0}?title=0'.format(obj.uid))
+        elif obj.type == obj.YOUTUBE:
+            return escape('http://youtube.com/embed/{0}'.format(obj.uid))
+        raise ValueError(smart_text('unknown video type: {0}').format(obj.type))
+
+    @staticmethod
+    def thumbnail_url(obj):
+        """
+        Get video thumbnail url.
+        """
+        if obj.type == obj.VIMIO:
+            try:
+                url = 'http://vimeo.com/api/v2/video/{0}.json'.format(obj.uid)
+                raw = urlopen(url, timeout=4).read()
+                info = json.loads(smart_text(raw), encoding='UTF-8').pop()
+                return info['thumbnail_large']
+            except URLError as e:
+                logger.exception('Error urlopen VIMIO api')
+                raise HttpError(e)
+        elif obj.type == obj.YOUTUBE:
+            return 'http://img.youtube.com/vi/{0}/hqdefault.jpg'.format(obj.uid)
+        raise ViewerError(smart_text('Unknown video type: {0}').format(obj.type))
+
     def get_response(self, size):
         # : :type: bviewer.core.models.Video
         video = self.get_object()
         storage = ImageStorage(self.gallery)
         options = ImageOptions.from_settings(size, name=str(video.id))
-        image_url = storage.get_url(video.thumbnail_url, options)
+        image_url = storage.get_url(self.thumbnail_url(video), options)
 
         image_async = CacheImage(image_url)
         if not image_url.cache_exists:
