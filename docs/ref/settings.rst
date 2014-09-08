@@ -4,7 +4,7 @@ Settings
 
 .. index:: Settings
 
-| Sample settings can be found in ``bviewer/settings/sample.py``.
+| Sample settings can be found in ``configs/app.conf.sample.py``.
   There is not only viewer settings but
   `django framework too <https://docs.djangoproject.com/en/dev/ref/settings/>`__.
 
