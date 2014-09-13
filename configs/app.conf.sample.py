@@ -14,7 +14,6 @@ DATABASES = {
         'PASSWORD': 'root',
         'HOST': '',
         'PORT': '',
-        'TEST_NAME': 'bviewer_tmp',
     }
 }
 

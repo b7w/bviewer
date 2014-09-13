@@ -30,7 +30,7 @@ def load_config():
         share_path='/home/bviewer/share',
     )
     conf['python_path'] = path.join(conf.python_home, conf.python_version, 'bin')
-    with open('configs/deploy.json') as f:
+    with open('configs/prod/deploy.json') as f:
         result = json.load(f)
         conf.update(result)
     return conf
@@ -164,7 +164,7 @@ def mount_shares():
         item['to'] = item['to'].format(**config)
         item['options'] = item['options'] + ',uid={0},uid={1}'.format(uid, gid)
     upload('share.init.conf', '/etc/init/share.conf')
-    result = sudo('service share start', warn_only=True)
+    result = sudo('service share restart', warn_only=True)
     if 'failed' in result:
         abort(result)
 
