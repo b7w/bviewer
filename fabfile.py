@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import json
 from os import path
-from functools import partial
 
 from fabric.utils import abort
+from fabric.state import env
 from fabric.colors import green
 from fabric.decorators import task
 from fabric.context_managers import cd, settings, hide, shell_env
@@ -29,8 +29,10 @@ def load_config():
         cache_path='/home/bviewer/cache',
         share_path='/home/bviewer/share',
     )
+    if not env.env:
+        abort('No env setup, add --set env=dev')
     conf['python_path'] = path.join(conf.python_home, conf.python_version, 'bin')
-    with open('configs/prod/deploy.json') as f:
+    with open(path.join('configs', env.env, 'deploy.json')) as f:
         result = json.load(f)
         conf.update(result)
     return conf
@@ -39,7 +41,13 @@ def load_config():
 config = load_config()
 
 # Helpers
-upload = partial(upload_template, context=config, use_jinja=True, template_dir='configs', use_sudo=True)
+def upload(filename, destination, **kwargs):
+    override = path.join('configs', env.env, filename)
+    if path.exists(override):
+        source = override
+    else:
+        source = path.join('configs', filename)
+    upload_template(source, destination, context=config, use_jinja=True, use_sudo=True, **kwargs)
 
 
 def echo(msg):
