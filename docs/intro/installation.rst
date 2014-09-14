@@ -29,9 +29,7 @@ Demo setup
   All needed is application `source code <https://bitbucket.org/b7w/bviewer/downloads>`__,
    `virtual box <https://www.virtualbox.org>`__ and `vagrant <https://www.vagrantup.com>`__.
 
-| Copy your sample images to `resources` folder. Enter `configs` folder.
-  Create basic deploy configuration by renaming sample files (`conf.sample.txt` -> `conf.txt`).
-  And run vagrant.
+| Copy your sample images to `resources` folder. And run vagrant.
 
 .. code-block:: bash
 
@@ -58,24 +56,27 @@ Installation
 
 | First install PostgreSQL and create database with role that has create permissions.
   Open `configs` folder in the project.
-  Create basic deploy configuration by renaming sample files (`conf.sample.txt` -> `conf.txt`).
+  Create basic deploy configuration by renaming sample files and move it to dev folder.
+  `conf.sample.txt` -> `dev/conf.txt`. (local config for `dev` env)
 
 | **app.conf.py** - main application config. Enter valid database and email parameters.
   For detail configuration look :doc:`Settings </ref/settings>`.
 
-| **nginx.ssl.crt** and **nginx.ssl.kry** - by default nginx setup with ssl only access.
-  So you need to buy or generate your certificate.
-  Also you may modify that behavior in `nginx.conf`.
+| **nginx.ssl.crt** and **nginx.ssl.kry** - Nginx setup with both http and https access.
+  Bu default samples crts used. You can override it in env config.
 
 | **deploy.json** - fabric config. Here you can set application version (source revision),
   domains (nginx server names and django allowed hosts) and list of sambas shares.
   The last is simple wrapper for mount.cifs.
 
 | Than run fabric. No meter if it first setup of update.
+  The `dev` argument is `configs/dev` folder where we copy configs.
+  You can keep any number of such folders for particular env.
+
 
 .. code-block:: bash
 
-    fab -H root@bviewer.loc deploy
+    fab -H root@bviewer.loc --set env=dev deploy
 
 
 What to read next

@@ -11,7 +11,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'bviewer',
         'USER': 'bviewer',
-        'PASSWORD': 'root',
+        'PASSWORD': '',
         'HOST': '',
         'PORT': '',
     }
@@ -55,14 +55,11 @@ LOGGING = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'redis_cache.cache.RedisCache',
-        'LOCATION': '127.0.0.1:6379:1',
-    },
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
 }
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-SESSION_CACHE_ALIAS = 'default'
-
+SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 
 FORCE_SCRIPT_NAME = ''
 
