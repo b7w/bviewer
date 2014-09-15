@@ -42,12 +42,13 @@ config = load_config()
 
 # Helpers
 def upload(filename, destination, **kwargs):
+    context = dict(kwargs.pop('context', {}), **config)
     override = path.join('configs', env.env, filename)
     if path.exists(override):
         source = override
     else:
         source = path.join('configs', filename)
-    upload_template(source, destination, context=config, use_jinja=True, use_sudo=True, **kwargs)
+    upload_template(source, destination, context=context, use_jinja=True, use_sudo=True, backup=False, **kwargs)
 
 
 def echo(msg):
@@ -66,7 +67,7 @@ def stat(path, user=config.user, group=config.user, mode=640):
 def mkdir(path, user=config.user, group=config.user, mode=640):
     if not exists(path):
         sudo('mkdir --parents {0}'.format(path))
-        stat(path, user, group, mode)
+    stat(path, user, group, mode)
 
 
 def python(cmd, **kwargs):
@@ -199,11 +200,11 @@ def install_uwsgi():
 def install_nginx():
     echo('# Install nginx')
     sudo('apt-get install -yq nginx')
-    upload('nginx.conf', '/etc/nginx/sites-enabled/bviewer.conf', backup=False)
+    upload('nginx.conf', '/etc/nginx/sites-enabled/bviewer.conf')
     certificate_crt = path.join(config.config_path, 'nginx.ssl.crt')
     certificate_key = path.join(config.config_path, 'nginx.ssl.key')
-    upload('nginx.ssl.crt', certificate_crt, backup=False)
-    upload('nginx.ssl.key', certificate_key, backup=False)
+    upload('nginx.ssl.crt', certificate_crt)
+    upload('nginx.ssl.key', certificate_key)
     stat(certificate_crt, user='root', group='www-data', mode=440)
     stat(certificate_key, user='root', group='www-data', mode=440)
     enabled = '/etc/nginx/sites-enabled/default'
@@ -214,6 +215,9 @@ def install_nginx():
 
 @task
 def deploy():
+    """
+    Make full setup on new OS or safely update app
+    """
     echo('## Deploy')
     setup_env()
     install_libs()
@@ -224,6 +228,34 @@ def deploy():
     install_nginx()
     setup_cron()
     mount_shares()
+
+
+@task
+def deploy_proxy(public_domains, privet_domain):
+    """
+    Deploy nginx proxy config with ssl and 502.html
+    Ensure nginx installed.
+    Take two strings public domains for server_name and privet_domain for proxy pass
+    """
+    echo('# Deploy proxy')
+    certificate_crt = '/etc/nginx/ssl/bviewer.crt'
+    certificate_key = '/etc/nginx/ssl/bviewer.key'
+
+    mkdir('/etc/nginx/ssl', user='root', group='root')
+    upload('nginx.ssl.crt', certificate_crt)
+    upload('nginx.ssl.key', certificate_key)
+    stat(certificate_crt, user='root', group='root')
+    stat(certificate_key, user='root', group='root')
+
+    mkdir('/etc/nginx/html/bviewer', user='root', group='www-data')
+    put('bviewer/templates/502.html', '/etc/nginx/html/bviewer/502.html', use_sudo=True)
+    stat('/etc/nginx/html', user='root', group='www-data', mode=644)
+
+    nginx_conf = '/etc/nginx/sites-enabled/proxy.bviewer.conf'
+    context = dict(public_domains=public_domains, privet_domain=privet_domain)
+    upload('nginx.proxy.conf', nginx_conf, context=context)
+    stat(nginx_conf, user='root', group='root')
+    sudo('service nginx reload')
 
 
 @task
