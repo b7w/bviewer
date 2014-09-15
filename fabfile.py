@@ -67,7 +67,7 @@ def stat(path, user=config.user, group=config.user, mode=640):
 def mkdir(path, user=config.user, group=config.user, mode=640):
     if not exists(path):
         sudo('mkdir --parents {0}'.format(path))
-    stat(path, user, group, mode)
+        stat(path, user, group, mode)
 
 
 def python(cmd, **kwargs):
@@ -103,7 +103,7 @@ def setup_env():
         sudo('adduser {0} --shell=/bin/false --group --system  --disabled-password --disabled-login'.format(config.user))
 
     # create folders
-    mkdir(config.config_path)
+    mkdir(config.config_path, user='root', group='root')
     mkdir(config.log_path)
     mkdir(config.cache_path, group='www-data', mode=770)
 
@@ -149,7 +149,11 @@ def install_app():
             python('manage.py migrate --noinput', user=config.user)
             python('manage.py collectstatic --noinput --verbosity=1', user=config.user)
 
-    stat(path.join(config.source_path, 'static'), group='www-data')
+    static_path = path.join(config.source_path, 'static')
+    gzip_cmd = "for i in `find {0} -type f -name '*.{1}'`; do echo $i; gzip -c $i > $i.gz; done;"
+    sudo(gzip_cmd.format(static_path, 'js'))
+    sudo(gzip_cmd.format(static_path, 'css'))
+    stat(static_path, group='www-data')
 
 
 @task
@@ -171,7 +175,7 @@ def mount_shares():
     sudo('mkdir --parents {0}'.format(config.share_path))
     for item in config.shares:
         item['to'] = item['to'].format(**config)
-        item['options'] = item['options'] + ',uid={0},uid={1}'.format(uid, gid)
+        item['options'] = item['options'] + ',uid={0},gid={1}'.format(uid, gid)
     upload('share.init.conf', '/etc/init/share.conf')
     result = sudo('service share restart', warn_only=True)
     if 'failed' in result:
@@ -205,8 +209,8 @@ def install_nginx():
     certificate_key = path.join(config.config_path, 'nginx.ssl.key')
     upload('nginx.ssl.crt', certificate_crt)
     upload('nginx.ssl.key', certificate_key)
-    stat(certificate_crt, user='root', group='www-data', mode=440)
-    stat(certificate_key, user='root', group='www-data', mode=440)
+    stat(certificate_crt, user='root', group='root', mode=640)
+    stat(certificate_key, user='root', group='root', mode=640)
     enabled = '/etc/nginx/sites-enabled/default'
     if exists(enabled):
         sudo('rm {0}'.format(enabled))
