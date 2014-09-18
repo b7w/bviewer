@@ -85,7 +85,8 @@ def pip(cmd, **kwargs):
 @task
 def install_libs():
     echo('# Install packages and libs')
-    requirements = 'build-essential cifs-utils htop mercurial git ' \
+    requirements = 'software-properties-common python-software-properties build-essential ' \
+                   'cifs-utils htop mercurial git ' \
                    'libsqlite3-dev sqlite3 bzip2 libbz2-dev ' \
                    'libjpeg-dev libfreetype6-dev zlib1g-dev libpq-dev'
     with hide('stdout'):
@@ -186,7 +187,6 @@ def mount_shares():
 @task
 def install_redis():
     echo('# Install redis')
-    # sudo('add-apt-repository --yes ppa:rwky/redis')
     sudo('apt-get install -yq redis-server')
 
 
@@ -204,6 +204,9 @@ def install_uwsgi():
 @task
 def install_nginx():
     echo('# Install nginx')
+    with hide('stdout'):
+        sudo('add-apt-repository --yes ppa:nginx/stable')
+        sudo('apt-get update -q')
     sudo('apt-get install -yq nginx')
     upload('nginx.conf', '/etc/nginx/sites-enabled/bviewer.conf')
     certificate_crt = path.join(config.config_path, 'nginx.ssl.crt')
