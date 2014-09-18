@@ -5,7 +5,6 @@ from django.template import Template, Context
 from django.core.management.base import BaseCommand
 
 from bviewer.core.models import Gallery, Album, Image
-
 from bviewer.core.files.storage import ImageStorage
 
 
@@ -50,8 +49,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         counter_all = 0
         holders = Gallery.objects.distinct('user').order_by('user').iterator()
-        for user in holders:
-            counter_all += self.check_user(user)
+        for gallery in holders:
+            counter_all += self.check_user(gallery.user)
         self.stdout.write('Detect {0} unavailable images'.format(counter_all))
 
     def render(self, report, count):
