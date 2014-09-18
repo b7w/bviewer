@@ -92,12 +92,12 @@ RQ_QUEUES = {
 #
 ALLOWED_HOSTS = '{{ domains }}'.split()
 
-SERVER_EMAIL = 'noreply@bviewer.loc'
-DEFAULT_FROM_EMAIL = 'noreply@bviewer.loc'
+SERVER_EMAIL = '{{ server_email }}'
+DEFAULT_FROM_EMAIL = '{{ server_email }}'
 
 EMAIL_HOST = 'smtp.bviewer.loc'
 EMAIL_PORT = 25
-EMAIL_HOST_USER = 'noreply@bviewer.loc'
+EMAIL_HOST_USER = '{{ server_email }}'
 EMAIL_HOST_PASSWORD = 'test'
 EMAIL_USE_TLS = True
 
