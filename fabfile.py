@@ -21,6 +21,7 @@ def load_config():
         revision='default',
         user='bviewer',
         python_version='3.4.1',
+        server_email='noreply@bviewer.loc',
         python_home='/home/bviewer/python',
         source_path='/home/bviewer/source',
         config_path='/home/bviewer/configs',

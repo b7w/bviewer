@@ -1,5 +1,9 @@
 
-00 * * * *     python3  {{ source_path }}/manage.py clearcache
-00 0 * * *     python3  {{ source_path }}/manage.py checkimages
+MAILTO={{ server_email }}
+LANG=en_US.UTF-8
+CONTENT_TYPE="text/plain; charset=utf-8"
+
+00 * * * *     {{ python_path }}/python3  {{ source_path }}/manage.py clearcache > /dev/null 2>&1
+00 0 * * *     {{ python_path }}/python3  {{ source_path }}/manage.py checkimages > /dev/null 2>&1
 
 # EOF
