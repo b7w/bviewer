@@ -152,9 +152,6 @@ def install_app():
             python('manage.py collectstatic --noinput --verbosity=1', user=config.user)
 
     static_path = path.join(config.source_path, 'static')
-    gzip_cmd = "for i in `find {0} -type f -name '*.{1}'`; do echo $i; gzip -c $i > $i.gz; done;"
-    sudo(gzip_cmd.format(static_path, 'js'))
-    sudo(gzip_cmd.format(static_path, 'css'))
     stat(static_path, group='www-data')
 
 
