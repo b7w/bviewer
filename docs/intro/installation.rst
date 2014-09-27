@@ -4,170 +4,79 @@ Quick install guide
 
 .. index:: Installation
 
-| *There are a lot of ways to deploy it. This guide provide one simple way.*
+
 
 Requirements
 ============
 
 .. index:: Requirements
 
-| Believe writen in python with `Django framework <https://www.djangoproject.com/>`__.
-  Also it is need Redis database for cache and tasks.
-
-| Application need these libraries to run:
-  ``django``, ``django-rq``, ``djangorestframework``, ``django-filter``, ``redis``, ``pytz``,
-  ``pillow or PIL``, ``psycopg2``. For more details look ``requirements.txt``.
-
-| You can use any django supported database server.
-  It is officially works with PostgreSQL, MySQL, Oracle and SQLite.
-  For more look `here <https://docs.djangoproject.com/en/dev/topics/install/#get-your-database-running>`__
-
 .. note::
 
-    App tested only with ubuntu 12.04, python 2.7, postgres 9 and uwsgi & nginx.
+    App tested only with Ubuntu 14.04, python 3.4 and PostgreSQL
 
-.. note::
-
-    Python 3 is not supported fully, there is some problems with libraries.
-
-
-Database driver and image library
-=================================
-
-.. index:: Database driver, Image library
-
-There is two ways. First install them from ubuntu package library.
-Or install from source. The second is more preferred.
-
-From packages
--------------
-
-.. code-block:: bash
-
-    sudo apt-get install python-pip python-psycopg2 python-imaging
-    sudo pip install django-rq django-tastypie==0.9.15 django>=1.5 fabric pytz redis
-
-From source
------------
-
-.. code-block:: bash
-
-    sudo apt-get install python-dev python-pip
-    sudo apt-get install libjpeg-dev libfreetype6-dev zlib1g-dev
-    sudo apt-get install libpq-dev
-    sudo pip install -r requirements.txt
+| All main parts of installation are automated with fabric.
+  For production use, database configuration required only.
 
 
-Redis database
-==============
-
-.. index:: Redis database
-
-| For task queue bviewer use redis database. In default repositories version is too old.
-  So it is needed to use ppa, *rwky/redis* for example.
-
-.. code-block:: bash
-
-    sudo apt-get install python-software-properties
-    sudo add-apt-repository ppa:rwky/redis
-    sudo apt-get update
-    sudo apt-get install redis
-
-
-Setup application
-=================
-
-.. index:: Setup application
-
-
-| Copy sample setting file, and edit it.
-  At least it is need to set :ref:`cache <CONF_VIEWER_CACHE_PATH>`, :ref:`storage path <CONF_VIEWER_STORAGE_PATH>`
-  and :ref:`allowed hosts <CONF_ALLOWED_HOSTS>`.
-
-.. code-block:: bash
-
-    cp bviewer/settings/sample.py bviewer/settings/local.py
-    vim bviewer/settings/local.py
-
-| After run command to create tables in database. On syncing you will be prompt to create admin user.
-  Then collect all static files from apps to one directory where web server can server it.
-
-.. code-block:: bash
-
-    python manage.py syncdb
-    fab static
-
-
-WSGI server
-===========
-
-.. index:: WSGI server, uwsgi
-
-| To run application as daemon we install *uwsgi*.
-
-.. code-block:: bash
-
-    sudo apt-get install uwsgi uwsgi-plugin-python
-
-| Than copy sample config and change paths in it according to yours installation folder.
-
-.. code-block:: bash
-
-    sudo cp docs/files/uwsgi.ini /etc/uwsgi/apps-available/uwsgi.ini
-    sudo vim /etc/uwsgi/apps-available/uwsgi.ini
-    sudo ln -s /etc/uwsgi/apps-available/uwsgi.ini /etc/uwsgi/apps-enabled/uwsgi.ini
-
-| uwsgi.ini file content:
-
-.. index:: uwsgi.ini
-
-.. literalinclude:: /files/uwsgi.ini
-
-| After restart usgi service.
-
-.. code-block:: bash
-
-    sudo service uwsgi restart
-
-.. note::
-
-    For background tasks, such as image processing by default starts 2 workers.
-    With default and low queue.
-
-.. note::
-
-    For python 3 use ``uwsgi-plugin-python3`` and replace in ``uwsgi.ini`` ``python`` to ``python32``
-
-Web server
+Demo setup
 ==========
 
-.. index:: Web server, nginx
+.. index:: Demo setup
 
-| To run web server we need install *nginx*.
 
-.. code-block:: bash
+| It is very easy to setup demo bviewer on virtual machine.
+  All needed is application `source code <https://bitbucket.org/b7w/bviewer/downloads>`__,
+   `virtual box <https://www.virtualbox.org>`__ and `vagrant <https://www.vagrantup.com>`__.
 
-    sudo apt-get install nginx
-
-| Than copy sample config. Change paths according to yours installation folder, change domains.
-
-.. code-block:: bash
-
-    sudo cp docs/files/nginx.conf /etc/nginx/apps-available/believe.conf
-    sudo vim /etc/nginx/apps-available/believe.conf
-    sudo ln -s /etc/nginx/apps-available/believe.conf /etc/nginx/apps-enabled/believe.conf
-
-| nginx.conf file content:
-
-.. index:: nginx.conf
-
-.. literalinclude:: /files/nginx.conf
-
-| After restart nginx service.
+| Copy your sample images to `resources` folder. And run vagrant.
 
 .. code-block:: bash
 
-    sudo service nginx restart
+    vagrant up --provision
+
+| Open https://4.4.4.4/ url and login.
+  Demo account - `demo/root`. Admin account - `admin/root`.
+  Enter profile page and create you first album.
+  Admin console located on https://4.4.4.4/admin url.
+
+.. note::
+
+    Some ubuntu installations may required `linux-image-extra-virtual` package
+    for unicode support in samba shares. Test with `modprobe nls_utf8`.
+
+
+Installation
+============
+
+.. index:: Installation
+
+| Almost all magic with server setup make fabric script.
+  All you need to do is install PostgreSQL and correctly edit config files.
+
+| First install PostgreSQL and create database with role that has create permissions.
+  Open `configs` folder in the project.
+  Create basic deploy configuration by renaming sample files and move it to dev folder.
+  `conf.sample.txt` -> `dev/conf.txt`. (local config for `dev` env)
+
+| **app.conf.py** - main application config. Enter valid database and email parameters.
+  For detail configuration look :doc:`Settings </ref/settings>`.
+
+| **nginx.ssl.crt** and **nginx.ssl.kry** - Nginx setup with both http and https access.
+  Bu default samples crts used. You can override it in env config.
+
+| **deploy.json** - fabric config. Here you can set application version (source revision),
+  domains (nginx server names and django allowed hosts) and list of sambas shares.
+  The last is simple wrapper for mount.cifs.
+
+| Than run fabric. No meter if it first setup of update.
+  The `dev` argument is `configs/dev` folder where we copy configs.
+  You can keep any number of such folders for particular env.
+
+
+.. code-block:: bash
+
+    fab -H root@bviewer.loc --set env=dev deploy
 
 
 What to read next

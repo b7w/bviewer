@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         full = 'full' in args
-        for user in Gallery.objects.all():
-            ImageStorage(user).clear_cache(full=full)
-            ImageStorage(user, archive_cache=True).clear_cache(full=full)
-        self.stdout.write('Clear cache for {c} users'.format(c=Gallery.objects.count()))
+        for gallery in Gallery.objects.all():
+            ImageStorage(gallery).clear_cache(full=full)
+            ImageStorage(gallery, archive_cache=True).clear_cache(full=full)
+        self.stdout.write('Clear cache for {0} galleries'.format(Gallery.objects.count()))

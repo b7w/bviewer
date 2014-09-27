@@ -5,7 +5,8 @@ from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.encoding import smart_text
 
-from bviewer.core.controllers import get_gallery, AlbumController
+from bviewer.core.models import Gallery
+from bviewer.core.controllers import AlbumController
 from bviewer.core.exceptions import FileError
 from bviewer.core.files.response import download_response
 from bviewer.core.files.storage import ImageStorage
@@ -20,12 +21,12 @@ logger = logging.getLogger(__name__)
 
 @login_required
 @permission_required('core.user_holder')
-def images_view(request, uid):
-    gallery = get_gallery(request)
+def images_view(request, gallery_id, album_id):
+    gallery = Gallery.objects.safe_get(id=gallery_id, user=request.user)
     if not gallery:
         raise Http404()
 
-    controller = AlbumController(gallery, request.user, uid=uid)
+    controller = AlbumController(gallery, request.user, uid=album_id)
     if not controller.exists():
         return message_view(request, message='No such album')
 
@@ -39,6 +40,7 @@ def images_view(request, uid):
         logger.exception(e)
         return message_view(request, message=smart_text(e))
     return render(request, 'profile/images.html', {
+        'gallery': gallery,
         'album': controller.get_object(),
         'folder': folder,
         'title': 'Select images',
@@ -47,12 +49,12 @@ def images_view(request, uid):
 
 @login_required
 @permission_required('core.user_holder')
-def album_pre_cache(request, uid):
-    gallery = get_gallery(request)
+def album_pre_cache(request, gallery_id, album_id):
+    gallery = Gallery.objects.safe_get(id=gallery_id, user=request.user)
     if not gallery:
         raise Http404()
 
-    controller = AlbumController(gallery, request.user, uid=uid)
+    controller = AlbumController(gallery, request.user, uid=album_id)
     if not controller.exists():
         return message_view(request, message='No such album')
 
@@ -66,11 +68,11 @@ def album_pre_cache(request, uid):
 
 @login_required
 @permission_required('core.user_holder')
-def download_image(request):
+def download_image(request, gallery_id):
     if request.GET.get('p', None):
         path = request.GET['p']
-        user = get_gallery(request)
-        storage = ImageStorage(user)
+        gallery = Gallery.objects.safe_get(id=gallery_id, user=request.user)
+        storage = ImageStorage(gallery)
         options = ImageOptions.from_settings('tiny')
         image_path = storage.get_path(path, options)
         try:

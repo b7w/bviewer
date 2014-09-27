@@ -59,8 +59,8 @@ class ProfileUserAdmin(UserAdmin):
         ('Important dates', {'fields': ('last_login', 'date_joined',)}),
     )
 
-    def queryset(self, request):
-        return super(ProfileUserAdmin, self).queryset(request).filter(id=request.user.id)
+    def get_queryset(self, request):
+        return super(ProfileUserAdmin, self).get_queryset(request).filter(id=request.user.id)
 
 
 profile.register(User, ProfileUserAdmin)
@@ -122,8 +122,8 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
     def has_add_permission(self, request):
         return False
 
-    def queryset(self, request):
-        return super(ProfileGalleryAdmin, self).queryset(request).filter(user=request.user)
+    def get_queryset(self, request):
+        return super(ProfileGalleryAdmin, self).get_queryset(request).filter(user=request.user)
 
     def get_form(self, request, obj=None, **kwargs):
         # Add default user
@@ -168,7 +168,8 @@ class ProfileAlbumAdmin(ProfileModelAdmin):
 
     def images(self, obj):
         if Album.objects.safe_get(id=obj.id):
-            url = reverse('profile.album', kwargs=dict(uid=obj.id))
+            params = dict(gallery_id=obj.gallery_id, album_id=obj.id)
+            url = reverse('profile.album', kwargs=params)
             path = self.images_expected_path(obj)
             count = Image.objects.filter(album=obj).count()
             return smart_text('<b><a href="{url}?p={p}">Select images on disk ({count})</a></b>') \
@@ -179,7 +180,8 @@ class ProfileAlbumAdmin(ProfileModelAdmin):
 
     def pre_cache(self, obj):
         if Album.objects.safe_get(id=obj.id):
-            url = reverse('profile.album.pre-cache', kwargs=dict(uid=obj.id))
+            params = dict(gallery_id=obj.gallery_id, album_id=obj.id)
+            url = reverse('profile.album.pre-cache', kwargs=params)
             return smart_text('<b><a href="{url}">Run pre cache task</a></b>').format(url=url)
         return smart_text('<b>Save album first</b>')
 
@@ -206,8 +208,8 @@ class ProfileAlbumAdmin(ProfileModelAdmin):
     thumbnails.allow_tags = True
     thumbnails.short_description = 'Album thumbnail'
 
-    def queryset(self, request):
-        return super(ProfileAlbumAdmin, self).queryset(request).filter(gallery__user=request.user)
+    def get_queryset(self, request):
+        return super(ProfileAlbumAdmin, self).get_queryset(request).filter(gallery__user=request.user)
 
     def save_model(self, request, obj, form, change):
         thumbnail_id = form.data['thumbnail_id']
@@ -251,19 +253,21 @@ class ProfileImageAdmin(ProfileModelAdmin):
         return obj.album.title
 
     def image_thumbnail(self, obj):
-        url = reverse('core.download', kwargs=dict(size='small', uid=obj.id))
-        return smart_text('<img class="thumbnail" src="{0}">').format(url)
+        params = dict(gallery_id=obj.album.gallery_id)
+        url = reverse('profile.download', kwargs=params)
+        return smart_text('<img class="thumbnail" src="{0}">').format(url, obj.path)
 
     image_thumbnail.allow_tags = True
 
     def image_thumbnail_popup(self, obj):
-        url = reverse('core.download', kwargs=dict(size='tiny', uid=obj.id))
-        return smart_text('<img class="preview" src="{0}">').format(url)
+        params = dict(gallery_id=obj.album.gallery_id)
+        url = reverse('profile.download', kwargs=params)
+        return smart_text('<img class="preview" src="{0}?p={1}">').format(url, obj.path)
 
     image_thumbnail_popup.allow_tags = True
 
-    def queryset(self, request):
-        return super(ProfileImageAdmin, self).queryset(request).filter(album__gallery__user=request.user)
+    def get_queryset(self, request):
+        return super(ProfileImageAdmin, self).get_queryset(request).filter(album__gallery__user=request.user)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """
@@ -295,8 +299,8 @@ class ProfileVideoAdmin(ProfileModelAdmin):
     def album_title(self, obj):
         return obj.album.title
 
-    def queryset(self, request):
-        return super(ProfileVideoAdmin, self).queryset(request).filter(album__gallery__user=request.user)
+    def get_queryset(self, request):
+        return super(ProfileVideoAdmin, self).get_queryset(request).filter(album__gallery__user=request.user)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """

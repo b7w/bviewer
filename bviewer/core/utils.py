@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
 import logging
-
 import django_rq
-import mockredis
 from django.conf import settings
 from django.utils.encoding import smart_text, smart_bytes
 from django.utils.functional import wraps
@@ -93,6 +91,8 @@ def cache_method(func):
 
 def get_redis_connection():
     if settings.TEST:
+        import mockredis
+
         if not getattr(get_redis_connection, 'redis_mock', None):
             setattr(get_redis_connection, 'redis_mock', mockredis.MockRedis())
         return get_redis_connection.redis_mock
