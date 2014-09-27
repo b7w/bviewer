@@ -18,7 +18,8 @@
 <ul class="thumbnails" id="thumbnails" style="display:none;">
     <li>
         <span class="thumbnail">
-            <input type="radio" name="thumbnail_id" value="None" {% if obj.thumbnail_id == item.id %}checked{% endif %}>
+            <input type="radio" name="thumbnail_id" value="None"
+                   {% if obj.thumbnail_id == item.id %}checked{% endif %}>
             <img class="thumbnail" src="{% static 'core/img/album.png' %}">
         </span>
     </li>
@@ -27,7 +28,7 @@
             <span class="thumbnail">
                 <input type="radio" name="thumbnail_id" value="{{ item.id }}"
                        {% if obj.thumbnail_id == item.id %}checked{% endif %}>
-                <img class="thumbnail" data-src="{% url 'core.download' 'tiny' item.id %}">
+                <img class="thumbnail" data-src="{% url 'profile.download' obj.gallery_id %}?p={{ item.path }}">
             </span>
         </li>
     {% endfor %}

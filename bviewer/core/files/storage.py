@@ -34,7 +34,6 @@ def io_call(func):
             logger.debug(method_call_str(func.__name__, self, *args, **kwargs))
             return func(self, *args, **kwargs)
         except IOError as e:
-            print('1')
             logger.exception(e)
             raise FileError(e)
 

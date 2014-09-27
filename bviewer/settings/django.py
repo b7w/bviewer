@@ -12,7 +12,7 @@ PROJECT_PATH = os.path.dirname(SOURCE_PATH)
 TMP_PATH = os.path.join(PROJECT_PATH, 'tmp')
 
 ADMINS = (
-# ('Your Name', 'your_email@example.com'),
+    # ('Your Name', 'your_email@example.com'),
 )
 
 MANAGERS = ADMINS
@@ -84,11 +84,11 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '0!1%nhhyk9uj^hzrsp=yp#^$@+^be@ku$r7ob!haivglve%d*2'
+SECRET_KEY = NotImplemented
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -185,6 +185,6 @@ LOGOUT_URL = '/logout/'
 
 SESSION_SAVE_EVERY_REQUEST = True
 
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.CachedStaticFilesStorage'
-
 REST_FRAMEWORK = {}
+
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'

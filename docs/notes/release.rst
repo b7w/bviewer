@@ -4,6 +4,13 @@ Release notes
 
 .. index:: Release notes
 
+| **v1.1.2 - 27.09.2014**
+| Add automatic setup and deployment. Update django to 1.7 and python to 3.4
+
+* Fix bug in profile when images not belongs to domain gallery
+* Add check images availability command with email notification
+
+
 | **v1.1.1 - 29.07.2014**
 | Add registration. Change user access behavior. Need database scheme update.
 

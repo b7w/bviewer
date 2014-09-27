@@ -62,6 +62,7 @@ class AdminGalleryForm(ModelForm):
 
     class Meta(object):
         model = Gallery
+        fields = '__all__'
 
 
 class AdminAlbumForm(ModelForm):
@@ -89,6 +90,7 @@ class AdminAlbumForm(ModelForm):
 
     class Meta(object):
         model = Album
+        fields = '__all__'
 
 
 class AlbumForm(ModelForm):

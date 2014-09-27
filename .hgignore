@@ -7,6 +7,7 @@ bviewer/settings/dev/\w*\.py
 \.pyo
 
 \.idea/
+\configs
 
 cache/
 tests/

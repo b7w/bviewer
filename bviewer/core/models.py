@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
 import logging
 import uuid
 
@@ -17,10 +16,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.utils import timezone
 from django.utils.encoding import smart_text
-from django.utils.html import escape
 
 from bviewer.core.files.storage import ImageStorage
-from bviewer.core.exceptions import HttpError, ViewerError
 from bviewer.core.utils import set_time_from_exif
 
 
@@ -219,35 +216,6 @@ class Video(models.Model):
     time = models.DateTimeField(default=timezone.now)
 
     objects = ProxyManager()
-
-    @property
-    def url(self):
-        """
-        Build escaped url to video
-        """
-        if self.type == self.VIMIO:
-            return escape('http://player.vimeo.com/video/{0}?title=0'.format(self.uid))
-        elif self.type == self.YOUTUBE:
-            return escape('http://youtube.com/embed/{0}'.format(self.uid))
-        raise ValueError(smart_text('unknown video type: {0}').format(self.type))
-
-    @property
-    def thumbnail_url(self):
-        """
-        Get video thumbnail url.
-        """
-        if self.type == self.VIMIO:
-            try:
-                url = 'http://vimeo.com/api/v2/video/{0}.json'.format(self.uid)
-                raw = urlopen(url, timeout=4).read()
-                info = json.loads(smart_text(raw), encoding='UTF-8').pop()
-                return info['thumbnail_large']
-            except URLError as e:
-                logger.exception('Error urlopen VIMIO api')
-                raise HttpError(e)
-        elif self.type == self.YOUTUBE:
-            return 'http://img.youtube.com/vi/{0}/hqdefault.jpg'.format(self.uid)
-        raise ViewerError(smart_text('Unknown video type: {0}').format(self.type))
 
     def __str__(self):
         return self.title
