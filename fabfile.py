@@ -2,6 +2,7 @@
 import json
 from os import path
 
+from fabric.main import main
 from fabric.utils import abort
 from fabric.state import env
 from fabric.colors import green
@@ -9,6 +10,10 @@ from fabric.decorators import task
 from fabric.context_managers import cd, settings, hide, shell_env
 from fabric.contrib.files import exists, upload_template
 from fabric.operations import sudo, put
+
+
+if __name__ == '__main__':
+    main()
 
 
 def load_config():
@@ -30,7 +35,7 @@ def load_config():
         cache_path='/home/bviewer/cache',
         share_path='/home/bviewer/share',
     )
-    if not env.env:
+    if 'env' not in env:
         abort('No env setup, add --set env=dev')
     conf['python_path'] = path.join(conf.python_home, conf.python_version, 'bin')
     with open(path.join('configs', env.env, 'deploy.json')) as f:
@@ -40,6 +45,7 @@ def load_config():
 
 
 config = load_config()
+
 
 # Helpers
 def upload(filename, destination, **kwargs):
@@ -102,7 +108,8 @@ def setup_env():
     with settings(warn_only=True):
         result = sudo('id -u {0}'.format(config.user))
     if result.return_code == 1:
-        sudo('adduser {0} --shell=/bin/false --group --system  --disabled-password --disabled-login'.format(config.user))
+        sudo(
+            'adduser {0} --shell=/bin/false --group --system  --disabled-password --disabled-login'.format(config.user))
 
     # create folders
     mkdir(config.config_path, user='root', group='root')
@@ -145,7 +152,7 @@ def install_app():
         with cd(config.source_path):
             config_path = path.join(config.source_path, 'bviewer/settings/local.py')
             with hide('stdout'):
-                python('setup.py install --quiet')
+                python('setup.py install --force --quiet')
             upload('app.conf.py', config_path)
             stat(config_path, mode=400)
             python('manage.py migrate --noinput', user=config.user)
