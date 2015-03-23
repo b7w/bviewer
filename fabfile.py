@@ -22,6 +22,7 @@ def load_config():
 
     conf = Config(
         domains=NotImplemented,
+        proxy=NotImplemented,
         shares=[],
         revision='default',
         user='bviewer',
@@ -243,13 +244,16 @@ def deploy():
 
 
 @task
-def deploy_proxy(public_domains, privet_domain):
+def deploy_proxy():
     """
     Deploy nginx proxy config with ssl and 502.html
     Ensure nginx installed.
     Take two strings public domains for server_name and privet_domain for proxy pass
     """
     echo('# Deploy proxy')
+    public_domains = config.proxy['from']
+    privet_domain = config.proxy['to']
+
     certificate_crt = '/etc/nginx/ssl/bviewer.crt'
     certificate_key = '/etc/nginx/ssl/bviewer.key'
 
