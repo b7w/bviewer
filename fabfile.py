@@ -153,7 +153,7 @@ def install_app():
         with cd(config.source_path):
             config_path = path.join(config.source_path, 'bviewer/settings/local.py')
             with hide('stdout'):
-                python('setup.py install --force --quiet')
+                pip('install --upgrade --editable .')
             upload('app.conf.py', config_path)
             stat(config_path, mode=400)
             python('manage.py migrate --noinput', user=config.user)
