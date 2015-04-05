@@ -120,7 +120,7 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
         images_size = storage.cache_size() / 2 ** 20
         storage = ImageStorage(user, archive_cache=True)
         archive_size = storage.cache_size() / 2 ** 20
-        return 'Images size: {0} MB, archives size: {1} MB'.format(images_size, archive_size)
+        return 'Images size: {0:.1f} MB, archives size: {1:.1f} MB'.format(images_size, archive_size)
 
     def has_add_permission(self, request):
         return False
@@ -134,14 +134,6 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
         data['user'] = request.user.id
         request.POST = data
         return super(ProfileGalleryAdmin, self).get_form(request, obj=None, **kwargs)
-
-    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
-        """
-        Show in drop down menu only user albums
-        """
-        if db_field.name == 'parent':
-            kwargs['queryset'] = Album.objects.filter(gallery__user=request.user)
-        return super(ProfileGalleryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """
