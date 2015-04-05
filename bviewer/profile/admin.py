@@ -13,16 +13,16 @@ from bviewer.core.controllers import AlbumController
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.models import Access, Album, Image, Gallery, Video
 from bviewer.profile.actions import bulk_time_update, update_time_from_exif
-from bviewer.profile.forms import AdminUserChangeForm, AdminGalleryForm, AdminAlbumForm
+from bviewer.profile.forms import AdminGalleryForm, AdminAlbumForm
 
 
 class ProfileSite(AdminSite):
     """
     Separate admin site only to edit user albums, images, profile
     """
-    site_title = 'User profile'
-    site_header = 'bviewer - profile'
-    index_title = 'User profile'
+    site_title = 'Profile'
+    site_header = 'User profile'
+    index_title = 'Home'
 
     def __init__(self, name='profile'):
         super(ProfileSite, self).__init__(name)
@@ -52,7 +52,6 @@ class ProfileModelAdmin(ModelAdmin):
 
 class ProfileUserAdmin(UserAdmin):
     list_select_related = True
-    form = AdminUserChangeForm
 
     list_display = ('username', 'email')
 
