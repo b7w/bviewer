@@ -18,9 +18,9 @@ class SlideShow(models.Model):
     album = models.ForeignKey(Album, on_delete=models.DO_NOTHING)
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.DO_NOTHING)
     session_key = models.CharField(max_length=32)
-    timer = models.SmallIntegerField(max_length=4, default=10)
-    status = models.SmallIntegerField(max_length=1, choices=STATUS_CHOICE, default=NEW)
-    image_count = models.IntegerField(max_length=8, default=0)
+    timer = models.SmallIntegerField(default=10)
+    status = models.SmallIntegerField(choices=STATUS_CHOICE, default=NEW)
+    image_count = models.IntegerField(default=0)
     time = models.DateTimeField(default=timezone.now)
 
     objects = ProxyManager()

@@ -137,10 +137,10 @@ class Album(models.Model):
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.SET_NULL)
     title = models.CharField(max_length=256)
     gallery = models.ForeignKey(Gallery)
-    visibility = models.SmallIntegerField(max_length=1, choices=VISIBILITY_CHOICE, default=VISIBLE,
+    visibility = models.SmallIntegerField(choices=VISIBILITY_CHOICE, default=VISIBLE,
                                           help_text='HIDDEN - not shown on page for anonymous, '
                                                     'PRIVATE - available only to the gallery')
-    album_sorting = models.SmallIntegerField(max_length=1, choices=SORT_CHOICE, default=ASK,
+    album_sorting = models.SmallIntegerField(choices=SORT_CHOICE, default=ASK,
                                              help_text='How to sort albums inside')
     allow_archiving = models.BooleanField(default=True)
     description = models.TextField(max_length=512, null=True, blank=True)
@@ -209,7 +209,7 @@ class Video(models.Model):
 
     id = models.CharField(max_length=32, default=uuid_pk(length=12), primary_key=True)
     uid = models.CharField(max_length=32)
-    type = models.SmallIntegerField(max_length=1, choices=TYPE_CHOICE, default=YOUTUBE)
+    type = models.SmallIntegerField(choices=TYPE_CHOICE, default=YOUTUBE)
     album = models.ForeignKey(Album)
     title = models.CharField(max_length=256)
     description = models.TextField(max_length=512, null=True, blank=True)
