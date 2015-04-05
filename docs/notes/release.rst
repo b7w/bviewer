@@ -4,7 +4,14 @@ Release notes
 
 .. index:: Release notes
 
-| **v1.1.2 dev**
+| **v1.1.3 dev**
+| Update django to 1.8
+
+* Update django and other dependencies
+* Small fabfile fixes
+
+
+| **v1.1.2**
 | Add automatic setup and deployment. Update django to 1.7 and python to 3.4
 
 * Fix bug in profile when images not belongs to domain gallery

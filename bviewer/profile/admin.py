@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 from collections import Counter
+
 from django.contrib.admin import AdminSite, ModelAdmin, TabularInline
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
@@ -19,9 +20,12 @@ class ProfileSite(AdminSite):
     """
     Separate admin site only to edit user albums, images, profile
     """
+    site_title = 'User profile'
+    site_header = 'bviewer - profile'
+    index_title = 'User profile'
 
-    def __init__(self, name='profile', app_name='admin'):
-        super(ProfileSite, self).__init__(name, app_name)
+    def __init__(self, name='profile'):
+        super(ProfileSite, self).__init__(name)
 
     def has_permission(self, request):
         user = request.user

@@ -11,20 +11,17 @@ setup(
     name='bviewer',
     version='v1.1.3 dev',
     install_requires=[
-        'django>=1.7,<1.8',
+        'django>=1.8,<1.9',
         'django-rq',
         'djangorestframework>=2.3,<2.4',
         'django-filter',
         'django-redis',
         'redis',
         'pytz',
-        'ExifRead==2.0',
+        'exifread',
         # to build
         'pillow',
         'psycopg2',
-    ],
-    dependency_links=[
-        "git+https://github.com/ianare/exif-py.git@develop#egg=ExifRead-2.0"
     ],
     packages=['bviewer', 'bviewer.api', 'bviewer.api.tests', 'bviewer.core', 'bviewer.core.files', 'bviewer.core.tests',
               'bviewer.core.management', 'bviewer.core.management.commands', 'bviewer.archive', 'bviewer.profile',
