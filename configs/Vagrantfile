@@ -4,6 +4,7 @@
 VAGRANTFILE_API_VERSION = "2"
 
 $script = <<SCRIPT
+sudo apt-get update
 sudo apt-get install -yq fabric python-jinja2 postgresql
 sudo -u postgres psql -c"CREATE DATABASE bviewer;"
 sudo -u postgres psql -c"CREATE ROLE bviewer LOGIN;"
