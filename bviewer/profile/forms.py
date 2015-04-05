@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 from datetime import timedelta
-from django.contrib.auth.forms import UserChangeForm
+
 from django.core.exceptions import ValidationError
 from django.forms import Form, ModelForm, ChoiceField, CharField, MultipleHiddenInput
 
@@ -31,13 +31,6 @@ class BulkTimeUpdateForm(Form):
             if match:
                 kwargs[dimension] = int(match.group()[:-1])
         return timedelta(**kwargs)
-
-
-class AdminUserChangeForm(UserChangeForm):
-    def __init__(self, *args, **kwargs):
-        super(AdminUserChangeForm, self).__init__(*args, **kwargs)
-        # Remove filed, it is not send to form (it is readonly_fields) but form need it
-        del self.fields['username']
 
 
 class AdminGalleryForm(ModelForm):
