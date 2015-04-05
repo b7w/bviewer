@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+from importlib import import_module
+
 from django.conf import settings
 from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse, StreamingHttpResponse
 from django.utils.encoding import smart_text, smart_bytes
-from django.utils.importlib import import_module
 
 
 class DjangoDownloadHttpResponse(StreamingHttpResponse):
