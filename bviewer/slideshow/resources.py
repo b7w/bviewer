@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.urlresolvers import reverse
 from rest_framework import status
-from rest_framework.decorators import link
+from rest_framework.decorators import detail_route
 from rest_framework.filters import OrderingFilter, DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.relations import HyperlinkedIdentityField
@@ -39,7 +39,7 @@ class SlideShowResource(ModelViewSet):
     def get_queryset(self):
         return self.queryset.filter(session_key=self.request.session.session_key)
 
-    @link()
+    @detail_route()
     def get_or_create(self, request, pk=None):
         if pk:
             return Response(dict(error='No "pk" parameter needed'), status=status.HTTP_400_BAD_REQUEST)
@@ -55,7 +55,7 @@ class SlideShowResource(ModelViewSet):
         serializer = self.get_serializer(controller.get_or_create())
         return Response(serializer.data)
 
-    @link()
+    @detail_route()
     def next(self, request, pk=None):
         if not pk:
             return Response(dict(error='No "pk" parameter'), status=status.HTTP_400_BAD_REQUEST)

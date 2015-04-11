@@ -73,14 +73,14 @@ class PrivateTestCase(BaseResourceTestCase):
         key = smart_text('path')
         response = self.client.rest_get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertFalse(response.object.get(key))
+        self.assertNotIn(key, response.object)
 
         self.login_user(self.data.user_b7w)
         response = self.client.rest_get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.object.get(key))
+        self.assertIn(key, response.object)
 
         self.login_user(self.data.user_keks)
         response = self.client.rest_get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertFalse(response.object.get(key))
+        self.assertNotIn(key, response.object)

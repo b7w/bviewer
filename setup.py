@@ -5,23 +5,23 @@ from setuptools import setup
 
 if os.path.exists('bviewer/settings/local.py'):
     sys.stderr.write('Warn: remove "bviewer.settings.local"\n')
-    os.unlink('bviewer/settings/local.py')
+    #os.unlink('bviewer/settings/local.py')
 
 setup(
     name='bviewer',
     version='v1.1.3 dev',
     install_requires=[
-        'django>=1.8,<1.9',
-        'django-rq',
-        'djangorestframework>=2.3,<2.4',
-        'django-filter',
-        'django-redis',
-        'redis',
+        'django==1.8',
+        'django-rq==0.7.0',
+        'djangorestframework==3.1.1',
+        'django-filter==0.9.2',
+        'django-redis==3.8.3',
+        'redis==2.10.3',
         'pytz',
-        'exifread',
+        'exifread==2.0.2',
         # to build
-        'pillow',
-        'psycopg2',
+        'pillow==2.8.1',
+        'psycopg2==2.6',
     ],
     packages=['bviewer', 'bviewer.api', 'bviewer.api.tests', 'bviewer.core', 'bviewer.core.files', 'bviewer.core.tests',
               'bviewer.core.management', 'bviewer.core.management.commands', 'bviewer.archive', 'bviewer.profile',
