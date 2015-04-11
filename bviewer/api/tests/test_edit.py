@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from unittest import skip
 
 from rest_framework import status
 
@@ -32,8 +31,6 @@ class EditTestCase(BaseResourceTestCase):
         response = self.client.rest_post('/api/v1/video/', data=self.new_video)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    # TODO: Update rest framework
-    @skip('rest framework bug with django 1.8')
     def test_login_post(self):
         self.login_user(self.data.user_b7w)
         response = self.client.rest_post('/api/v1/gallery/', data=self.new_gallery)
