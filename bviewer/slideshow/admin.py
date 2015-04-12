@@ -38,14 +38,14 @@ class SlideShowProfile(SlideShowAdmin):
         return False
 
     def get_queryset(self, request):
-        return super(SlideShowProfile, self).get_queryset(request).filter(album__user=request.user)
+        return super(SlideShowProfile, self).get_queryset(request).filter(album__gallery__user=request.user)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """
         Show in drop down menu only user albums
         """
         if db_field.name == 'album':
-            kwargs['queryset'] = Album.objects.filter(user=request.user)
+            kwargs['queryset'] = Album.objects.filter(gallery__user=request.user)
         return super(SlideShowProfile, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):
