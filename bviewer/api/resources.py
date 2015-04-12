@@ -10,7 +10,7 @@ from bviewer.api.serializers import UserSerializer, GallerySerializer, AlbumSeri
 from bviewer.core.models import Gallery, Album, Image, Video
 
 
-ITEMS_PER_PAGE = 16
+ITEMS_PER_PAGE = 64
 
 
 class UserResource(ModelViewSet):
