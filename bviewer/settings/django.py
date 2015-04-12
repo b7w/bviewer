@@ -5,7 +5,6 @@
 import os
 
 DEBUG = False
-TEMPLATE_DEBUG = DEBUG
 
 SOURCE_PATH = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
 PROJECT_PATH = os.path.dirname(SOURCE_PATH)
@@ -90,13 +89,27 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = NotImplemented
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    ('django.template.loaders.cached.Loader', (
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-    )),
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'DIRS': (
+            os.path.join(SOURCE_PATH, 'templates'),
+        ),
+        'OPTIONS': {
+            'context_processors': (
+                'django.contrib.auth.context_processors.auth',
+                'django.core.context_processors.csrf',
+                'django.core.context_processors.debug',
+                'django.core.context_processors.i18n',
+                'django.core.context_processors.static',
+                'django.contrib.messages.context_processors.messages',
+                'django.core.context_processors.request',
+                'bviewer.core.context_processors.extra_html',
+            )
+        }
+    },
+]
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -105,32 +118,13 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.common.BrokenLinkEmailsMiddleware',
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 ROOT_URLCONF = 'bviewer.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'bviewer.wsgi.application'
-
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    os.path.join(SOURCE_PATH, 'templates'),
-)
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.csrf',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.static',
-    'django.contrib.messages.context_processors.messages',
-    'django.core.context_processors.request',
-    'bviewer.core.context_processors.extra_html',
-)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
