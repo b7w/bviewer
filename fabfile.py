@@ -156,6 +156,8 @@ def install_app():
                 pip('install --upgrade --editable .')
             upload('app.conf.py', config_path)
             stat(config_path, mode=400)
+            python('manage.py migrate sites --noinput', user=config.user)
+            python('manage.py migrate auth --noinput', user=config.user)
             python('manage.py migrate --noinput', user=config.user)
             python('manage.py collectstatic --noinput --verbosity=1', user=config.user)
 
