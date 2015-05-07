@@ -14,7 +14,7 @@ class SlideShow(models.Model):
     FINISHED = 3
     STATUS_CHOICE = ((NEW, 'New'), (BUILD, 'Build'), (FINISHED, 'Finished'),)
 
-    id = models.CharField(max_length=32, default=uuid_pk(length=8), primary_key=True)
+    id = models.CharField(max_length=32, default=uuid_pk, primary_key=True)
     album = models.ForeignKey(Album, on_delete=models.DO_NOTHING)
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.DO_NOTHING)
     session_key = models.CharField(max_length=32)
