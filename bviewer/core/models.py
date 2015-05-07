@@ -24,16 +24,12 @@ from bviewer.core.utils import set_time_from_exif
 logger = logging.getLogger(__name__)
 
 
-def uuid_pk(length=10):
+def uuid_pk():
     """
-    Return function that generate uuid1 and cut it to `length`.
+    Generate uuid1 and cut it to 12.
     UUID default size is 32 chars.
     """
-
-    def _uuid_pk():
-        return uuid.uuid1().hex[:length]
-
-    return _uuid_pk
+    return uuid.uuid1().hex[:12]
 
 
 class ProxyManager(models.Manager):
@@ -77,7 +73,8 @@ class Gallery(models.Model):
     home = models.CharField(max_length=512, blank=True, default='')
 
     cache_size = models.PositiveIntegerField(default=32,
-                                             validators=[MinValueValidator(CACHE_SIZE_MIN), MaxValueValidator(CACHE_SIZE_MAX)])
+                                             validators=[MinValueValidator(CACHE_SIZE_MIN),
+                                                         MaxValueValidator(CACHE_SIZE_MAX)])
     cache_archive_size = models.PositiveIntegerField(default=256,
                                                      validators=[MinValueValidator(CACHE_ARCHIVE_SIZE_MIN),
                                                                  MaxValueValidator(CACHE_ARCHIVE_SIZE_MAX)])
@@ -133,7 +130,7 @@ class Album(models.Model):
     DESK = 2
     SORT_CHOICE = ((ASK, 'Ascending '), (DESK, 'Descending'), )
 
-    id = models.CharField(max_length=32, default=uuid_pk(length=8), primary_key=True)
+    id = models.CharField(max_length=32, default=uuid_pk, primary_key=True)
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.SET_NULL)
     title = models.CharField(max_length=256)
     gallery = models.ForeignKey(Gallery)
@@ -164,7 +161,7 @@ class Album(models.Model):
 
 
 class Image(models.Model):
-    id = models.CharField(max_length=32, default=uuid_pk(length=12), primary_key=True)
+    id = models.CharField(max_length=32, default=uuid_pk, primary_key=True)
     album = models.ForeignKey(Album)
     path = models.CharField(max_length=512)
     time = models.DateTimeField(default=timezone.now)
@@ -207,7 +204,7 @@ class Video(models.Model):
     YOUTUBE = 2
     TYPE_CHOICE = ((YOUTUBE, 'YouTube'), (VIMIO, 'Vimio'),)
 
-    id = models.CharField(max_length=32, default=uuid_pk(length=12), primary_key=True)
+    id = models.CharField(max_length=32, default=uuid_pk, primary_key=True)
     uid = models.CharField(max_length=32)
     type = models.SmallIntegerField(choices=TYPE_CHOICE, default=YOUTUBE)
     album = models.ForeignKey(Album)
