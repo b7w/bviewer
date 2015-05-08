@@ -1,4 +1,5 @@
 {
     "revision": "dev",
-    "domains": "bviewer.loc 4.4.4.4"
+    "domains": "bviewer.loc 4.4.4.4",
+    "source_clone": false
 }

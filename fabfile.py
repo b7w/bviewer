@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 from os import path
+import time
 
 from fabric.main import main
 from fabric.utils import abort
@@ -30,6 +31,7 @@ def load_config():
         server_email='noreply@bviewer.loc',
         python_home='/home/bviewer/python',
         source_path='/home/bviewer/source',
+        source_clone=True,  # clone form scr or copy from local folder
         config_path='/home/bviewer/configs',
         log_path='/home/bviewer/logs',
         run_path='/var/run/bviewer',
@@ -140,13 +142,19 @@ def install_python():
 @task
 def install_app():
     echo('# Install application')
-    if exists(config.source_path):
-        with cd(config.source_path):
-            sudo('hg pull', user=config.user)
-            sudo('hg up --clean {0}'.format(config.revision), user=config.user)
+    if config.source_clone:
+        if exists(config.source_path):
+            with cd(config.source_path):
+                sudo('hg pull', user=config.user)
+                sudo('hg up --clean {0}'.format(config.revision), user=config.user)
+        else:
+            cmd = 'hg clone --branch {0} https://bitbucket.org/b7w/bviewer {1}'
+            sudo(cmd.format(config.revision, config.source_path), user=config.user)
     else:
-        cmd = 'hg clone --branch {0} https://bitbucket.org/b7w/bviewer {1}'
-        sudo(cmd.format(config.revision, config.source_path), user=config.user)
+        sudo('rm -rf {0}'.format(config.source_path))
+        mkdir(config.source_path)
+        sudo('cp -r /provision/* {0}'.format(config.source_path))
+        stat(config.source_path)
 
     # Install app
     with pip_env():
@@ -231,6 +239,7 @@ def deploy():
     """
     Make full setup on new OS or safely update app
     """
+    t1 = time.time()
     echo('## Deploy')
     setup_env()
     install_libs()
@@ -241,6 +250,8 @@ def deploy():
     install_nginx()
     setup_cron()
     mount_shares()
+    t2 = int(time.time() - t1)
+    print('## Complete, {0:d} min and {1:d} sec'.format(t2 // 60, t2 % 60))
 
 
 @task
@@ -272,6 +283,17 @@ def deploy_proxy():
     upload('nginx.proxy.conf', nginx_conf, context=context)
     stat(nginx_conf, user='root', group='root')
     sudo('service nginx reload')
+
+
+@task
+def deploy_vagrant():
+    """
+    Deploy and load data for vagrant demo installation
+    """
+    deploy()
+    with pip_env():
+        with cd(config.source_path):
+            python('manage.py initdemo', user=config.user)
 
 
 @task
