@@ -26,7 +26,7 @@ def load_config():
         shares=[],
         revision='default',
         user='bviewer',
-        python_version='3.4.1',
+        python_version='3.4.2',
         server_email='noreply@bviewer.loc',
         python_home='/home/bviewer/python',
         source_path='/home/bviewer/source',
@@ -156,8 +156,6 @@ def install_app():
                 pip('install --upgrade --editable .')
             upload('app.conf.py', config_path)
             stat(config_path, mode=400)
-            python('manage.py migrate sites --noinput', user=config.user)
-            python('manage.py migrate auth --noinput', user=config.user)
             python('manage.py migrate --noinput', user=config.user)
             python('manage.py collectstatic --noinput --verbosity=1', user=config.user)
 

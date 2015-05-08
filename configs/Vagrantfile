@@ -11,13 +11,15 @@ sudo -u postgres psql -c"CREATE ROLE bviewer LOGIN;"
 sudo -u postgres psql -c"GRANT ALL privileges ON DATABASE bviewer TO bviewer;"
 cd /provision
 fab -H vagrant@localhost -p vagrant --set env=vagrant deploy
-ln -s /share/* /home/bviewer/share
+cp -R /share/* /home/bviewer/share
 sudo -u bviewer psql <<EOF
 BEGIN;
 INSERT INTO auth_user VALUES (1, 'pbkdf2_sha256\\$12000\\$LykwxSKZcQbI\\$8UxDzt98Rq591Ucjg/suEzteFE64bph7vcadum4B5bg=', now(), true, 'admin', '', '', 'admin@bv.loc', true, true, now());
 INSERT INTO auth_user VALUES (2, 'pbkdf2_sha256\\$12000\\$LykwxSKZcQbI\\$8UxDzt98Rq591Ucjg/suEzteFE64bph7vcadum4B5bg=', now(), false, 'demo', '', '', 'demo@bv.loc', false, true, now());
-INSERT INTO core_gallery VALUES (1, 2, 'Demo gallery', '4.4.4.4', '', 32, 256, 'f4333db0', 'Demo gallery', 'Demo preview of bviewer gallery!');
-INSERT INTO core_album VALUES ('f4333db0', NULL, 'Welcome', 1, 1, 1, true, 'Edit main album to change it', NULL, now());
+INSERT INTO core_gallery (id, user_id, url, home, cache_size, cache_archive_size, top_album_id, about_title, about_text, description)
+ VALUES (1, 2, '4.4.4.4', '', 32, 256, 'f4333db0', 'Demo gallery', 'About text', 'Demo preview of bviewer gallery!');
+INSERT INTO core_album (id, parent_id, title, gallery_id, visibility, album_sorting, allow_archiving, description, thumbnail_id, time)
+ VALUES ('f4333db0', NULL, 'Welcome', 1, 1, 1, true, 'Edit main album to change it', NULL, now());
 COMMIT;
 EOF
 SCRIPT
