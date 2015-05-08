@@ -2,7 +2,6 @@
 from bviewer.settings.project import *
 
 DEBUG = False
-TEMPLATE_DEBUG = DEBUG
 
 SECRET_KEY = '2pn61g9w5$kvey611z2ua31szq(7)t0m0)$w#o)p@)ycj&93!!'
 
@@ -55,24 +54,14 @@ LOGGING = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'redis_cache.cache.RedisCache',
-        'LOCATION': '127.0.0.1:6379:1',
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
     },
 }
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
 
-
-FORCE_SCRIPT_NAME = ''
-
-VIEWER_CACHE_PATH = '{{ cache_path }}'
-VIEWER_STORAGE_PATH = '{{ share_path }}'
-
-
-#
-# RQ configs
-#
 RQ_QUEUES = {
     'default': {
         'HOST': 'localhost',
@@ -87,11 +76,24 @@ RQ_QUEUES = {
 }
 
 
-#
-# Run service configs
-#
+# Security
+SESSION_COOKIE_SECURE = True
+
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = True
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+X_FRAME_OPTIONS = 'DENY'
+
 ALLOWED_HOSTS = '{{ domains }}'.split()
 
+
+# Extra
+FORCE_SCRIPT_NAME = ''
+
+
+# Malling
 SERVER_EMAIL = '{{ server_email }}'
 DEFAULT_FROM_EMAIL = '{{ server_email }}'
 
@@ -100,5 +102,10 @@ EMAIL_PORT = 25
 EMAIL_HOST_USER = '{{ server_email }}'
 EMAIL_HOST_PASSWORD = 'test'
 EMAIL_USE_TLS = True
+
+
+# Application
+VIEWER_CACHE_PATH = '{{ cache_path }}'
+VIEWER_STORAGE_PATH = '{{ share_path }}'
 
 EXTRA_HTML = ''
