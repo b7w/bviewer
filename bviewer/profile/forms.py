@@ -67,7 +67,7 @@ class AdminAlbumForm(ModelForm):
 
     def clean_gallery(self):
         gallery = self.cleaned_data['gallery']
-        if self.instance.id == self.instance.gallery.top_album_id \
+        if self.instance.gallery_id and self.instance.id == self.instance.gallery.top_album_id \
                 and self.instance.gallery_id != gallery.id:
             raise ValidationError('You can not change gallery top album')
         return gallery
