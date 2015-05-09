@@ -5,7 +5,7 @@ from django.contrib.auth.models import User, Permission
 
 from django.core.management.base import BaseCommand
 
-from bviewer.core.models import Gallery
+from bviewer.core.models import Gallery, Album
 
 
 logger = logging.getLogger(__name__)
@@ -33,9 +33,12 @@ class Command(BaseCommand):
             user.user_permissions.add(perm)
             user.save()
 
-            Gallery.objects.create(user=user, url='4.4.4.4', home='', about_title='Demo gallery',
-                                   about_text='About text', description='Demo preview of bviewer gallery!')
-            self.stdout.write('Create demo user and demo gallery')
+            gallery = Gallery.objects.create(user=user, url='4.4.4.4', home='', about_title='Demo gallery',
+                                             about_text='About text', description='Demo preview of bviewer gallery!')
+
+            Album.objects.create(parent=gallery.top_album, gallery=gallery, title='Demo album',
+                                 description='First album')
+            self.stdout.write('Create demo user and demo gallery with one album')
 
     def handle(self, *args, **options):
         self.create_admin()
