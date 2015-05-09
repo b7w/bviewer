@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+
 from setuptools import setup
+
 
 if os.path.exists('bviewer/settings/local.py'):
     sys.stderr.write('Warn: remove "bviewer.settings.local"\n')
-    #os.unlink('bviewer/settings/local.py')
+    # os.unlink('bviewer/settings/local.py')
 
 setup(
     name='bviewer',
@@ -17,6 +19,7 @@ setup(
         'django-filter==0.9.2',
         'django-redis==4.0.0',
         'redis==2.10.3',
+        'rq==0.5.2',
         'pytz',
         'exifread==2.0.2',
         # to build
