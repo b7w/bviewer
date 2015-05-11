@@ -26,9 +26,10 @@ setup(
         'pillow==2.8.1',
         'psycopg2==2.6',
     ],
-    packages=['bviewer', 'bviewer.api', 'bviewer.api.tests', 'bviewer.core', 'bviewer.core.files', 'bviewer.core.tests',
-              'bviewer.core.management', 'bviewer.core.management.commands', 'bviewer.archive', 'bviewer.profile',
-              'bviewer.settings', 'bviewer.slideshow', ],
+    packages=['bviewer', 'bviewer.api', 'bviewer.archive', 'bviewer.core', 'bviewer.profile', 'bviewer.settings',
+              'bviewer.slideshow', 'bviewer.api.tests', 'bviewer.core.files', 'bviewer.core.management',
+              'bviewer.core.migrations', 'bviewer.core.tests', 'bviewer.core.management.commands',
+              'bviewer.slideshow.migrations'],
     include_package_data=True,
     entry_points={
         'console_scripts': [

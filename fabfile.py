@@ -6,7 +6,7 @@ import time
 from fabric.main import main
 from fabric.utils import abort
 from fabric.state import env
-from fabric.colors import green
+from fabric.colors import cyan, green
 from fabric.decorators import task
 from fabric.context_managers import cd, settings, hide, shell_env
 from fabric.contrib.files import exists, upload_template
@@ -17,6 +17,14 @@ if __name__ == '__main__':
     main()
 
 
+def echo(msg):
+    print(green(msg))
+
+
+def log(msg):
+    print(cyan(msg))
+
+
 def load_config():
     class Config(dict):
         __getattr__ = dict.__getitem__
@@ -25,13 +33,12 @@ def load_config():
         domains=NotImplemented,
         proxy=NotImplemented,
         shares=[],
-        revision='default',
+        revision='default',  # clone form repo or copy from local if None
         user='bviewer',
         python_version='3.4.2',
         server_email='noreply@bviewer.loc',
         python_home='/home/bviewer/python',
         source_path='/home/bviewer/source',
-        source_clone=True,  # clone form scr or copy from local folder
         config_path='/home/bviewer/configs',
         log_path='/home/bviewer/logs',
         run_path='/var/run/bviewer',
@@ -44,6 +51,7 @@ def load_config():
     with open(path.join('configs', env.env, 'deploy.json')) as f:
         result = json.load(f)
         conf.update(result)
+    log('# Config: {0}'.format(conf))
     return conf
 
 
@@ -59,10 +67,6 @@ def upload(filename, destination, **kwargs):
     else:
         source = path.join('configs', filename)
     upload_template(source, destination, context=context, use_jinja=True, use_sudo=True, backup=False, **kwargs)
-
-
-def echo(msg):
-    print(green(msg))
 
 
 def pip_env():
@@ -142,7 +146,7 @@ def install_python():
 @task
 def install_app():
     echo('# Install application')
-    if config.source_clone:
+    if config.revision is not None:
         if exists(config.source_path):
             with cd(config.source_path):
                 sudo('hg pull', user=config.user)
@@ -162,6 +166,7 @@ def install_app():
             config_path = path.join(config.source_path, 'bviewer/settings/local.py')
             with hide('stdout'):
                 pip('install --upgrade --editable .')
+            pip('freeze')
             upload('app.conf.py', config_path)
             stat(config_path, mode=400)
             python('manage.py migrate --noinput', user=config.user)
