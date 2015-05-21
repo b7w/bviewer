@@ -13,7 +13,7 @@ setup(
     name='bviewer',
     version='v1.1.3 dev',
     install_requires=[
-        'django==1.8.1',
+        'django==1.8.2',
         'django-rq==0.8.0',
         'djangorestframework==3.1.1',
         'django-filter==0.9.2',
