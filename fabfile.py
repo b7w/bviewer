@@ -256,7 +256,7 @@ def deploy():
     setup_cron()
     mount_shares()
     t2 = int(time.time() - t1)
-    print('## Complete, {0:d} min and {1:d} sec'.format(t2 // 60, t2 % 60))
+    echo('## Complete, {0:d} min {1:d} sec'.format(t2 // 60, t2 % 60))
 
 
 @task
