@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from importlib import import_module
+from wsgiref.util import FileWrapper
 
 from django.conf import settings
-from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse, StreamingHttpResponse
 from django.utils.encoding import smart_text, smart_bytes
 
