@@ -250,7 +250,7 @@ class ProfileImageAdmin(ProfileModelAdmin):
     def image_thumbnail(self, obj):
         params = dict(gallery_id=obj.album.gallery_id)
         url = reverse('profile.download', kwargs=params)
-        return smart_text('<img class="thumbnail" src="{0}">').format(url, obj.path)
+        return smart_text('<img class="thumbnail" src="{0}?p={1}">').format(url, obj.path)
 
     image_thumbnail.allow_tags = True
 
