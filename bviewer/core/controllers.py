@@ -4,8 +4,11 @@ import logging
 import re
 from urllib.error import URLError
 from urllib.request import urlopen
+
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.core.mail import send_mail
 from django.db.models import Q
 from django.utils.encoding import smart_text
 from django.utils.html import escape
@@ -16,7 +19,6 @@ from bviewer.core.files.storage import ImageStorage
 from bviewer.core.images import CacheImage
 from bviewer.core.models import Gallery, Album, Video, Image, Access
 from bviewer.core.utils import cache_method, ImageOptions, as_job
-
 
 logger = logging.getLogger(__name__)
 
@@ -293,3 +295,20 @@ class VideoController(MediaController):
             as_job(image_async.download)
 
         return download_response(image_url)
+
+
+class UserController:
+    def create_gallery_user(self, gallery, username, email, password):
+        user = User(username=username, email=email, is_active=False)
+        user.set_password(password)
+        user.save()
+        Access.objects.create(user=user, gallery=gallery)
+        self._send_email_holder(gallery, user)
+        return user
+
+    def _send_email_holder(self, gallery, user):
+        send_mail('{} user access request'.format(gallery.url),
+                  'User {} request access to {}'.format(user.username, gallery.url),
+                  settings.EMAIL_HOST_USER,
+                  [gallery.user.email],
+                  fail_silently=True)
