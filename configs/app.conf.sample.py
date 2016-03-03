@@ -13,6 +13,7 @@ DATABASES = {
         'PASSWORD': 'root',
         'HOST': '',
         'PORT': '',
+        'ATOMIC_REQUESTS': True
     }
 }
 

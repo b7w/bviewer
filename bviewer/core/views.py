@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+
 from django.conf import settings
 from django.contrib.auth.views import login, logout
 from django.http import Http404
@@ -7,12 +8,10 @@ from django.shortcuts import render, redirect
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 
-from bviewer.core.controllers import AlbumController, ImageController, VideoController, get_gallery
-from bviewer.core.dao import user_dao
+from bviewer.core.controllers import AlbumController, ImageController, VideoController, get_gallery, UserController
 from bviewer.core.exceptions import ResizeOptionsError, FileError
 from bviewer.core.forms import RegistrationForm
 from bviewer.core.utils import decor_on, get_year_parameter
-
 
 logger = logging.getLogger(__name__)
 
@@ -260,7 +259,7 @@ def registration_view(request):
             username = form.cleaned_data['username']
             email = form.cleaned_data['email']
             password = form.cleaned_data['password1']
-            user_dao.create_gallery_user(gallery, username, email, password)
+            UserController().create_gallery_user(gallery, username, email, password)
             return redirect('/')
 
     else:
