@@ -5,9 +5,10 @@ Release notes
 .. index:: Release notes
 
 | **v1.1.3 dev**
-| Update django to 1.8 and freeze development
+| Update django to 1.9 and freeze development
 
 * Update django and other dependencies
+* Small small bug in admin/profile
 * Small fabfile fixes
 
 

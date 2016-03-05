@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 import json
-from os import path
 import time
+from os import path
 
-from fabric.main import main
-from fabric.utils import abort
-from fabric.state import env
 from fabric.colors import cyan, green
-from fabric.decorators import task
 from fabric.context_managers import cd, settings, hide, shell_env
 from fabric.contrib.files import exists, upload_template
+from fabric.decorators import task, hosts
+from fabric.main import main
 from fabric.operations import sudo, put
-
+from fabric.state import env
+from fabric.state import env as environment
+from fabric.utils import abort
 
 if __name__ == '__main__':
     main()
@@ -99,7 +99,7 @@ def pip(cmd, **kwargs):
 def install_libs():
     echo('# Install packages and libs')
     requirements = 'software-properties-common python-software-properties build-essential ' \
-                   'cifs-utils htop mercurial git ' \
+                   'cifs-utils htop mercurial git fish ' \
                    'libsqlite3-dev sqlite3 bzip2 libbz2-dev ' \
                    'libjpeg-dev libfreetype6-dev zlib1g-dev libpq-dev'
     with hide('stdout'):
@@ -291,10 +291,12 @@ def deploy_proxy():
 
 
 @task
+@hosts('vagrant@4.4.4.4')
 def deploy_vagrant():
     """
     Deploy and load data for vagrant demo installation
     """
+    environment.password = 'vagrant'
     deploy()
     with pip_env():
         with cd(config.source_path):

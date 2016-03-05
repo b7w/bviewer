@@ -2,11 +2,9 @@
 import logging
 
 from django.contrib.auth.models import User, Permission
-
 from django.core.management.base import BaseCommand
 
 from bviewer.core.models import Gallery, Album
-
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +27,13 @@ class Command(BaseCommand):
         else:
             user = User.objects.create_user('demo', 'demo@bviewer.loc', password='root')
 
-            perm = Permission.objects.get(codename='user_holder')
-            user.user_permissions.add(perm)
+            perms = [
+                Permission.objects.get(codename='user_holder'),
+                Permission.objects.get(codename='change_slideshow'),
+                Permission.objects.get(codename='delete_slideshow'),
+            ]
+            for perm in perms:
+                user.user_permissions.add(perm)
             user.save()
 
             gallery = Gallery.objects.create(user=user, url='4.4.4.4', home='', about_title='Demo gallery',
