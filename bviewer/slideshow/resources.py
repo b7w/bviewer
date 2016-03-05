@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 from rest_framework.viewsets import ModelViewSet
 
-from bviewer.api.resources import ITEMS_PER_PAGE
+from bviewer.api.common import StandardPagination
 from bviewer.slideshow.controllers import SlideShowController
 from bviewer.slideshow.models import SlideShow
 
@@ -19,22 +19,22 @@ class SlideShowSerializer(ModelSerializer):
 
     class Meta:
         model = SlideShow
-        exclude = ('session_key', )
-        read_only_fields = ('user', 'status', 'image_count', )
+        exclude = ('session_key',)
+        read_only_fields = ('user', 'status', 'image_count',)
 
 
 class SlideShowResource(ModelViewSet):
     queryset = SlideShow.objects.all().select_related()
 
-    http_method_names = ('get', 'post', 'delete', )
+    http_method_names = ('get', 'post', 'delete',)
     serializer_class = SlideShowSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    filter_backends = (OrderingFilter, DjangoFilterBackend, )
-    filter_fields = ('id', 'album', 'status', )
+    filter_backends = (OrderingFilter, DjangoFilterBackend,)
+    filter_fields = ('id', 'album', 'status',)
     ordering = ('album', 'time',)
 
-    paginate_by = ITEMS_PER_PAGE
+    pagination_class = StandardPagination
 
     def get_queryset(self):
         return self.queryset.filter(session_key=self.request.session.session_key)
