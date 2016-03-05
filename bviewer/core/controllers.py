@@ -307,8 +307,8 @@ class UserController:
         return user
 
     def _send_email_holder(self, gallery, user):
-        send_mail('{} user access request'.format(gallery.url),
-                  'User {} request access to {}'.format(user.username, gallery.url),
+        send_mail('User request access to {}'.format(gallery.url),
+                  'User {} request access to gallery {}'.format(user.username, gallery.url),
                   settings.EMAIL_HOST_USER,
                   [gallery.user.email],
                   fail_silently=True)
