@@ -13,7 +13,7 @@ Requirements
 
 .. note::
 
-    App tested only with Ubuntu 14.04, python 3.4 and PostgreSQL
+    App tested only with Ubuntu 14.04, python 3.5 and PostgreSQL
 
 | All main parts of installation are automated with fabric.
   For production use, database configuration required only.
