@@ -39,11 +39,18 @@ class SlideShowResource(ModelViewSet):
     def get_queryset(self):
         return self.queryset.filter(session_key=self.request.session.session_key)
 
+    def _session_key(self, request):
+        session = request.session
+        if session.is_empty():
+            session.set_test_cookie()
+            session.save()
+        return session.session_key
+
     @detail_route()
     def get_or_create(self, request, pk=None):
         if pk:
             return Response(dict(error='No "pk" parameter needed'), status=status.HTTP_400_BAD_REQUEST)
-        session_key = request.session.session_key
+        session_key = self._session_key(request)
         album_id = request.GET.get('album')
         if not album_id:
             return Response(dict(error='No "album" parameter'), status=status.HTTP_400_BAD_REQUEST)
@@ -59,8 +66,7 @@ class SlideShowResource(ModelViewSet):
     def next(self, request, pk=None):
         if not pk:
             return Response(dict(error='No "pk" parameter'), status=status.HTTP_400_BAD_REQUEST)
-        session_key = request.session.session_key
-
+        session_key = self._session_key(request)
         controller = SlideShowController(request.user, session_key, slideshow_id=pk)
         if controller.get_object():
             image = controller.next_image()
