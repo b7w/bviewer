@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
-import time
 import logging
+import time
+
 import django_rq
 from django.conf import settings
+from django.utils.cache import add_never_cache_headers
+from django.utils.decorators import available_attrs
 from django.utils.encoding import smart_text, smart_bytes
 from django.utils.functional import wraps
 
 from bviewer.core.exceptions import ResizeOptionsError
-
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +71,22 @@ def decor_on(conditions, decor, *args, **kwargs):
         return func
 
     return decorator
+
+
+def cache_anonymous_only(view_func):
+    """
+    Decorator that adds headers to a response so that it will
+    never be cached if user is authenticated.
+    """
+
+    @wraps(view_func, assigned=available_attrs(view_func))
+    def _wrapped_view_func(request, *args, **kwargs):
+        response = view_func(request, *args, **kwargs)
+        if request.user.is_authenticated():
+            add_never_cache_headers(response)
+        return response
+
+    return _wrapped_view_func
 
 
 def cache_method(func):

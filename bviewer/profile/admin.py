@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 from collections import Counter
+
 from django.contrib.admin import AdminSite, ModelAdmin, TabularInline
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
@@ -12,16 +13,19 @@ from bviewer.core.controllers import AlbumController
 from bviewer.core.files.storage import ImageStorage
 from bviewer.core.models import Access, Album, Image, Gallery, Video
 from bviewer.profile.actions import bulk_time_update, update_time_from_exif
-from bviewer.profile.forms import AdminUserChangeForm, AdminGalleryForm, AdminAlbumForm
+from bviewer.profile.forms import AdminGalleryForm, AdminAlbumForm
 
 
 class ProfileSite(AdminSite):
     """
     Separate admin site only to edit user albums, images, profile
     """
+    site_title = 'Profile'
+    site_header = 'User profile'
+    index_title = 'Home'
 
-    def __init__(self, name='profile', app_name='admin'):
-        super(ProfileSite, self).__init__(name, app_name)
+    def __init__(self, name='profile'):
+        super(ProfileSite, self).__init__(name)
 
     def has_permission(self, request):
         user = request.user
@@ -48,7 +52,6 @@ class ProfileModelAdmin(ModelAdmin):
 
 class ProfileUserAdmin(UserAdmin):
     list_select_related = True
-    form = AdminUserChangeForm
 
     list_display = ('username', 'email')
 
@@ -117,7 +120,7 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
         images_size = storage.cache_size() / 2 ** 20
         storage = ImageStorage(user, archive_cache=True)
         archive_size = storage.cache_size() / 2 ** 20
-        return 'Images size: {0} MB, archives size: {1} MB'.format(images_size, archive_size)
+        return 'Images size: {0:.1f} MB, archives size: {1:.1f} MB'.format(images_size, archive_size)
 
     def has_add_permission(self, request):
         return False
@@ -131,14 +134,6 @@ class ProfileGalleryAdmin(ProfileModelAdmin):
         data['user'] = request.user.id
         request.POST = data
         return super(ProfileGalleryAdmin, self).get_form(request, obj=None, **kwargs)
-
-    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
-        """
-        Show in drop down menu only user albums
-        """
-        if db_field.name == 'parent':
-            kwargs['queryset'] = Album.objects.filter(gallery__user=request.user)
-        return super(ProfileGalleryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         """
@@ -255,7 +250,7 @@ class ProfileImageAdmin(ProfileModelAdmin):
     def image_thumbnail(self, obj):
         params = dict(gallery_id=obj.album.gallery_id)
         url = reverse('profile.download', kwargs=params)
-        return smart_text('<img class="thumbnail" src="{0}">').format(url, obj.path)
+        return smart_text('<img class="thumbnail" src="{0}?p={1}">').format(url, obj.path)
 
     image_thumbnail.allow_tags = True
 

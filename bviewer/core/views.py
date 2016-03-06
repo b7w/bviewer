@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+
 from django.conf import settings
 from django.contrib.auth.views import login, logout
 from django.http import Http404
@@ -7,20 +8,21 @@ from django.shortcuts import render, redirect
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 
-from bviewer.core.controllers import AlbumController, ImageController, VideoController, get_gallery
-from bviewer.core.dao import user_dao
+from bviewer.core.controllers import AlbumController, ImageController, VideoController, get_gallery, UserController
 from bviewer.core.exceptions import ResizeOptionsError, FileError
 from bviewer.core.forms import RegistrationForm
-from bviewer.core.utils import decor_on, get_year_parameter
-
+from bviewer.core.utils import decor_on, get_year_parameter, cache_anonymous_only
 
 logger = logging.getLogger(__name__)
 
 GALLERY_NOT_FOUND = 'No gallery found'
 
+DOWNLOAD_RESPONSE_CACHE = settings.VIEWER_DOWNLOAD_RESPONSE['CACHE']
+
 
 @cache_page(60 * 2)
 @vary_on_cookie
+@cache_anonymous_only
 def index_view(request):
     """
     Show home pages with albums
@@ -50,6 +52,7 @@ def index_view(request):
 
 @cache_page(60 * 2)
 @vary_on_cookie
+@cache_anonymous_only
 def album_view(request, uid):
     """
     Show sub albums or images with videos
@@ -88,6 +91,7 @@ def album_view(request, uid):
 
 @cache_page(60 * 8)
 @vary_on_cookie
+@cache_anonymous_only
 def image_view(request, uid):
     """
     Show image with description
@@ -111,6 +115,7 @@ def image_view(request, uid):
 
 @cache_page(60 * 8)
 @vary_on_cookie
+@cache_anonymous_only
 def video_view(request, uid):
     """
     Show video with description
@@ -132,8 +137,9 @@ def video_view(request, uid):
     })
 
 
-@decor_on(settings.VIEWER_DOWNLOAD_RESPONSE['CACHE'], cache_page, 60 * 8)
+@decor_on(DOWNLOAD_RESPONSE_CACHE, cache_page, 60 * 8)
 @vary_on_cookie
+@cache_anonymous_only
 def download_video_thumbnail_view(request, uid):
     """
     Get video thumbnail from video hosting and cache it
@@ -158,6 +164,7 @@ def download_video_thumbnail_view(request, uid):
 
 @cache_page(60 * 8)
 @vary_on_cookie
+@cache_anonymous_only
 def video_redirect_view(request, uid):
     """
     Show video with description
@@ -174,8 +181,9 @@ def video_redirect_view(request, uid):
     return redirect(controller.video_url(video))
 
 
-@decor_on(settings.VIEWER_DOWNLOAD_RESPONSE['CACHE'], cache_page, 60 * 8)
+@decor_on(DOWNLOAD_RESPONSE_CACHE, cache_page, 60 * 8)
 @vary_on_cookie
+@cache_anonymous_only
 def download_image_view(request, size, uid):
     """
     Get image with special size
@@ -212,6 +220,7 @@ def message_view(request, title='Error', info=None, message=None):
 
 @cache_page(60 * 8)
 @vary_on_cookie
+@cache_anonymous_only
 def about_view(request):
     """
     Show about page
@@ -260,7 +269,7 @@ def registration_view(request):
             username = form.cleaned_data['username']
             email = form.cleaned_data['email']
             password = form.cleaned_data['password1']
-            user_dao.create_gallery_user(gallery, username, email, password)
+            UserController().create_gallery_user(gallery, username, email, password)
             return redirect('/')
 
     else:

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from rest_framework.routers import DefaultRouter, Route
+from rest_framework.routers import DefaultRouter, DynamicDetailRoute
 
 
 class ExtraRouter(DefaultRouter):
@@ -9,11 +9,8 @@ class ExtraRouter(DefaultRouter):
     Url sample /actions/slideshow/get_or_create/.
     """
     routes = DefaultRouter.routes + [
-        Route(
+        DynamicDetailRoute(
             url=r'^actions/{prefix}/{methodname}{trailing_slash}$',
-            mapping={
-                '{httpmethod}': '{methodname}',
-            },
             name='actions-{basename}-{methodnamehyphen}',
             initkwargs={}
         ),

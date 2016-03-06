@@ -1,14 +1,28 @@
 # -*- coding: utf-8 -*-
 import json
+import time
 from os import path
 
-from fabric.utils import abort
-from fabric.state import env
-from fabric.colors import green
-from fabric.decorators import task
+from fabric.colors import cyan, green
 from fabric.context_managers import cd, settings, hide, shell_env
 from fabric.contrib.files import exists, upload_template
+from fabric.decorators import task, hosts
+from fabric.main import main
 from fabric.operations import sudo, put
+from fabric.state import env
+from fabric.state import env as environment
+from fabric.utils import abort
+
+if __name__ == '__main__':
+    main()
+
+
+def echo(msg):
+    print(green(msg))
+
+
+def log(msg):
+    print(cyan(msg))
 
 
 def load_config():
@@ -17,10 +31,11 @@ def load_config():
 
     conf = Config(
         domains=NotImplemented,
+        proxy=NotImplemented,
         shares=[],
-        revision='default',
+        revision='default',  # clone form repo or copy from local if None
         user='bviewer',
-        python_version='3.4.1',
+        python_version='3.5.1',
         server_email='noreply@bviewer.loc',
         python_home='/home/bviewer/python',
         source_path='/home/bviewer/source',
@@ -30,16 +45,18 @@ def load_config():
         cache_path='/home/bviewer/cache',
         share_path='/home/bviewer/share',
     )
-    if not env.env:
+    if 'env' not in env:
         abort('No env setup, add --set env=dev')
     conf['python_path'] = path.join(conf.python_home, conf.python_version, 'bin')
     with open(path.join('configs', env.env, 'deploy.json')) as f:
         result = json.load(f)
         conf.update(result)
+    log('# Config: {0}'.format(conf))
     return conf
 
 
 config = load_config()
+
 
 # Helpers
 def upload(filename, destination, **kwargs):
@@ -50,10 +67,6 @@ def upload(filename, destination, **kwargs):
     else:
         source = path.join('configs', filename)
     upload_template(source, destination, context=context, use_jinja=True, use_sudo=True, backup=False, **kwargs)
-
-
-def echo(msg):
-    print(green(msg))
 
 
 def pip_env():
@@ -86,7 +99,7 @@ def pip(cmd, **kwargs):
 def install_libs():
     echo('# Install packages and libs')
     requirements = 'software-properties-common python-software-properties build-essential ' \
-                   'cifs-utils htop mercurial git ' \
+                   'cifs-utils htop mercurial git fish ' \
                    'libsqlite3-dev sqlite3 bzip2 libbz2-dev ' \
                    'libjpeg-dev libfreetype6-dev zlib1g-dev libpq-dev'
     with hide('stdout'):
@@ -102,7 +115,8 @@ def setup_env():
     with settings(warn_only=True):
         result = sudo('id -u {0}'.format(config.user))
     if result.return_code == 1:
-        sudo('adduser {0} --shell=/bin/false --group --system  --disabled-password --disabled-login'.format(config.user))
+        sudo(
+            'adduser {0} --shell=/bin/false --group --system  --disabled-password --disabled-login'.format(config.user))
 
     # create folders
     mkdir(config.config_path, user='root', group='root')
@@ -132,20 +146,27 @@ def install_python():
 @task
 def install_app():
     echo('# Install application')
-    if exists(config.source_path):
-        with cd(config.source_path):
-            sudo('hg pull', user=config.user)
-            sudo('hg up --clean {0}'.format(config.revision), user=config.user)
+    if config.revision is not None:
+        if exists(config.source_path):
+            with cd(config.source_path):
+                sudo('hg pull', user=config.user)
+                sudo('hg up --clean {0}'.format(config.revision), user=config.user)
+        else:
+            cmd = 'hg clone --branch {0} https://bitbucket.org/b7w/bviewer {1}'
+            sudo(cmd.format(config.revision, config.source_path), user=config.user)
     else:
-        cmd = 'hg clone --branch {0} https://bitbucket.org/b7w/bviewer {1}'
-        sudo(cmd.format(config.revision, config.source_path), user=config.user)
+        sudo('rm -rf {0}'.format(config.source_path))
+        mkdir(config.source_path)
+        sudo('cp -r /provision/* {0}'.format(config.source_path))
+        stat(config.source_path)
 
     # Install app
     with pip_env():
         with cd(config.source_path):
             config_path = path.join(config.source_path, 'bviewer/settings/local.py')
             with hide('stdout'):
-                python('setup.py install --quiet')
+                pip('install --upgrade --editable .')
+            pip('freeze')
             upload('app.conf.py', config_path)
             stat(config_path, mode=400)
             python('manage.py migrate --noinput', user=config.user)
@@ -223,6 +244,7 @@ def deploy():
     """
     Make full setup on new OS or safely update app
     """
+    t1 = time.time()
     echo('## Deploy')
     setup_env()
     install_libs()
@@ -233,16 +255,21 @@ def deploy():
     install_nginx()
     setup_cron()
     mount_shares()
+    t2 = int(time.time() - t1)
+    echo('## Complete, {0:d} min {1:d} sec'.format(t2 // 60, t2 % 60))
 
 
 @task
-def deploy_proxy(public_domains, privet_domain):
+def deploy_proxy():
     """
     Deploy nginx proxy config with ssl and 502.html
     Ensure nginx installed.
     Take two strings public domains for server_name and privet_domain for proxy pass
     """
     echo('# Deploy proxy')
+    public_domains = config.proxy['from']
+    privet_domain = config.proxy['to']
+
     certificate_crt = '/etc/nginx/ssl/bviewer.crt'
     certificate_key = '/etc/nginx/ssl/bviewer.key'
 
@@ -261,6 +288,19 @@ def deploy_proxy(public_domains, privet_domain):
     upload('nginx.proxy.conf', nginx_conf, context=context)
     stat(nginx_conf, user='root', group='root')
     sudo('service nginx reload')
+
+
+@task
+@hosts('vagrant@4.4.4.4')
+def deploy_vagrant():
+    """
+    Deploy and load data for vagrant demo installation
+    """
+    environment.password = 'vagrant'
+    deploy()
+    with pip_env():
+        with cd(config.source_path):
+            python('manage.py initdemo', user=config.user)
 
 
 @task
