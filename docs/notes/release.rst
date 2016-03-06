@@ -4,12 +4,14 @@ Release notes
 
 .. index:: Release notes
 
-| **v1.1.3 dev**
-| Update django to 1.9 and freeze development
+| **v1.1.3**
+| Update django to 1.9.
 
 * Update django and other dependencies
-* Small small bug in admin/profile
-* Small fabfile fixes
+* Update python to 3.5
+* Add email notification on user registration request
+* Add total image size command
+* Fix small bugs in admin/profile
 
 
 | **v1.1.2**
