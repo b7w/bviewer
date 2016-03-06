@@ -27,7 +27,7 @@ VIEWER_CACHE_PATH
 
 .. _CONF_VIEWER_CACHE_PATH:
 
-Required
+Required, Absolute path
 
 | Path where cache will be stored. Check that this folder can be seen from nginx.
   Path split for 2 sub folders: reised images and links and zip archives.
@@ -40,7 +40,7 @@ VIEWER_STORAGE_PATH
 
 .. _CONF_VIEWER_STORAGE_PATH:
 
-Required
+Required, Absolute path
 
 | Start path where full images are located.
   Each user can have his own home, in *profile.storage*.

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from rest_framework import status
 
 from bviewer.api.tests.base import BaseResourceTestCase

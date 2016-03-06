@@ -5,12 +5,9 @@ from rest_framework.filters import OrderingFilter, DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ModelViewSet
 
-from bviewer.api.filters import GalleryUserSelfFilter, AlbumUserSelfFilter, ItemUserSelfFilter
+from bviewer.api.common import StandardPagination
 from bviewer.api.serializers import UserSerializer, GallerySerializer, AlbumSerializer, ImageSerializer, VideoSerializer
 from bviewer.core.models import Gallery, Album, Image, Video
-
-
-ITEMS_PER_PAGE = 16
 
 
 class UserResource(ModelViewSet):
@@ -23,7 +20,7 @@ class UserResource(ModelViewSet):
     filter_fields = ('id', 'username')
     ordering = ('username',)
 
-    paginate_by = ITEMS_PER_PAGE
+    pagination_class = StandardPagination
 
 
 class GalleryResource(ModelViewSet):
@@ -33,10 +30,10 @@ class GalleryResource(ModelViewSet):
     serializer_class = GallerySerializer
     permission_classes = (IsAuthenticated,)
 
-    filter_backends = (GalleryUserSelfFilter, OrderingFilter, DjangoFilterBackend,)
+    filter_backends = (OrderingFilter, DjangoFilterBackend,)
     ordering = ('user',)
 
-    paginate_by = ITEMS_PER_PAGE
+    pagination_class = StandardPagination
 
 
 class AlbumResource(ModelViewSet):
@@ -46,11 +43,11 @@ class AlbumResource(ModelViewSet):
     serializer_class = AlbumSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    filter_backends = (AlbumUserSelfFilter, OrderingFilter, DjangoFilterBackend)
+    filter_backends = (OrderingFilter, DjangoFilterBackend)
     filter_fields = ('id', 'gallery', 'title')
     ordering = ('title', 'time',)
 
-    paginate_by = ITEMS_PER_PAGE
+    pagination_class = StandardPagination
 
     def get_queryset(self):
         user = self.request.user
@@ -65,13 +62,13 @@ class ImageResource(ModelViewSet):
 
     http_method_names = ('get', 'post', 'delete',)
     serializer_class = ImageSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    filter_backends = (ItemUserSelfFilter, OrderingFilter, DjangoFilterBackend,)
-    filter_fields = ('id', 'album', 'path', )
+    filter_backends = (OrderingFilter, DjangoFilterBackend,)
+    filter_fields = ('id', 'album', 'path',)
     ordering = ('time',)
 
-    paginate_by = ITEMS_PER_PAGE
+    pagination_class = StandardPagination
 
     def get_queryset(self):
         user = self.request.user
@@ -86,13 +83,13 @@ class VideoResource(ModelViewSet):
 
     http_method_names = ('get', 'post', 'delete',)
     serializer_class = VideoSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    filter_backends = (ItemUserSelfFilter, OrderingFilter, DjangoFilterBackend,)
+    filter_backends = (OrderingFilter, DjangoFilterBackend,)
     filter_fields = ('id', 'album',)
     ordering = ('time',)
 
-    paginate_by = ITEMS_PER_PAGE
+    pagination_class = StandardPagination
 
     def get_queryset(self):
         user = self.request.user

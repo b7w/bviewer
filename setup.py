@@ -1,34 +1,34 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+
 from setuptools import setup
 
 if os.path.exists('bviewer/settings/local.py'):
     sys.stderr.write('Warn: remove "bviewer.settings.local"\n')
-    os.unlink('bviewer/settings/local.py')
+    # os.unlink('bviewer/settings/local.py')
 
 setup(
     name='bviewer',
-    version='v1.1.2',
+    version='v1.1.3',
     install_requires=[
-        'django>=1.7,<1.8',
-        'django-rq',
-        'djangorestframework>=2.3,<2.4',
-        'django-filter',
-        'django-redis',
-        'redis',
+        'django==1.9.4',
+        'django-rq==0.9.0',
+        'djangorestframework==3.3.2',
+        'django-filter==0.12.0',
+        'django-redis==4.3.0',
+        'redis==2.10.5',
+        'rq==0.5.6',
         'pytz',
-        'ExifRead==2.0',
+        'exifread==2.1.2',
         # to build
-        'pillow',
-        'psycopg2',
+        'pillow==3.1.1',
+        'psycopg2==2.6',
     ],
-    dependency_links=[
-        "git+https://github.com/ianare/exif-py.git@develop#egg=ExifRead-2.0"
-    ],
-    packages=['bviewer', 'bviewer.api', 'bviewer.api.tests', 'bviewer.core', 'bviewer.core.files', 'bviewer.core.tests',
-              'bviewer.core.management', 'bviewer.core.management.commands', 'bviewer.archive', 'bviewer.profile',
-              'bviewer.settings', 'bviewer.slideshow', ],
+    packages=['bviewer', 'bviewer.api', 'bviewer.archive', 'bviewer.core', 'bviewer.profile', 'bviewer.settings',
+              'bviewer.slideshow', 'bviewer.api.tests', 'bviewer.core.files', 'bviewer.core.management',
+              'bviewer.core.migrations', 'bviewer.core.tests', 'bviewer.core.management.commands',
+              'bviewer.slideshow.migrations'],
     include_package_data=True,
     entry_points={
         'console_scripts': [

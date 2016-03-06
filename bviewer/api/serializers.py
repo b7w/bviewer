@@ -37,12 +37,14 @@ class ImageSerializer(ModelSerializer):
     detail = HyperlinkedIdentityField(view_name='image-detail')
     album_detail = HyperlinkedRelatedField(source='album', view_name='album-detail', read_only=True)
 
-    def to_native(self, obj):
-        if obj and isinstance(obj, self.Meta.model):
-            user = self.context['request'].user
-            if not (user.is_authenticated() and obj.album.gallery.user_id == user.id):
-                obj.path = None
-        return super(ImageSerializer, self).to_native(obj)
+    def to_representation(self, instance):
+        ret = super(ImageSerializer, self).to_representation(instance)
+        user = self.context['request'].user
+        if not (user.is_authenticated() and instance.album.gallery.user_id == user.id):
+            del ret['path']
+        return ret
+
+
 
     class Meta:
         model = Image
