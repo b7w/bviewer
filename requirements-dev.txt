@@ -1,0 +1,7 @@
+# For development
+django-debug-toolbar
+mock
+mockredispy
+sphinx
+fabric
+Jinja2
