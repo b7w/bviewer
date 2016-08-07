@@ -1,7 +1,15 @@
-# For development
-django-debug-toolbar
-mock
-mockredispy
-sphinx
-fabric
-Jinja2
+django==1.9.4
+django-rq==0.9.0
+djangorestframework==3.3.2
+django-filter==0.12.0
+django-redis==4.3.0
+
+redis==2.10.5
+rq==0.5.6
+pytz
+exifread==2.1.2
+
+pillow==3.1.1
+psycopg2==2.6
+
+gunicorn
