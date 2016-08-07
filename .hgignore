@@ -5,6 +5,7 @@ bviewer/settings/dev/\w*\.py
 
 \.pyc
 \.pyo
+\.DS_Store
 
 \.idea/
 \configs
