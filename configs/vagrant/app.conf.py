@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from bviewer.settings.project import *
 
+# Hack to use import
+VIEWER_GALLERY_ID
+
 DEBUG = False
 
 SECRET_KEY = '2pn61g9w5$kvey611z2ua31szq(7)t0m0)$w#o)p@)ycj&93!!'
@@ -13,6 +16,7 @@ DATABASES = {
         'PASSWORD': '',
         'HOST': '',
         'PORT': '',
+        'ATOMIC_REQUESTS': True
     }
 }
 
@@ -75,7 +79,6 @@ RQ_QUEUES = {
     },
 }
 
-
 # Security
 SESSION_COOKIE_SECURE = True
 
@@ -88,10 +91,8 @@ X_FRAME_OPTIONS = 'DENY'
 
 ALLOWED_HOSTS = '{{ domains }}'.split()
 
-
 # Extra
 FORCE_SCRIPT_NAME = ''
-
 
 # Malling
 SERVER_EMAIL = 'noreply@bviewer.loc'
@@ -102,7 +103,6 @@ EMAIL_PORT = 25
 EMAIL_HOST_USER = 'noreply@bviewer.loc'
 EMAIL_HOST_PASSWORD = 'test'
 EMAIL_USE_TLS = True
-
 
 # Application
 VIEWER_CACHE_PATH = '{{ cache_path }}'
