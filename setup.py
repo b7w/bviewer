@@ -11,20 +11,7 @@ if os.path.exists('bviewer/settings/local.py'):
 setup(
     name='bviewer',
     version='v1.1.3',
-    install_requires=[
-        'django==1.9.4',
-        'django-rq==0.9.0',
-        'djangorestframework==3.3.2',
-        'django-filter==0.12.0',
-        'django-redis==4.3.0',
-        'redis==2.10.5',
-        'rq==0.5.6',
-        'pytz',
-        'exifread==2.1.2',
-        # to build
-        'pillow==3.1.1',
-        'psycopg2==2.6',
-    ],
+    install_requires=[i.strip() for i in open('requirements.txt').readlines() if i.strip()],
     packages=['bviewer', 'bviewer.api', 'bviewer.archive', 'bviewer.core', 'bviewer.profile', 'bviewer.settings',
               'bviewer.slideshow', 'bviewer.api.tests', 'bviewer.core.files', 'bviewer.core.management',
               'bviewer.core.migrations', 'bviewer.core.tests', 'bviewer.core.management.commands',
