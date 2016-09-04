@@ -7,7 +7,7 @@ Release notes
 | **v1.1.4** - In progress
 | Update django to 1.10.
 
-* Move to docker installation
+* Static site generation
 
 
 | **v1.1.3** - 6.03.2016
