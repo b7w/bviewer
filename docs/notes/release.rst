@@ -4,10 +4,10 @@ Release notes
 
 .. index:: Release notes
 
-| **v1.1.4** - In progress
-| Update django to 1.10.
+| **v1.1.5** - In progress
+| Update django to 1.11.
 
-* Static site generation
+* Update django and other dependencies
 
 
 | **v1.1.3** - 6.03.2016
