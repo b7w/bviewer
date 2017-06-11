@@ -141,6 +141,7 @@ INSTALLED_APPS = (
     'bviewer.profile',
     'bviewer.slideshow',
     'rest_framework',
+    'django_filters',
     'django_rq',
 )
 

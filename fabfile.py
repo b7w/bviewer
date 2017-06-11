@@ -35,7 +35,7 @@ def load_config():
         shares=[],
         revision='default',  # clone form repo or copy from local if None
         user='bviewer',
-        python_version='3.5.1',
+        python_version='3.6.1',
         server_email='noreply@bviewer.loc',
         python_home='/home/bviewer/python',
         source_path='/home/bviewer/source',
