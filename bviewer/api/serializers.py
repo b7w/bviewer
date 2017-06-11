@@ -11,7 +11,7 @@ class UserSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('detail', 'id', 'username', 'date_joined', 'last_login', )
+        fields = ('detail', 'id', 'username', 'date_joined', 'last_login',)
 
 
 class GallerySerializer(ModelSerializer):
@@ -20,6 +20,8 @@ class GallerySerializer(ModelSerializer):
 
     class Meta:
         model = Gallery
+        fields = ('id', 'user', 'detail', 'user_detail', 'description', 'url',
+                  'top_album', 'about_title', 'about_text',)
 
 
 class AlbumSerializer(ModelSerializer):
@@ -30,7 +32,7 @@ class AlbumSerializer(ModelSerializer):
 
     class Meta:
         model = Album
-        exclude = ('visibility', )
+        exclude = ('visibility',)
 
 
 class ImageSerializer(ModelSerializer):
@@ -44,10 +46,9 @@ class ImageSerializer(ModelSerializer):
             del ret['path']
         return ret
 
-
-
     class Meta:
         model = Image
+        fields = ('id', 'detail', 'album_detail', 'album', 'path', 'time',)
 
 
 class VideoSerializer(ModelSerializer):
@@ -56,3 +57,4 @@ class VideoSerializer(ModelSerializer):
 
     class Meta:
         model = Video
+        fields = ('id', 'detail', 'album_detail', 'uid', 'type', 'album', 'title', 'description', 'time',)
