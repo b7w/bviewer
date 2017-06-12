@@ -4,7 +4,7 @@ Release notes
 
 .. index:: Release notes
 
-| **v1.1.5** - In progress
+| **v1.1.5** - 12.06.2017
 | Update django to 1.11.
 
 * Update django and other dependencies
