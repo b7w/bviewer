@@ -1,6 +1,6 @@
 django==1.11.2
 django-rq==0.9.5
-djangorestframework==3.6.3
+djangorestframework==3.9.1
 django-filter==1.0.4
 django-redis==4.8.0
 
